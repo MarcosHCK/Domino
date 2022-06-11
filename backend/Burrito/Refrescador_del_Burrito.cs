@@ -1,8 +1,11 @@
-public class Refrescador_Usual : IRefrescador
+public class Refrescador_del_Burrito : IRefrescador
 {
     public ICriterio_de_cambio Get_Criterios_de_Refrescar(Reglas_del_Juego reglas, Estado estado, List<Ficha> mano)
     {
-        return null;
+        if((!estado.YaSeHaJugado) || (estado.fichas_fuera == 0))return null;
+        foreach(Jugada jugada in Util.PosiblesJugadas(estado, mano))
+            if(reglas.EsValida(jugada, estado, mano))return null;
+        return new Criterio_de_cambio_Random(mano.Count + 1);
     }
     public ICriterio_de_cambio Get_Criterios_de_Repartir(Reglas_del_Juego reglas, Estado estado, List<Ficha> mano)
     {

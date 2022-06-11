@@ -9,9 +9,8 @@ public class Reglas_del_Juego
     IValidador Validador;
     IMoverTurno MoverTurno;
     IRefrescador Refrescador;//Que este metodo, dado una lista de criterios de cambios, le asigne a las propiedades en Estado referidas al Refresque y a la Reparticion un ICriterio_de_Cambio
-    List<ICriterio_de_cambio> _Criterios_de_Cambio;//Tengo q hacer una propiedad que acceda a el
     public Reglas_del_Juego(ICreador Creador, IGameOver _GameOver, IPuntuador Puntuador,
-    IValidador Validador, IMoverTurno MoverTurno, IRefrescador Refrescador, List<ICriterio_de_cambio> _Criterios_de_Cambio,
+    IValidador Validador, IMoverTurno MoverTurno, IRefrescador Refrescador,
     int data_tope = 7, int fichas_por_mano = 7, int cabezas_por_ficha = 2)
     {
         this.cabezas_por_ficha = cabezas_por_ficha;
@@ -23,7 +22,6 @@ public class Reglas_del_Juego
         this.Validador = Validador;
         this.MoverTurno = MoverTurno;
         this.Refrescador = Refrescador;
-        this._Criterios_de_Cambio = _Criterios_de_Cambio;
     }
     public List<Ficha> fichas
     {
@@ -31,6 +29,10 @@ public class Reglas_del_Juego
         {
             return this.Creador.fichas(data_tope, cabezas_por_ficha);
         }
+    }
+    public int fichas_fuera(int cant_de_jugadores)
+    {
+        return this.Creador.cant_de_fichas(this.data_tope, this.cabezas_por_ficha);
     }
     public bool GameOver(Estado Estado, List<Ficha> mano_del_ultimo_en_jugar)
     {
@@ -48,9 +50,9 @@ public class Reglas_del_Juego
     {
         return this.Puntuador.Puntuar(equipo, banquero);
     }
-    public bool EsValida(Jugada jugada, Estado estado, List<Equipo> equipos, List<Ficha> mano)
+    public bool EsValida(Jugada jugada, Estado estado, List<Ficha> mano)
     {
-        return this.Validador.EsValida(jugada, estado, equipos, mano);
+        return this.Validador.EsValida(jugada, estado, estado.equipos, mano);
     }
     public string MoveNext(Estado estado, List<Ficha> mano, List<string> jugadores, List<Equipo> equipos)
     {
@@ -64,13 +66,4 @@ public class Reglas_del_Juego
     {
         return this.Refrescador.Get_Criterios_de_Repartir(this, estado, mano);
     }
-    public List<ICriterio_de_cambio> Criterios_de_Cambio
-    {
-        get
-        {
-            return new List<ICriterio_de_cambio>(this._Criterios_de_Cambio);
-        }
-    }
 }
-
-    

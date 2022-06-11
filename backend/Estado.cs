@@ -1,29 +1,43 @@
 public class Estado
 {
-    List<Jugada> _jugadas;
+    List<Action> _acciones;
     List<int> _caras_de_la_mesa;
-    ICriterio_de_cambio _Criterio_De_Cambio_Refrescar;
-    ICriterio_de_cambio _Criterio_De_Cambio_Repartir;
+    Dictionary<string, int> _fichas_por_mano;
+    public ICriterio_de_cambio Criterio_De_Cambio_Refrescar{get; private set;}
+    public ICriterio_de_cambio Criterio_De_Cambio_Repartir{get; private set;}
     public string Jugador_en_Turno{get; private set;}
-    public int num_de_fichas_fuera;
-    public Estado(Reglas_del_Juego reglas, List<string> jugadores, List<Equipo> equipos)
+    public bool YaSeHaJugado{get; private set;}
+    public List<Equipo> _equipos;
+    public int fichas_fuera{get; private set;}
+    public Estado(Reglas_del_Juego reglas, List<string> jugadores, List<Equipo> _equipos, int fichas_fuera)
     {
-        this._jugadas = new List<Jugada>();
+        this.YaSeHaJugado = false;
+        this._acciones = new List<Action>();
         this._caras_de_la_mesa = new List<int>();
+        this._equipos = _equipos;
+        this.fichas_fuera = fichas_fuera;
+        this._fichas_por_mano = new Dictionary<string, int>();
+        foreach(string nombre in jugadores)this._fichas_por_mano.Add(nombre, 0);
         this.PasarTurno(reglas, null, jugadores, equipos);
     }
     public Estado(Estado otro)
     {
-        this._jugadas = otro.jugadas;
+        this.YaSeHaJugado = false;
+        this._acciones = otro.acciones;
         this._caras_de_la_mesa = otro.caras_de_la_mesa;
-        this._Criterio_De_Cambio_Refrescar = otro.Criterio_De_Cambio_Refrescar;
-        this._Criterio_De_Cambio_Repartir = otro.Criterio_De_Cambio_Repartir;
+        this.Criterio_De_Cambio_Refrescar = otro.Criterio_De_Cambio_Refrescar;
+        this.Criterio_De_Cambio_Repartir = otro.Criterio_De_Cambio_Repartir;
+        this.Jugador_en_Turno = otro.Jugador_en_Turno;
+        this._equipos = otro.equipos;
+        this.fichas_fuera = otro.fichas_fuera;
+        this._fichas_por_mano = otro.fichas_por_mano;
+        this.YaSeHaJugado = otro.YaSeHaJugado;
     }
-    public List<Jugada> jugadas
+    public List<Action> acciones
     {
         get
         {
-            return new List<Jugada>(this._jugadas);
+            return new List<Action>(_acciones);
         }
     }
     public List<int> caras_de_la_mesa
@@ -33,33 +47,48 @@ public class Estado
             return new List<int>(_caras_de_la_mesa);
         }
     }
-    public ICriterio_de_cambio Criterio_De_Cambio_Repartir
+    public List<Equipo> equipos
     {
         get
         {
-            return _Criterio_De_Cambio_Repartir;
+            return new List<Equipo>(_equipos);
         }
     }
-    public ICriterio_de_cambio Criterio_De_Cambio_Refrescar
+    public Dictionary<string, int> fichas_por_mano
     {
         get
         {
-            return _Criterio_De_Cambio_Refrescar;
+            return new Dictionary<string, int>(this._fichas_por_mano);
         }
     }
-    public void Actualizar(Jugada jugada)
+    public void Actualizar(params Action[] hechos)
     {
-        this._jugadas.Add(jugada);
-        if(jugada.EsPase)return;
-        if(this.jugadas.Count > 1)this._caras_de_la_mesa.Remove(jugada.cara_de_la_mesa);
-        foreach (int cabeza in jugada.ficha.cabezas)
-            this._caras_de_la_mesa.Add(cabeza);
-        if(this.jugadas.Count > 1)this._caras_de_la_mesa.Remove(jugada.cabeza_usada);
+        foreach(Action accion in hechos){
+            this._acciones.Add(accion);
+            if(accion is Jugada)
+            {
+                Jugada jugada = (Jugada)accion;
+                if(jugada.EsPase)return;
+                if(this.YaSeHaJugado)this._caras_de_la_mesa.Remove(jugada.cara_de_la_mesa);
+                foreach (int cabeza in jugada.ficha.cabezas)
+                    this._caras_de_la_mesa.Add(cabeza);
+                if(this.YaSeHaJugado)this._caras_de_la_mesa.Remove(jugada.cabeza_usada);
+                this.YaSeHaJugado = true;
+                return;
+            }
+            int balance = ((Intercambio)accion).fichas_devueltas - ((Intercambio)accion).fichas_tomadas;
+            this.fichas_fuera += balance;
+            this._fichas_por_mano[accion.autor] += balance;
+        }
     }
     public void PasarTurno(Reglas_del_Juego reglas, List<Ficha> mano, List<string> jugadores, List<Equipo> equipos)
     {
         this.Jugador_en_Turno = reglas.MoveNext(this, mano, jugadores, equipos);
-        this._Criterio_De_Cambio_Refrescar = reglas.Get_Criterios_de_Refrescar(this, mano);
-        this._Criterio_De_Cambio_Repartir = reglas.Get_Criterios_de_Repartir(this, mano);
+        this.Actualizar_Criterios_de_Cambio(reglas, mano);
+    }
+    public void Actualizar_Criterios_de_Cambio(Reglas_del_Juego reglas, List<Ficha> mano)
+    {
+        this.Criterio_De_Cambio_Refrescar = reglas.Get_Criterios_de_Refrescar(this, mano);
+        this.Criterio_De_Cambio_Repartir = reglas.Get_Criterios_de_Repartir(this, mano);
     }
 }

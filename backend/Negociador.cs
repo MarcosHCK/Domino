@@ -1,18 +1,23 @@
 public static class Negociador
 {
-    public static void DarMano(Jugador jugador, List<Ficha> mano, List<Ficha> fichas_fuera, ICriterio_de_cambio criterio, int fichas_por_mano)
+    public static Intercambio[] DarMano(Jugador jugador, List<Ficha> mano, List<Ficha> fichas_fuera, ICriterio_de_cambio criterio)
     {
-        int cambios_restantes = criterio.cambios_permitidos;
+        List<Intercambio> retorno = new List<Intercambio>();
+        int descartes_restantes = criterio.descartes_permitidos;
         int rondas_de_cambios_restantes = criterio.rondas_de_cambios_permitidas;
-        for(; (cambios_restantes > 0) && (rondas_de_cambios_restantes > 0); rondas_de_cambios_restantes--)
+        int fichas_por_mano = criterio.fichas_por_mano;
+        if (fichas_por_mano == 0)fichas_por_mano = mano.Count();
+        for(; rondas_de_cambios_restantes > 0; rondas_de_cambios_restantes--)
         {
-            List<Ficha> descartes = jugador.Descartar(criterio, mano, cambios_restantes, rondas_de_cambios_restantes);
-            if ((descartes.Count == 0) && (mano.Count == fichas_por_mano))return;
-            if (descartes.Count > cambios_restantes)throw new Exception("Mas cambios de los permitidos");
+            List<Ficha> descartes = jugador.Descartar(criterio, mano, descartes_restantes, rondas_de_cambios_restantes);
+            if ((descartes.Count == 0) && (mano.Count == criterio.fichas_por_mano))break;
+            if (descartes.Count > descartes_restantes)throw new Exception("Mas descartes de los permitidos");
             foreach (Ficha ficha in descartes)
                 mano.Remove(ficha);
             List<Ficha> recogidas = criterio.Reemplazar(fichas_fuera, descartes, fichas_por_mano - mano.Count);
             mano.AddRange(recogidas);
+            retorno.Add(new Intercambio(jugador.nombre, descartes.Count, recogidas.Count));
         }
+        return retorno.ToArray();
     }
 }

@@ -12,11 +12,4 @@ public class Portal_del_Banquero
             return banquero.GetMano(nombre);
         }
     }
-    public int num_de_fichas_fuera
-    {
-        get
-        {
-            return this.banquero.num_de_fichas_fuera;
-        }
-    }
 }

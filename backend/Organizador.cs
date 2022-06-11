@@ -2,15 +2,19 @@ public class Organizador
 {
     Dictionary<string, Jugador> _jugadores;
     List<string> orden;
-    public bool HayEquipos{get; private set;}
     List<Equipo> _equipos;
-    public Organizador(List<Jugador> jugadores, List<Equipo> _equipos, IOrdenador ordenador)
+    public Organizador(List<Jugador> jugadores, IOrdenador ordenador, List<Equipo> _equipos)
     {
+        if(_equipos.Count == 0)
+        {
+            _equipos = new List<Equipo>();
+            foreach(Jugador jugador in jugadores)
+                _equipos.Add(new Equipo(jugador.nombre, jugador.nombre));
+        }
         orden = ordenador.Ordenar(_equipos, jugadores.Count);
         _jugadores = new Dictionary<string, Jugador>();
         foreach(Jugador jugador in jugadores)
             _jugadores.Add(jugador.nombre, jugador);
-        HayEquipos = (_equipos != null);
         this._equipos = _equipos;
     }
     public List<string> jugadores
@@ -24,10 +28,7 @@ public class Organizador
     {
         get
         {
-            List<Equipo> retorno = new List<Equipo>();
-            foreach (Equipo equipo in this._equipos)
-                retorno.Add((Equipo)equipo.Clone());
-            return retorno;
+            return new List<Equipo>(_equipos);
         }
     }
     public Jugador this[string nombre]

@@ -1,4 +1,4 @@
-public class Equipo : ICloneable
+public class Equipo
 {
     public string nombre{get; private set;}
     List<string> _miembros;
@@ -11,14 +11,8 @@ public class Equipo : ICloneable
     {
         get
         {
-            if(_miembros.Count == 0)Console.WriteLine("INGAAA");
             return new List<string>(_miembros);
         }
-    }
-    public object Clone()
-    {
-
-        return new Equipo(nombre, (new List<string>(miembros)).ToArray());
     }
     public override bool Equals(object? obj)
     {

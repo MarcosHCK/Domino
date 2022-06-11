@@ -19,4 +19,8 @@ public class Creador_Usual : ICreador
                cabezas[i] = Math.Max(cabezas[i - 1], cabezas[i]);//Ineficiente, but, who cares?
         }
     }
+    public int cant_de_fichas(int data_tope, int cabezas_por_ficha)
+    {
+        return Util.cant_de_fichas(data_tope, cabezas_por_ficha);
+    }
 }

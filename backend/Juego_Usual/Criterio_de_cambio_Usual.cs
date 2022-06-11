@@ -1,13 +1,14 @@
 public class Criterio_de_cambio_Random : ICriterio_de_cambio
 {
     Random Azar;
-
-    public int cambios_permitidos{get; private set;}
+    public int descartes_permitidos{get; private set;}
     public int rondas_de_cambios_permitidas{get; private set;}
-    public Criterio_de_cambio_Random(int cambios_permitidos = 100, int rondas_de_cambios_permitidas = 1)
+    public int fichas_por_mano{get; private set;}
+    public Criterio_de_cambio_Random(int fichas_por_mano, int descartes_permitidos = 0, int rondas_de_cambios_permitidas = 1)
     {
         this.Azar = new Random();
-        this.cambios_permitidos = cambios_permitidos;
+        this.fichas_por_mano = fichas_por_mano;
+        this.descartes_permitidos = descartes_permitidos;
         this.rondas_de_cambios_permitidas = rondas_de_cambios_permitidas;
     }
     public List<Ficha> Reemplazar(List<Ficha> fichas_fuera, List<Ficha> descartes, int fichas_a_tomar)

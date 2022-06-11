@@ -5,10 +5,6 @@ public class Ficha
     {
         this._cabezas = _cabezas;
     }
-    public Ficha(Ficha otra)
-    {
-        this._cabezas = otra.cabezas;
-    }
     public int[] cabezas
     {
         get
