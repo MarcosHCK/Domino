@@ -1,5 +1,5 @@
 ﻿/* Copyright 2021-2025 MarcosHCK
- * This file is part of deusexmakina3.
+ * This file is part of Domino/frontend.
  *
  */
 using System.Numerics;
@@ -7,19 +7,12 @@ using Raylib_cs;
 
 namespace frontend
 {
-  public static class Program
+  public static class Facade
   {
     private const int targetFPS = 60;
     private const int screenWidth = 800;
     private const int screenHeight = 600;
     private const string windowTitle = "Domino";
-    private static Scene? scene = null;
-
-    private static void DrawScene ()
-    {
-      if (scene != null)
-        scene.Draw ();
-    }
 
     public static int Main (string[] argv)
     {
@@ -29,8 +22,13 @@ namespace frontend
       var updateTime = 0.0d;
       var waitTime = 0.0d;
       Camera3D camera;
+      Stack<Scene> sceneQueue;
+      Scene scene;
 
       previousTime = Raylib.GetTime ();
+      sceneQueue = new Stack<Scene> ();
+      sceneQueue.Push (new MainMenu ());
+      sceneQueue.Push (new Introduction ());
   
       camera.position = new Vector3 (10.0f, 10.0f, 10.0f);
       camera.target = new Vector3 (0.0f, 0.0f, 0.0f);
@@ -41,7 +39,8 @@ namespace frontend
       Raylib.InitWindow (screenWidth, screenHeight, windowTitle);
       Raylib.SetCameraMode (camera, CameraMode.CAMERA_CUSTOM);
 
-      while (!Raylib.WindowShouldClose ())
+      while (!Raylib.WindowShouldClose ()
+        && sceneQueue.Count > 0)
         {
           Raylib.PollInputEvents ();
           Raylib.UpdateCamera (ref camera);
@@ -49,7 +48,23 @@ namespace frontend
           Raylib.BeginDrawing ();
           Raylib.ClearBackground (Color.BLACK);
 
-          DrawScene ();
+          do
+          {
+            if (sceneQueue.Count == 0)
+              break;
+            else
+            {
+              scene = sceneQueue.Peek ();
+              if (scene.Running)
+                scene.Draw (sceneQueue, deltaTime);
+              else
+              {
+                sceneQueue.Pop ();
+                continue;
+              }
+            }
+          }
+          while (false);
 
           Raylib.EndDrawing ();
           Raylib.SwapScreenBuffer ();
