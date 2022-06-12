@@ -13,10 +13,12 @@ namespace frontend
     private const int screenWidth = 800;
     private const int screenHeight = 600;
     private const string windowTitle = "Domino";
+    private static Scene? scene = null;
 
     private static void DrawScene ()
     {
-
+      if (scene != null)
+        scene.Draw ();
     }
 
     public static int Main (string[] argv)
@@ -26,7 +28,6 @@ namespace frontend
       var deltaTime = 0.0f;
       var updateTime = 0.0d;
       var waitTime = 0.0d;
-      var targetFPS = 60;
       Camera3D camera;
 
       previousTime = Raylib.GetTime ();
