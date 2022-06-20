@@ -6,7 +6,7 @@ using Raylib_cs;
 
 namespace frontend
 {
-  public class Introduction : Scene
+  public class Introduction : Facade.Scene
   {
     private Stage stage;
 
@@ -16,7 +16,7 @@ namespace frontend
       NUMBER,
     }
 
-    public override void Draw (Stack<Scene> sceneQueue, double daltaTime)
+    public override void Draw (Facade facade, double daltaTime)
     {
       if (Raylib.GetKeyPressed () != (int) KeyboardKey.KEY_NULL)
         Running = false;

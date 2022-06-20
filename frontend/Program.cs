@@ -7,43 +7,61 @@ using Raylib_cs;
 
 namespace frontend
 {
-  public static class Facade
+  public class Facade
   {
+    private Stack<Scene>? sceneQueue;
+    private Camera3D camera;
     private const int targetFPS = 60;
     private const int screenWidth = 800;
     private const int screenHeight = 600;
     private const string windowTitle = "Domino";
 
+    public abstract class Scene
+    {
+      public bool Running { get; protected set; }
+      public abstract void Draw (Facade facade, double deltaTime);
+
+      public Scene ()
+        {
+          this.Running = true;
+        }
+    }
+
+    private void BeginMode3D () => Raylib.BeginMode3D (camera);
+    private void EndMode3D () => Raylib.EndMode3D ();
+    private void PushScene (Scene scene) => sceneQueue!.Push (scene);
+
     public static int Main (string[] argv)
     {
+      var facade = new Facade ();
       var previousTime = 0.0d;
       var currentTime = 0.0d;
       var deltaTime = 0.0f;
       var updateTime = 0.0d;
       var waitTime = 0.0d;
-      Camera3D camera;
       Stack<Scene> sceneQueue;
       Scene scene;
+  
+      facade.camera.position = new Vector3 (10.0f, 10.0f, 10.0f);
+      facade.camera.target = new Vector3 (0.0f, 0.0f, 0.0f);
+      facade.camera.up = new Vector3 (0.0f, 1.0f, 0.0f);
+      facade.camera.fovy = 45.0f;
+      facade.camera.projection = CameraProjection.CAMERA_PERSPECTIVE;
+
+      Raylib.InitWindow (screenWidth, screenHeight, windowTitle);
+      Raylib.SetCameraMode (facade.camera, CameraMode.CAMERA_CUSTOM);
 
       previousTime = Raylib.GetTime ();
       sceneQueue = new Stack<Scene> ();
       sceneQueue.Push (new MainMenu ());
       sceneQueue.Push (new Introduction ());
-  
-      camera.position = new Vector3 (10.0f, 10.0f, 10.0f);
-      camera.target = new Vector3 (0.0f, 0.0f, 0.0f);
-      camera.up = new Vector3 (0.0f, 1.0f, 0.0f);
-      camera.fovy = 45.0f;
-      camera.projection = CameraProjection.CAMERA_PERSPECTIVE;
-
-      Raylib.InitWindow (screenWidth, screenHeight, windowTitle);
-      Raylib.SetCameraMode (camera, CameraMode.CAMERA_CUSTOM);
+      facade.sceneQueue = sceneQueue;
 
       while (!Raylib.WindowShouldClose ()
         && sceneQueue.Count > 0)
         {
           Raylib.PollInputEvents ();
-          Raylib.UpdateCamera (ref camera);
+          Raylib.UpdateCamera (ref facade.camera);
 
           Raylib.BeginDrawing ();
           Raylib.ClearBackground (Color.BLACK);
@@ -56,7 +74,7 @@ namespace frontend
             {
               scene = sceneQueue.Peek ();
               if (scene.Running)
-                scene.Draw (sceneQueue, deltaTime);
+                scene.Draw (facade, deltaTime);
               else
               {
                 sceneQueue.Pop ();

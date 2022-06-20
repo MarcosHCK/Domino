@@ -7,19 +7,19 @@ using Raylib_cs;
 
 namespace frontend
 {
-  public class MainMenu : Scene
+  public class MainMenu : Facade.Scene
   {
     private Vector3 position;
     private Mesh mesh;
     private Model model;
     private Image image;
 
-    public override void Draw (Stack<Scene> sceneQueue, double deltaTime)
+    public override void Draw (Facade facade, double deltaTime)
     {
       if (Raylib.GetKeyPressed () != (int) KeyboardKey.KEY_NULL)
         Running = false;
       Raylib.DrawText ("Main menu", 20, 20, 10, Color.WHITE);
-      //Raylib.DrawModel (model, position, 1.0f, new Color (255, 255, 0, 255));
+      Raylib.DrawModel (model, position, 1.0f, new Color (255, 255, 0, 255));
     }
 
     public MainMenu ()
