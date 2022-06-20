@@ -3,42 +3,29 @@
  *
  */
 using System.Numerics;
-using Raylib_cs;
+using Raylib_CsLo;
 
 namespace frontend
 {
-  public class MainMenu : Facade.Scene
+  public class Menu : Facade.Scene
   {
-    private Vector3 position;
-    private Mesh mesh;
-    private Model model;
-    private Image image;
-
+    private const float padding = 20;
     public override void Draw (Facade facade, double deltaTime)
     {
-      if (Raylib.GetKeyPressed () != (int) KeyboardKey.KEY_NULL)
-        Running = false;
-      Raylib.DrawText ("Main menu", 20, 20, 10, Color.WHITE);
-      Raylib.DrawModel (model, position, 1.0f, new Color (255, 255, 0, 255));
+      Rectangle rec;
+      rec.x = (float) padding;
+      rec.y = (float) padding;
+      rec.width = ((float) Raylib.GetScreenWidth ()) - padding * 2;
+      rec.height = ((float) Raylib.GetScreenHeight ()) - padding * 2;
+      var pos = RayGui.GuiGrid (rec, 3, 3);
     }
+  }
 
-    public MainMenu ()
+  public class MainMenu : Menu
+  {
+    public override void Draw (Facade facade, double deltaTime)
     {
-      var position = new Vector3 (10.0f, 10.0f, 0.0f);
-
-      var width = (float) Raylib.GetScreenWidth ();
-      var height = (float) Raylib.GetScreenHeight ();
-      var mesh = Raylib.GenMeshPlane (width, height, 10, 10);
-      this.mesh = mesh;
-
-      var model = Raylib.LoadModelFromMesh (mesh);
-      this.model = model;
-    }
-
-    ~MainMenu ()
-    {
-      Raylib.UnloadMesh (ref mesh);
-      Raylib.UnloadModel (model);
+      base.Draw (facade, deltaTime);
     }
   }
 }

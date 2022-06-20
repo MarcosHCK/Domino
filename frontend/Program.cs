@@ -27,9 +27,9 @@ namespace frontend
         }
     }
 
-    private void BeginMode3D () => Raylib.BeginMode3D (camera);
-    private void EndMode3D () => Raylib.EndMode3D ();
-    private void PushScene (Scene scene) => sceneQueue!.Push (scene);
+    public void BeginMode3D () => Raylib.BeginMode3D (camera);
+    public void EndMode3D () => Raylib.EndMode3D ();
+    public void PushScene (Scene scene) => sceneQueue!.Push (scene);
 
     public static int Main (string[] argv)
     {
