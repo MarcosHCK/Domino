@@ -1,0 +1,16 @@
+1 1
+1 2
+break
+El 1 de la primera linea es obligatorio
+A continuacion, le presentamos los predicados que podran ser usados para determinar si el juego acabo o no:
+    1- Tranque
+    2- Pegada
+    3- NoFichasFuera
+    4- Al lider quedan menos de tres fichas
+    5- Todos los dobles han sido jugados
+    6- El jugador anterior se paso
+    7- Han ocurrido dos pases consecutivos
+En las sgtes lineas usted debera escribir las combinaciones de estos predicados que dan como resultado la finalizacion del juego
+Finalmente break
+En la segunda linea se tranco pero no estamos en fase final, lo que provoca que no se pueda salir del
+tranque

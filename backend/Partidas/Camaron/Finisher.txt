@@ -1,0 +1,18 @@
+1 1
+1 2
+1 8
+break
+Estos son los predicados con los que usted construira gamestopping combinations.
+Comience cada linea introduciendo un uno y luego introduzca el indice de los predicados que influyen en esta
+combinacion en particular, siendo el indice positivo si el predicado debe evaluar verdadero en esta combinacion
+y negativo si debe evaluar falso 
+    1- Tranque
+    2- Pegada
+    3- NoFichasFuera
+    4- Al lider quedan menos de tres fichas
+    5- Todos los dobles han sido jugados
+    6- El jugador anterior se paso
+    7- Han ocurrido tres pases consecutivos del mismo jugador desde la ultima vez que se repartio
+    8- Se ha repartido tres veces consecutivas sin realizar jugada
+En las sgtes lineas usted debera escribir las combinaciones de estos predicados que dan como resultado la finalizacion del juego
+Finalmente break

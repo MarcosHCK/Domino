@@ -1,0 +1,12 @@
+1
+2
+1
+En la primera linea escoja entre:
+    1- Puntuar la ficha por la suma de sus caras
+    2- Puntuar la ficha por la cara mas pesada 
+En la segunda linea escoja entre:
+    1- Puntuar la mano por la suma de sus fichas
+    2- Puntuar la mano por su cantidad de fichas
+En la tercera linea escoja entre:
+    1- Puntuar a un equipo por la suma de sus miembros
+    2- Puntuar a un equipo por aquel de sus miembros que mas bajo este 

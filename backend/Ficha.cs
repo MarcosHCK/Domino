@@ -1,9 +1,19 @@
 public class Ficha
 {
+    public readonly bool EsDoble;
     int[] _cabezas;
     public Ficha(params int[] _cabezas)
     {
         this._cabezas = _cabezas;
+        int[] temp = this.cabezas;
+        System.Array.Sort(temp);
+        this.EsDoble = false;
+        for(int i = 1; i < this._cabezas.Length; i++)
+            if(temp[i] == temp[i - 1])
+            {
+                this.EsDoble = true;
+                break;
+            }
     }
     public int[] cabezas
     {
@@ -21,13 +31,6 @@ public class Ficha
     }
     public override bool Equals(object? obj)
     {
-        if((obj == null) || !(this.GetType().Equals(obj.GetType())))return false;
-        else
-        {
-            int[] otra_cabezas = ((Ficha)obj)._cabezas;
-            for(int i = 0; i < this._cabezas.Count(); i++)
-               if (this._cabezas[i] != otra_cabezas[i])return false;
-            return true;
-        }
+        return (this.ToString() == obj.ToString());
     }
 }

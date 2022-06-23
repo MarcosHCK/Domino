@@ -1,0 +1,26 @@
+1 -7
+1 7 8
+1 3
+2 -3 7 -8
+break
+A continuacion le presentamos los criterios para determinar si una ficha a colocar hace pareja con 
+la cabeza por donde se coloca:
+    1- Usual
+    2- Puedes poner un doble cuando quieras
+    3- Sucesor
+    4- Doble Modular
+    5- Cualquier ficha
+A continuacion, le presentamos los predicados que podran ser usados para seleccionar entre los criterios
+anteriores:
+    1- Siempre
+    2- Tranque
+    3- Al lider quedan menos de tres fichas
+    4- El juego no ha iniciado
+    5- El jugador en turno es el mas atrasado
+    6- El jugador en turno es el mas adelantado
+    7- Este mismo jugador se acaba de pasar una vez despues de repartir
+    8- Han ocurrido dos pases consecutivos de un mismo jugador despues de repartir
+    9- Han ocurrido tres pases consecutivos de un mismo jugador despues de repartir
+Usted debera repetidamente escribir el numero de un criterio y luego todas las combinaciones que dan lugar
+a su uso.
+Finalmente break

@@ -1,0 +1,5 @@
+20
+2
+8
+//En las lineas uno dos y tres se encuentran respectivamente el tope de la data en el partido,
+//la cantidad de cabezas por ficha y la cantidad de fichas inicialmente en la mano

@@ -1,0 +1,23 @@
+1 2
+1 -6
+1 3
+2 -3 6
+break
+Los criterios a escoger para determinar a quien corresponde el sgte turno son:
+    1- Mover a la derecha
+    2- Le toca al mismo jugador
+    3- Le toca al jugador que mas fichas tenga y que tenga jugada
+    4- Si la suma de las fichas de la mesa es impar le toca al de la izquierda, sino al de la derecha
+Los predicados entre los que escoger para decidir el criterio que determina a quien toca el turno son:
+    1- Siempre
+    2- El juego no ha iniciado
+    3- No quedan fichas fuera
+    4- Al lider le quedan menos de tres fichas
+    5- Todos los dobles han sido jugados
+    6- La ultima jugada fue un pase
+    7- El mismo jugador se ha pasado dos veces consecutivos
+Usted en este fichero debera escribir linea a linea una combinacion que da lugar al uso de un criterio en especi
+fico de la sgte forma:
+Al comienzo de la linea introduce el indice del criterio a usar y luego introduce los indices de los predicados
+que intervendran en la combinacion que da lugar a la eleccion de tal criterio (siendo negativo tal indice)
+si para que se de la combinacion se espera que el predicado evalue falso.

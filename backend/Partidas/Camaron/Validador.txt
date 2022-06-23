@@ -1,0 +1,20 @@
+2
+2 1
+break
+A continuacion le presentamos los criterios para determinar si una jugada es valida o no:
+    1- Usual
+    2- Tu ficha debe tener paridad diferente a la ficha jugada anteriormente
+    3- La ficha jugada debe puntuar mas alto que la jugada anteriormente
+    4- La ficha jugada debe puntuar mas bajo que la jugada anteriormente
+A continuacion, le presentamos los predicados que podran ser usados para selecciolnar el criterio validador:
+    1- Siempre
+    2- Tranque
+    3- Pegada
+    4- NoFichasFuera
+    5- Al lider quedan menos de tres fichas
+    6- Todos los dobles han sido jugados
+    7- El jugador anterior se paso
+    8- Han ocurrido dos pases consecutivos
+    9- La jugada anterior tuvo puntuacion impar
+En las sgtes lineas usted debera escribir las combinaciones de estos predicados que dan como resultado la finalizacion del juego
+Finalmente break

@@ -1,0 +1,15 @@
+Este juego funciona de la sgte manera:
+En este juego la masa de fichas estara constituida por la masa usual, con la excepcion de que no
+se usaran dobles y de que cada ficha aparece repetida dos veces
+Al tocarle su turno usted debe colocar una ficha de paridad diferente a la ultima ficha colocada
+Si usted no lleva, entonces roba una ficha y debe colocar una ficha tal que siga cumpliendo la
+condicion de la paridad y que la cabeza de la ficha usada sea el sucesor modular de la cara de la
+mesa por la que la coloca
+Si aun usted no puede realizar jugada, entonces devuelve una ficha al monton y le dan dos fichas
+cuyas caras sumen lo mismo que las caras de la ficha que usted entrego, de no ser posible le dan
+dos fichas random. Ahora usted debe colocar una ficha que siga cumpliendo la condicion de la paridad
+y tal que la cabeza usada sea el doble modular de la cara de la mesa usada.
+Si aun usted no pudo realizar jugada de esta forma, todos los jugadores entregaran toda su mano, se
+dara agua junto a las fichas afuera y cada jugador tomara tantas fichas como tenia.
+Si se da agua tres veces con el mismo jugador en turno entonces el juego se da por terminado,
+Tambien termina la partida si un jugador se pega

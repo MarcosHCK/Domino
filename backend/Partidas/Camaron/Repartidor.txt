@@ -1,0 +1,24 @@
+1 0 0 8
+1 100 100 0
+break
+1 1
+2 4
+break
+Los criterios a usar para los cambiadores son:
+    1- Azar
+    2- La mano a entregar al jugador tendra un valor lo mas cercano posible a un valor dado
+    3- La mano que se le otorgara al jugador tendra la mayor variedad de datas posibles
+Ahora corresponde a usted crear los cambiadores, para ello introduzca en cada linea un cambiador, usando
+los datos que lo caracterizan, digase indice del criterio que usa el cambiador, descartes obligatorios,
+descartes permitidos y balance de la mano del jugador tras el intercambio
+Luego de introducir cuantos cambiadores usted desee ponga un break
+Ahora le presentamos los predicados que podra se tomaran en cuenta para decidir el Cambiador a usar en cada momento
+    1- No se ha repartido aun
+    2- Tranque
+    3- Al lider le quedan menos de tres fichas
+    4- Han ocurrido tres pases consecutivos de un mismo jugador despues de repartir 
+En las sgtes lineas escriba las cominaciones de predicados que usted tendra en cuenta para determinar que Cambiador
+corresponde usar en cada momento. Para ello introduzca en cada linea primero el indice del Cambiador seleccionado
+por esta combinacion y luego los indices de los predicados que intervienen en ella, con signo negativo de deber ser
+falsos.
+Al finalizar escriba break 

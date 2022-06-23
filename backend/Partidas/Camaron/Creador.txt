@@ -1,0 +1,4 @@
+No
+2
+En la primera linea escriba Si si desea que aparezcan dobles
+En la segunda escriba la cantidad de apariciones que desea que tenga cada ficha 
