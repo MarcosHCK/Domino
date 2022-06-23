@@ -5,8 +5,8 @@ public static class Prueba
         foreach(Action accion in juego.Jugar)
         {
             Console.WriteLine(accion);
-            Console.ReadKey();
         }
+        Console.WriteLine("GameOver");
         foreach(var tupla in juego.Puntuaciones)
             Console.WriteLine(tupla.Key + " " + tupla.Value.ToString());
     }
@@ -61,17 +61,25 @@ public static class Prueba
         }
         MoverFichas Get_MoverFichas()
         {
-            DaCriterio<Cambiador> Repartidor = Get_Repartidor();
+            DaCriterio<(Cambiador, Cambiador)> Repartidor = Get_Repartidores();
             DaCriterio<Cambiador> Refrescador = Get_Refrescador();
             return new MoverFichas(Refrescador, Repartidor);
-            DaCriterio<Cambiador> Get_Repartidor()
+            DaCriterio<(Cambiador, Cambiador)> Get_Repartidores()
             {
                 StreamReader Sr = new StreamReader("../Yo/Partidas/" + nombre_de_partida + "/Repartidor.txt"); 
                 List<ICriterio_de_Intercambio> Criterios = new List<ICriterio_de_Intercambio>()//No puedo hacer con la jerarquia actual que los jugadores seleccionen fichas a dedo. Wait for cambios
                 {new Intercambio_Random()/*, new Intercambio_Sobrevalor(), new Intercambio_Variado()*/};
                 List<IPredicado> Predicados = new List<IPredicado>()
                 {new NoSeHaRepartido(), new Tranque(), new FaseFinal(3), new Pases_Consecutivos(3, true, SinRefrescar : false)};
-                return new DaCriterio<Cambiador>(Predicados, Sr, Get_Cambiadores(Criterios, Sr));
+                return new DaCriterio<(Cambiador, Cambiador)>(Predicados, Sr, ATuplas(Get_Cambiadores(Criterios, Sr)));
+                List<(Cambiador, Cambiador)> ATuplas(List<Cambiador> lista)
+                {
+                    if((lista.Count&1) == 1)throw new System.Exception("Cantidad impar");
+                    List<(Cambiador, Cambiador)> retorno = new List<(Cambiador, Cambiador)>();
+                    for(int i = 0; i < lista.Count; i += 2)
+                        retorno.Add((lista[i], lista[i + 1]));
+                    return retorno;
+                }
             }
             DaCriterio<Cambiador> Get_Refrescador()
             {
@@ -86,7 +94,9 @@ public static class Prueba
             {
                 List<Cambiador> Cambiadores = new List<Cambiador>();
                 for (int[] entrada; Util.Diseccionar_Entrada(Sr.ReadLine(), out entrada); )
-                    Cambiadores.Add(new Cambiador(Criterios[entrada[0] - 1], entrada[1], entrada[2], entrada[3]));
+                    if(entrada.Length == 2)
+                        Cambiadores.Add(new Cambiador_por_Cant_de_Fichas(Criterios[entrada[0] - 1], entrada[1]));
+                    else Cambiadores.Add(new Cambiador_Por_Balance(Criterios[entrada[0] - 1], entrada[1], entrada[2], entrada[3]));
                 return Cambiadores;
             }
         }
@@ -109,9 +119,10 @@ public static class Prueba
             return new DaCriterio<IValidador>(Predicados, Sr, Validadores);
         }
     }
-    public static void Prueba_Usual()
+    public static void Prueba_Usual(string partida = null)
     {
-        while(true){
+        for (int i = 0; i < 1000; i++){
+        try{
         Jugador_Random Yosvany, Yusimy, El_Brayan, Yuniela;
         Yosvany = new Jugador_Random("Yosvany");
         Yusimy = new Jugador_Random("Yusimy");
@@ -120,13 +131,15 @@ public static class Prueba
         Equipo Titis = new Equipo("Titis", "Yusimy", "Yuniela");
         Equipo Tatas = new Equipo("Tatas", "Yosvany", "El_Brayan");
         List<Jugador> jugadores = new List<Jugador>(){Yosvany, Yusimy, El_Brayan, Yuniela};
-        Console.WriteLine("Introduzca el nombre del juego que desea jugar");
-        Reglas_del_Juego Reglas = Prueba.Reglas(Console.ReadLine());
+        if(partida == null)Console.WriteLine("Introduzca el nombre del juego que desea jugar");
+        Reglas_del_Juego Reglas = Prueba.Reglas(((partida != null)?partida:Console.ReadLine()));
         Juego juego = new Juego(jugadores, Reglas, new Ordenador_Usual(), Titis, Tatas);
-        Prueba.MostrarJuego(juego);
+        /*Prueba.MostrarJuego(juego);
         Console.WriteLine();
-        Console.WriteLine();
+        Console.WriteLine();*/
+        }catch{Console.WriteLine(i); return;}
         }
+        Console.WriteLine("Mil juegos de Camaron sin errores");
     }
     public static void Prueba_Con_Humano()
     {

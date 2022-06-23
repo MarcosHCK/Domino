@@ -14,8 +14,7 @@ public class Jugada : Action
     }
     public override string ToString()
     {
-        if(this.EsPase)return this.autor + " se pasa";
-        if(this.cara_de_la_mesa == -1)return this.autor + " coloca" + this.ficha.ToString();
-        return this.autor + " coloca " + this.ficha.ToString() + " por la cabeza " + this.cabeza_usada.ToString() + " por el " + this.cara_de_la_mesa.ToString() + " quedandole " + this.fichas_restantes.ToString() + " fichas.";
+        if(this.EsPase)return this.autor + " pase";
+        return this.autor + " " + this.ficha.ToString() + " " + this.cabeza_usada.ToString() + " " + this.cara_de_la_mesa.ToString() + " " + this.fichas_restantes.ToString();
     }
 }

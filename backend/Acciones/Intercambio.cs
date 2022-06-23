@@ -9,13 +9,6 @@ public class Intercambio : Action
     }
     public override string ToString()
     {
-        string retorno = this.autor;
-        if (this.fichas_devueltas != 0)
-        {
-            retorno += " descarta " + fichas_devueltas.ToString() + " fichas";
-            if (this.fichas_tomadas != 0)retorno += " y ";
-        }
-        if (this.fichas_tomadas != 0)retorno += " toma " + fichas_tomadas.ToString() + "fichas";
-        return retorno;
+        return this.autor + " -" + fichas_devueltas.ToString() + " +" + fichas_tomadas.ToString();
     }
 }

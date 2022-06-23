@@ -40,7 +40,9 @@ public static class Util
         foreach(string s in numeros)retorno[index++] = int.Parse(s);
         return true; 
     }
+    public static double ID()
+    {
+        Random Azar = new Random();
+        return Azar.NextDouble()*Math.Pow(10, 12) + Azar.NextDouble()*Math.Pow(10, 6) + Azar.NextDouble();
+    }
 }
-        /*for (int i = 0; i < dp.GetLength(0); i++, Console.WriteLine())
-            for(int j = 0; j < dp.GetLength(1); j++)
-                Console.Write(dp[i, j].ToString() + " ");*/

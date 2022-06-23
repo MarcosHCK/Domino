@@ -9,10 +9,11 @@ public class Juego
     {
         foreach(Jugador jugador in jugadores)
             jugador.Iniciar(reglas);
+        List<Ficha> fichas = reglas.fichas;
         this.reglas = reglas;
         this.organizador = new Organizador(jugadores, ordenador, equipos.ToList());
         this.estado = new Estado(reglas, organizador.jugadores, organizador.equipos, reglas.fichas_fuera(jugadores.Count));
-        this.banquero = new Banquero(this.estado, this.organizador, reglas.fichas, reglas.Puntuador);
+        this.banquero = new Banquero(this.estado, this.organizador, fichas, reglas.Puntuador);
         this.portal = new Portal_del_Banquero(banquero);
     }
 
@@ -25,10 +26,20 @@ public class Juego
             {
                 estado.PasarTurno(reglas, mano);
                 Jugador jugador = organizador[estado.Jugador_en_Turno];
-                for (; estado.Cambiador_de_Repartir != null; estado.Actualizar_Cambiadores(reglas, (mano = portal[estado.Jugador_en_Turno])))
+                Console.WriteLine(jugador.nombre);
+                MostrarMano();
+                if(estado.YaSeHaJugado)MostrarCaras();
+                else MostrarEquipos();
+                for (; estado.Cambiadores_de_Repartir != (null, null); estado.Actualizar_Cambiadores(reglas, (mano = portal[estado.Jugador_en_Turno])))
+                {
                     banquero.Repartir();
+                    MostrarMano();
+                }
                 for (; estado.Cambiador_de_Refrescar != null; estado.Actualizar_Cambiadores(reglas, (mano = portal[estado.Jugador_en_Turno])))
+                {
                     banquero.Refrescar();
+                    MostrarMano();
+                }
                 for (List<Action> acciones = estado.acciones; index < acciones.Count;)yield return acciones[index++];
                 mano = portal[estado.Jugador_en_Turno];
                 if(reglas.GameOver(this.estado, mano))yield break;
@@ -36,6 +47,8 @@ public class Juego
                 mano = banquero.Actualizar(jugada);
                 estado.Actualizar(jugada);
                 yield return jugada;
+                Console.WriteLine("EndTurn");
+                Console.WriteLine();
             }
         }
     }
@@ -48,5 +61,23 @@ public class Juego
                 retorno.Add(equipo.nombre, reglas.Puntuar(equipo, portal));
             return retorno;   
         }
+    }
+    void MostrarMano()
+    {
+        Console.WriteLine();
+        foreach(Ficha ficha in portal[estado.Jugador_en_Turno])Console.WriteLine(ficha);
+        Console.WriteLine();
+    }
+    void MostrarCaras()
+    {
+        string AMostrar = "";
+        foreach(int cara in estado.caras_de_la_mesa)AMostrar += (cara + " ");
+        AMostrar.Substring(0, AMostrar.Length - 1);
+        Console.WriteLine(AMostrar);
+        Console.WriteLine();
+    }
+    void MostrarEquipos()
+    {
+        foreach(Equipo equipo in estado.equipos)Console.WriteLine(equipo);
     }
 }

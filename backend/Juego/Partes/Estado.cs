@@ -5,7 +5,7 @@ public class Estado
     Dictionary<string, int> _fichas_por_mano;
     List<Equipo> _equipos;
     List<string> _jugadores;
-    public Cambiador Cambiador_de_Repartir{get; private set;}
+    public (Cambiador, Cambiador) Cambiadores_de_Repartir{get; private set;}
     public Cambiador Cambiador_de_Refrescar{get; private set;}
     public string Jugador_en_Turno{get; private set;}//Aqui las propiedades si deben ser get private set
     public bool YaSeHaJugado{get; private set;}
@@ -71,7 +71,8 @@ public class Estado
     }
     public void Actualizar(params Action[] hechos)
     {
-        foreach(Action accion in hechos){
+        foreach(Action accion in hechos)
+        {
             this._acciones.Add(accion);
             if(accion is Jugada)
             {
@@ -95,7 +96,7 @@ public class Estado
     }
     public void Actualizar_Cambiadores(Reglas_del_Juego reglas, List<Ficha> mano)
     {
-        this.Cambiador_de_Repartir = this.Get_Cambiador_de_Repartir(reglas, mano);
+        this.Cambiadores_de_Repartir = this.Get_Cambiadores_de_Repartir(reglas, mano);
         this.Cambiador_de_Refrescar = this.Get_Cambiador_de_Refrescar(reglas, mano);
     }
     public void PasarTurno(Reglas_del_Juego reglas, List<Ficha> mano)
@@ -107,9 +108,9 @@ public class Estado
     {
         return reglas.Get_Cambiador_de_Refrescar(this, mano);
     }
-    public Cambiador Get_Cambiador_de_Repartir(Reglas_del_Juego reglas, List<Ficha> mano)
+    public (Cambiador, Cambiador) Get_Cambiadores_de_Repartir(Reglas_del_Juego reglas, List<Ficha> mano)
     {
-        return reglas.Get_Cambiador_de_Repartir(this, mano);
+        return reglas.Get_Cambiadores_de_Repartir(this, mano);
     }
     public IEnumerable<Action> Acciones_en_Reversa
     {

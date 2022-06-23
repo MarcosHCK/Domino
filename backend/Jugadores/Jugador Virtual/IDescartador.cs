@@ -11,12 +11,21 @@ public class Descartador_Random : IDescartador
     {
         if((mano == null) || (mano.Count == 0))return new List<Ficha>();
         List<Ficha> descartes = new List<Ficha>();
-        for (Ficha ficha; (descartes.Count < Cambiador.Descartes_Obligatorios)&&(mano.Count > descartes.Count); )
+        if(Cambiador is Cambiador_Por_Balance)
         {
-            ficha = mano[Azar.Next(mano.Count)];
+            Cambiador_Por_Balance cambiador = (Cambiador_Por_Balance)Cambiador;
+            for (;(descartes.Count < cambiador.Descartes_Obligatorios)&&(mano.Count > descartes.Count); Descartar_Random());
+        }else
+        {
+            Cambiador_por_Cant_de_Fichas cambiador = (Cambiador_por_Cant_de_Fichas)Cambiador;
+            for (; cambiador.cant_de_fichas < mano.Count; Descartar_Random());
+        }
+        return descartes;
+        void Descartar_Random()
+        {
+            Ficha ficha = mano[Azar.Next(mano.Count)];
             mano.Remove(ficha);
             descartes.Add(ficha);
         }
-        return descartes;
     }
 }

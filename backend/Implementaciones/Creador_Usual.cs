@@ -2,19 +2,28 @@ public class Creador_Usual : ICreador
 {
     bool dobles;
     int repeticiones;
+    int _cant_d_fichas;
+    public int cant_d_fichas
+    {
+        get
+        {
+            return _cant_d_fichas;
+        }
+    }
     List<Ficha> _fichas;//Notar que no estoy permitiendo que se creen dos tipos de fichas diferentes en el juego. De querer esto debo cambiar some stuff
     public Creador_Usual(bool dobles = true, int repeticiones = 1)
     {
         this.dobles = dobles;
         this.repeticiones = repeticiones;
         this._fichas = new List<Ficha>();
+        this._cant_d_fichas = 0;
     }
-    public List<Ficha> fichas(int data_tope, int cabezas_por_ficha)
+    public virtual List<Ficha> fichas(int data_tope, int cabezas_por_ficha)
     {
         if(this._fichas.Count != 0)return new List<Ficha>(this._fichas);
         int[] cabezas = new int[cabezas_por_ficha];
         for(; cabezas[0] < data_tope; Incrementar(dobles))
-            for(int i = 0; i < repeticiones; i++)
+            for(int i = 0; i < repeticiones; i++, this._cant_d_fichas++)
                 _fichas.Add(new Ficha((int[])(cabezas.Clone())));
         return this.fichas(data_tope, cabezas_por_ficha);//dejado sin el guion bajo a proposito
         void Incrementar(bool dobles)
@@ -31,6 +40,12 @@ public class Creador_Usual : ICreador
     }
     public int cant_de_fichas(int data_tope, int cabezas_por_ficha)
     {
-        return Util.cant_de_fichas(data_tope, cabezas_por_ficha);
+        int cant_bruta = Util.cant_de_fichas(data_tope, cabezas_por_ficha)*repeticiones;
+        return cant_bruta - ((dobles)?0:cant_de_dobles());
+        int cant_de_dobles()
+        {
+            if(cabezas_por_ficha > 2)throw new System.Exception("NO IMPLEMENTADO");
+            return data_tope*repeticiones;
+        }
     }
 }

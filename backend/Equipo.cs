@@ -24,4 +24,10 @@ public class Equipo
             if(this._miembros[i] != otro_miembros[i])return false;
         return true;
     }
+    public override string ToString()
+    {
+        string retorno = this.nombre + ":";
+        foreach(string miembro in this._miembros)retorno += ' ' + miembro;
+        return retorno;
+    }
 }

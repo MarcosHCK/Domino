@@ -44,12 +44,15 @@ public class Intercambio_Dos_Que_Sumen : Intercambio_Random
         List<Ficha> retorno = new List<Ficha>();
         if(descartes.Count > 1)throw new Exception("Not Implemented");
         int punt = puntuador.Puntuar(descartes[0]);
+        //fichas_fuera.Add(descartes[0]);
         foreach(Ficha a in fichas_fuera)
             foreach(Ficha b in fichas_fuera)
                 if(puntuador.Puntuar(a) + puntuador.Puntuar(b) == punt)
                 {
                     retorno.Add(a);
                     retorno.Add(b);
+                    fichas_fuera.Remove(a);
+                    fichas_fuera.Remove(b);
                     return retorno;
                 }
         return base.Reemplazar(fichas_fuera, descartes, 2, puntuador);

@@ -1,5 +1,6 @@
 public class Ficha
 {
+    public readonly double ID;
     public readonly bool EsDoble;
     int[] _cabezas;
     public Ficha(params int[] _cabezas)
@@ -14,6 +15,7 @@ public class Ficha
                 this.EsDoble = true;
                 break;
             }
+        this.ID = Util.ID();
     }
     public int[] cabezas
     {
@@ -31,6 +33,11 @@ public class Ficha
     }
     public override bool Equals(object? obj)
     {
-        return (this.ToString() == obj.ToString());
+        if ((obj == null) || (obj.GetType() != this.GetType())) return false;//just to avoid exceptions
+        return this.ID == ((Ficha)obj).ID;
+    }
+    public override int GetHashCode()
+    {
+        return this.ID.GetHashCode();
     }
 }

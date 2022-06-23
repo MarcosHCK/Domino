@@ -12,8 +12,14 @@ public class Validador_Paridad_Diferente : Validador_Usual
         return (base.EsValida(jugada, reglas, estado, mano)&&(Diferente_Paridad()));
         bool Diferente_Paridad()
         {
-            Jugada ultima = estado.Jugadas_en_Reversa.First();
-            if((!estado.YaSeHaJugado) || (ultima.ficha == null))return true;//Si la ultima jugada fue pase tira lo que sea
+            Jugada ultima = null;
+            foreach(Jugada jugada in estado.Jugadas_en_Reversa)
+                if(!jugada.EsPase)
+                {
+                    ultima = jugada;
+                    break;
+                }
+            if(jugada == null)return true;//No se ha jugado
             return (((jugada.ficha.cabezas.Sum() + ultima.ficha.cabezas.Sum())&1) != 0);//Si suman impar tienen diferente paridad
         }
     }

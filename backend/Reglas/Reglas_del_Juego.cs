@@ -34,7 +34,8 @@ public class Reglas_del_Juego
     }
     public int fichas_fuera(int cant_de_jugadores)
     {
-        return this.Creador.cant_de_fichas(this.data_tope, this.cabezas_por_ficha);
+        return this.Creador.cant_d_fichas;
+        //return this.Creador.cant_de_fichas(this.data_tope, this.cabezas_por_ficha);
     }
     public bool GameOver(Estado Estado, List<Ficha> mano_del_ultimo_en_jugar)
     {
@@ -71,8 +72,8 @@ public class Reglas_del_Juego
     {
         return this.MoverFichas.Get_Cambiador_de_Refrescar(estado, mano);
     }
-    public Cambiador Get_Cambiador_de_Repartir(Estado estado, List<Ficha> mano)
+    public (Cambiador, Cambiador) Get_Cambiadores_de_Repartir(Estado estado, List<Ficha> mano)
     {
-        return this.MoverFichas.Get_Cambiador_de_Repartir(estado, mano);
+        return this.MoverFichas.Get_Cambiadores_de_Repartir(estado, mano);
     }
 }

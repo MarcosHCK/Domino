@@ -2,8 +2,8 @@
 public class MoverFichas
 {
     DaCriterio<Cambiador> Refrescador;
-    DaCriterio<Cambiador> Repartidor;
-    public MoverFichas(DaCriterio<Cambiador> Refrescador, DaCriterio<Cambiador> Repartidor)
+    DaCriterio<(Cambiador, Cambiador)> Repartidor;
+    public MoverFichas(DaCriterio<Cambiador> Refrescador, DaCriterio<(Cambiador, Cambiador)> Repartidor)
     {
         this.Refrescador = Refrescador;
         this.Repartidor = Repartidor;
@@ -12,7 +12,7 @@ public class MoverFichas
     {
         return Refrescador.Criterio(estado, mano);
     }
-    public Cambiador Get_Cambiador_de_Repartir(Estado estado, List<Ficha> mano)
+    public (Cambiador, Cambiador) Get_Cambiadores_de_Repartir(Estado estado, List<Ficha> mano)
     {
         return Repartidor.Criterio(estado, mano);
     }
