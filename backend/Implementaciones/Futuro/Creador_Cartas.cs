@@ -1,6 +1,6 @@
 public class Creador_Cartas : Creador_Usual
 {
-    public Creador_Usual(bool dobles, int repeticiones = 1)
+    public Creador_Cartas(bool dobles, int repeticiones = 1)
     : base(true, repeticiones){}
     public virtual List<Ficha> fichas(int data_tope, int cabezas_por_ficha)
     {
