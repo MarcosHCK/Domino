@@ -8,16 +8,9 @@ namespace frontend
 {
   public class Introduction : Facade.Scene
   {
-    private Stage stage;
-
-    private enum Stage
+    public override void Draw (Facade facade)
     {
-      COPYRIGHT,
-      NUMBER,
-    }
-
-    public override void Draw (Facade facade, double daltaTime)
-    {
+      Raylib.ClearBackground (Color.BLACK);
       if (Raylib.GetKeyPressed () != (int) KeyboardKey.KEY_NULL)
         Running = false;
       Raylib.DrawText ("Intro", 20, 20, 10, Color.WHITE);
@@ -25,7 +18,6 @@ namespace frontend
 
     public Introduction () : base ()
     {
-      this.stage = Stage.COPYRIGHT;
     }
   }
 }

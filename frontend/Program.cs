@@ -3,7 +3,7 @@
  *
  */
 using System.Numerics;
-using Raylib_cs;
+using Raylib_CsLo;
 
 namespace frontend
 {
@@ -19,7 +19,7 @@ namespace frontend
     public abstract class Scene
     {
       public bool Running { get; protected set; }
-      public abstract void Draw (Facade facade, double deltaTime);
+      public abstract void Draw (Facade facade);
 
       public Scene ()
         {
@@ -34,11 +34,6 @@ namespace frontend
     public static int Main (string[] argv)
     {
       var facade = new Facade ();
-      var previousTime = 0.0d;
-      var currentTime = 0.0d;
-      var deltaTime = 0.0f;
-      var updateTime = 0.0d;
-      var waitTime = 0.0d;
       Stack<Scene> sceneQueue;
       Scene scene;
   
@@ -46,12 +41,13 @@ namespace frontend
       facade.camera.target = new Vector3 (0.0f, 0.0f, 0.0f);
       facade.camera.up = new Vector3 (0.0f, 1.0f, 0.0f);
       facade.camera.fovy = 45.0f;
-      facade.camera.projection = CameraProjection.CAMERA_PERSPECTIVE;
+      facade.camera.projection = (int) CameraProjection.CAMERA_PERSPECTIVE;
 
       Raylib.InitWindow (screenWidth, screenHeight, windowTitle);
       Raylib.SetCameraMode (facade.camera, CameraMode.CAMERA_CUSTOM);
+      Raylib.SetTargetFPS (targetFPS);
+      Raylib.SetExitKey (0);
 
-      previousTime = Raylib.GetTime ();
       sceneQueue = new Stack<Scene> ();
       sceneQueue.Push (new MainMenu ());
       sceneQueue.Push (new Introduction ());
@@ -60,11 +56,8 @@ namespace frontend
       while (!Raylib.WindowShouldClose ()
         && sceneQueue.Count > 0)
         {
-          Raylib.PollInputEvents ();
-          Raylib.UpdateCamera (ref facade.camera);
-
           Raylib.BeginDrawing ();
-          Raylib.ClearBackground (Color.BLACK);
+          Raylib.UpdateCamera (ref facade.camera);
 
           do
           {
@@ -74,7 +67,7 @@ namespace frontend
             {
               scene = sceneQueue.Peek ();
               if (scene.Running)
-                scene.Draw (facade, deltaTime);
+                scene.Draw (facade);
               else
               {
                 sceneQueue.Pop ();
@@ -85,27 +78,6 @@ namespace frontend
           while (false);
 
           Raylib.EndDrawing ();
-          Raylib.SwapScreenBuffer ();
-
-          currentTime = Raylib.GetTime ();
-          updateTime = currentTime - previousTime;
-
-          if (targetFPS > 0)
-            {
-              waitTime = (1.0f / (float) targetFPS) - updateTime;
-              if (waitTime > 0)
-                {
-                  Raylib.WaitTime (1000.0f * (float) waitTime);
-                  currentTime = Raylib.GetTime ();
-                  deltaTime = (float) (currentTime - previousTime);
-                }
-            }
-          else
-            {
-              deltaTime = (float) updateTime;
-            }
-
-          previousTime = currentTime;
         }
 
       Raylib.CloseWindow ();

@@ -7,25 +7,26 @@ using Raylib_CsLo;
 
 namespace frontend
 {
-  public class Menu : Facade.Scene
-  {
-    private const float padding = 20;
-    public override void Draw (Facade facade, double deltaTime)
-    {
-      Rectangle rec;
-      rec.x = (float) padding;
-      rec.y = (float) padding;
-      rec.width = ((float) Raylib.GetScreenWidth ()) - padding * 2;
-      rec.height = ((float) Raylib.GetScreenHeight ()) - padding * 2;
-      var pos = RayGui.GuiGrid (rec, 3, 3);
-    }
-  }
-
   public class MainMenu : Menu
   {
-    public override void Draw (Facade facade, double deltaTime)
+    public override void Draw (Facade facade)
     {
-      base.Draw (facade, deltaTime);
+      base.Draw (facade);
+
+      Rectangle rec = GetDefaultRectangle ();
+      Vector2 cursor = RayGui.GuiGrid (rec, 0, 0);
+
+      rec.width -= (float) margin * 2;
+      rec.x += (float) margin;
+
+      if (RayGui.GuiButton (GetNextControl (ref rec, rec.width, 30), "Play!"))
+        facade.PushScene (new Game ());
+
+      if (RayGui.GuiButton (GetNextControl (ref rec, rec.width, 30), "Settings"))
+        facade.PushScene (new Settings ());
+
+      if (RayGui.GuiButton (GetNextControl (ref rec, rec.width, 30), "Exit"))
+        Running = false;
     }
   }
 }
