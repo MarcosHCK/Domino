@@ -9,8 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Raylib-cs" Version="4.0.0.1" />
-    <PackageReference Include="Raylib-CsLo" Version="4.0.1" />
+    <PackageReference Include="GtkSharp" Version="3.24.24.38" />
+    <ProjectReference Include="..\templates\templates.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="resources\ui\*.ui" />
+    <EmbeddedResource Include="resources\ui\*.ui">
+      <LogicalName>%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
