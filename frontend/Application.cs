@@ -14,6 +14,7 @@ namespace frontend
     public static string ApplicationVersion = "1.0.0.0";
     public static string ApplicationWebsite = "https://github.com/MarcosHCK/domino/";
     private static Gdk.Pixbuf? ApplicationIcon = null;
+    public static string DataDir = "data/";
     public static string BaseDir = "rules/";
 #endregion
 
@@ -21,8 +22,8 @@ namespace frontend
 
     protected override void OnActivated ()
     {
-      frontend.Window window;
-      window = new frontend.Window ();
+      var
+      window = new GameWindow ();
       window.Icon = Application.ApplicationIcon;
       window.Application = this;
       window.Present ();

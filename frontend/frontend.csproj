@@ -10,14 +10,17 @@
 
   <ItemGroup>
     <PackageReference Include="GtkSharp" Version="3.24.24.38" />
+    <PackageReference Include="OpenTK" Version="4.7.4" />
     <ProjectReference Include="..\templates\templates.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+
     <None Remove="resources\ui\*.ui" />
     <EmbeddedResource Include="resources\ui\*.ui">
       <LogicalName>%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
+
   </ItemGroup>
 
 </Project>
