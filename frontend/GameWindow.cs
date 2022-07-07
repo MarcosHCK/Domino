@@ -2,8 +2,7 @@
  * This file is part of Domino/frontend.
  *
  */
-using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
+using OpenTK.Graphics.OpenGL;
 using System.Text;
 
 namespace frontend
@@ -15,8 +14,11 @@ namespace frontend
     [Gtk.Builder.Object]
     private Gtk.GLArea? glarea1;
     private Gl.Program? program;
+    private Gl.Pencil? pencil;
     private Gl.Skybox? skybox;
     private Gl.Mvp mvps;
+
+    public List<GameObject> Objects { get; private set; }
 
     private const int targetFPS = 60;
     private const float fov = 45;
@@ -31,7 +33,7 @@ namespace frontend
     private static int opengl_minor;
 
     public static bool CheckVersion (int major, int minor) => (opengl_major > major || (opengl_major == major && opengl_minor >= minor));
-    public static bool CheckExtension (string name) => extensions.ContainsKey (name);
+    public static bool CheckExtension (string name) => extensions.ContainsKey ("GL_" + name);
 
 #region Callbacks
 
@@ -45,23 +47,39 @@ namespace frontend
       a.RetVal = context;
     }
 
-    private void Render ()
+    private void DoPipeline ()
     {
+      pencil!.BindArray ();
+      foreach (var object_ in Objects)
+      {
+        mvps.Model = object_.Model;
+        var mvp = mvps.Full;
+
+        GL.UniformMatrix4 (locMvp, false, ref mvp);
+        object_.Draw (pencil!);
+      }
+    }
+
+    private void DoRender ()
+    {
+      program!.Use ();
       if (update)
         {
           update = false;
-
-          program!.Use ();
           var jvp = mvps.Jvp;
           GL.UniformMatrix4 (locJvp, false, ref jvp);
           var mvp = mvps.Full;
           GL.UniformMatrix4 (locMvp, false, ref mvp);
 
+          DoPipeline ();
           skybox!.Jvp = jvp;
+          skybox!.Draw ();
         }
-
-      skybox!.Draw ();
-      program!.Use ();
+      else
+        {
+          DoPipeline ();
+          skybox!.Draw ();
+        }
     }
 
     private void OnRender (object? o, Gtk.RenderArgs a)
@@ -74,7 +92,7 @@ namespace frontend
         }
 
       GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-      Render ();
+      DoRender ();
       GL.Flush ();
 
       a.RetVal = true;
@@ -148,6 +166,7 @@ namespace frontend
       var program = new Gl.Program ();
       var shaders = new (string, ShaderType) [2];
       var skybox = new Gl.Skybox (skyboxdir, "$s.dds");
+      this.pencil = new Gl.Pencil ();
       this.program = program;
       this.skybox = skybox;
 
@@ -163,14 +182,24 @@ namespace frontend
         }
 
       program.Link (shaders);
+      Gl.Model.BindUnits (program);
       locJvp = program.Uniform ("aJvp");
       locMvp = program.Uniform ("aMvp");
 
+      var backpack = new GameObject (System.IO.Path.Combine (datadir, "models/backpack.obj"));
+          backpack.Position = new OpenTK.Mathematics.Vector3 (20, 0, 0);
+          backpack.Direction = new OpenTK.Mathematics.Vector3 (0, 1, 0);
+          backpack.Visible = true;
+          Objects.Add (backpack);
+
+      var angle = 0;
       clock = GLib.Timeout.Add
-      (((uint) 1000 / targetFPS),
+      (((uint) 50),
        () =>
         {
-          //this.QueueDraw ();
+          backpack.Angle = OpenTK.Mathematics.MathHelper.DegreesToRadians (angle++);
+          glarea1!.QueueRender ();
+          update = true;
           return true;
         });
     }
@@ -179,6 +208,7 @@ namespace frontend
     {
       GLib.Source.Remove (clock);
       program = null;
+      pencil = null;
       skybox = null;
     }
 
@@ -186,9 +216,11 @@ namespace frontend
 
 #region Constructors
 
+
     public GameWindow () : base (null)
     {
       Gtk.TemplateBuilder.InitTemplate (this);
+      Objects = new List<GameObject> ();
       mvps = new Gl.Mvp ();
     }
 

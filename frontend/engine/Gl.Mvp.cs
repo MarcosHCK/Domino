@@ -2,24 +2,74 @@
  * This file is part of Domino/frontend.
  *
  */
-using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 namespace frontend.Gl
 {
-  public class Mvp
+  public sealed class Mvp : ILocalizable
   {
-    public Matrix4 Model { get; private set; }
-    public Matrix4 View { get; private set; }
-    public Matrix4 Projection { get; private set; }
-    public Vector3 Position { get; private set; }
-    public Matrix4 Jvp { get; private set; }
-    public Matrix4 Full { get; private set; }
-
-    public void Update ()
+    private Matrix4 _Model;
+    public Matrix4 Model
     {
-      Jvp = Matrix4.Mult (View, Projection);
-      Full = Matrix4.Mult (Model, Jvp);
+      get => _Model;
+      set
+      {
+        _Model = value;
+        Full = Matrix4.Mult (_Model, _Jvp);
+      }
+    }
+
+    private Matrix4 _View;
+    public Matrix4 View
+    { get => _View;
+      set
+      {
+        _View = value;
+        Jvp = Matrix4.Mult (_View, _Projection);
+      }
+    }
+
+    private Matrix4 _Projection;
+    public Matrix4 Projection
+    {
+      get => _Projection;
+      set
+      {
+        _Projection = value;
+        Jvp = Matrix4.Mult (_View, _Projection);
+      }
+    }
+
+    private Vector3 _Position;
+    public Vector3 Position
+    {
+      get => _Position;
+      set
+      {
+        _Position = value;
+        Jvp = Matrix4.Mult (_View, _Projection);
+      }
+    }
+
+    private Matrix4 _Jvp;
+    public Matrix4 Jvp
+    {
+      get => _Jvp;
+      private set
+      {
+        _Jvp = value;
+        Full = Matrix4.Mult (_Model, _Jvp);
+      }
+    }
+
+    private Matrix4 _Full;
+    public Matrix4 Full
+    {
+      get => _Full;
+      private set
+      {
+        _Full = value;
+      }
     }
 
     public void Project (int width, int height, float fov)
@@ -27,28 +77,31 @@ namespace frontend.Gl
       var fovy = MathHelper.DegreesToRadians (fov);
       var aspect = ((float) width) / ((float) height);
       Projection = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 100);
-      Update ();
     }
 
-    public void LookAt (float yaw_, float pitch_)
-    {
-      if (pitch_ > 89) pitch_ = 89;
-      else if (pitch_ < -89) pitch_ = -89;
+    private static float max_pitch = MathHelper.DegreesToRadians (89);
+    private static float min_pitch = MathHelper.DegreesToRadians (-89);
+    private static float angle_center = MathHelper.DegreesToRadians (0);
 
-      var yaw = MathHelper.DegreesToRadians (yaw_);
-      var pitch = MathHelper.DegreesToRadians (pitch_);
+    public void LookAt (float yaw, float pitch)
+    {
+      if (pitch > max_pitch)
+        pitch = max_pitch;
+      else
+      if (pitch < min_pitch)
+        pitch = min_pitch;
+
       var worldup = new Vector3 (0, 1, 0);
       var front = new Vector3 ();
 
       front.X = (float) (MathHelper.Cos (yaw) * MathHelper.Cos (pitch));
       front.Y = (float) (MathHelper.Sin (pitch));
-      front.Z = (float) (MathHelper.Cos (yaw) * MathHelper.Sin (pitch));
+      front.Z = (float) (MathHelper.Sin (yaw) * MathHelper.Cos (pitch));
 
       var right = Vector3.Cross (worldup, front);
       var up = Vector3.Cross (front, right);
       var center = Vector3.Add (Position, front);
       View = Matrix4.LookAt (Position, center, up);
-      Update ();
     }
 
     public void LookAt (float x, float y, float z)
@@ -56,19 +109,17 @@ namespace frontend.Gl
       var center = new Vector3 (x, y, z);
       var up = new Vector3 (0, 1, 0);
       View = Matrix4.LookAt (Position, center, up);
-      Update ();
     }
 
     public void MoveAt (float x, float y, float z)
     {
       Position = new Vector3 (x, y, z);
-      Update ();
     }
 
     public Mvp ()
     {
       MoveAt (0, 0, 0);
-      LookAt (0, 0);
+      LookAt (angle_center, angle_center);
     }
   }
 }

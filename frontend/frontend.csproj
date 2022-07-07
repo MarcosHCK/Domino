@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
     <PackageReference Include="GtkSharp" Version="3.24.24.38" />
     <PackageReference Include="OpenTK" Version="4.7.4" />
     <ProjectReference Include="..\templates\templates.csproj" />

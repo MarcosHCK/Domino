@@ -1,8 +1,8 @@
-#version 330
 /* Copyright 2021-2025 MarcosHCK
  * This file is part of Domino/frontend.
  *
  */
+#version 330 core
 out vec3 TexCoords;
 
 layout (location = 0) in vec3 aPos;

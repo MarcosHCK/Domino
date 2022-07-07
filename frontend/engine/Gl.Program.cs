@@ -2,19 +2,17 @@
  * This file is part of Domino/frontend.
  *
  */
-using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
+using OpenTK.Graphics.OpenGL;
 
 namespace frontend.Gl
 {
   public class Program
   {
     private int pid;
+    private bool separate;
 
     public void Use () => GL.UseProgram (pid);
     public int Uniform (string name) => GL.GetUniformLocation (pid, name);
-    public Program () => pid = GL.CreateProgram ();
-    ~Program () => GL.DeleteProgram (pid);
 
     public void Link ()
     {
@@ -74,6 +72,18 @@ namespace frontend.Gl
       Link (shaders);
     }
 
+    public void SetUniform (int loc, int value)
+    {
+      if (!separate) throw new NotSupportedException ();
+      GL.ProgramUniform1 (pid, loc, value);
+    }
+
+    public void SetUniform (int loc, uint value)
+    {
+      if (!separate) throw new NotSupportedException ();
+      GL.ProgramUniform1 (pid, loc, value);
+    }
+
     [System.Serializable]
     public class ProgramException : System.Exception
     {
@@ -85,7 +95,7 @@ namespace frontend.Gl
         System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 
-    public class Shader
+    public sealed class Shader
     {
       private int sid;
 
@@ -104,7 +114,9 @@ namespace frontend.Gl
             int Length;
 
             GL.GetShaderInfoLog (sid, length [0], out Length, out infoLog);
-            throw new Exception ("can't compile: " + infoLog);
+            GL.GetShader (sid, ShaderParameter.ShaderType, result);
+            var message = $"can't compile {(ShaderType) result [0]}: {infoLog}";
+            throw new ShaderException (message);
           }
       }
 
@@ -125,5 +137,21 @@ namespace frontend.Gl
       public Shader (ShaderType type) => sid = GL.CreateShader (type);
       ~Shader () => GL.DeleteShader (sid);
     }
+
+#region Constructors
+
+    public Program()
+    {
+      pid = GL.CreateProgram();
+      separate  = GameWindow.CheckVersion (4, 1);
+      separate |= GameWindow.CheckExtension ("ARB_separate_shader_objects");
+    }
+
+    ~Program()
+    {
+      GL.DeleteProgram(pid);
+    }
+
+#endregion
   }
 }

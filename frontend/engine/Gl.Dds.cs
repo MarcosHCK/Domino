@@ -2,9 +2,7 @@
  * This file is part of Domino/frontend.
  *
  */
-using System.Runtime.InteropServices;
-using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
+using OpenTK.Graphics.OpenGL;
 
 namespace frontend.Gl
 {
@@ -15,6 +13,7 @@ namespace frontend.Gl
     public int Height { get; private set; }
     public int Mipmaps { get; private set; }
     public FormatType Format { get; private set; }
+    public InternalFormat InternalFormat { get => glformat [(int) Format]; }
     private byte[] data;
 
     static readonly InternalFormat[] glformat =
@@ -100,29 +99,69 @@ namespace frontend.Gl
       var width = this.Width;
       var height = this.Height;
       var n_mipmap = this.Mipmaps;
-      var format = glformat [(int) this.Format];
+      var format = this.InternalFormat;
       var blocksz = (Format == FormatType.DXT1) ? 8 : 16;
       var pixels = new Memory<byte> (data);
       var pin = pixels.Pin ();
-      int i, offset = 0;
+      int i, size, offset = 0;
 
       for (i = 0; i < n_mipmap && (width > 0 || height > 0); i++)
         {
-          var size = ((width + 3) / 4) * ((height + 3) / 4) * blocksz;
+          size = ((width + 3) / 4) * ((height + 3) / 4) * blocksz;
 
           if (create)
             unsafe
             {
               var pointer = (IntPtr) pin.Pointer;
-              GL.CompressedTexImage2D(target, i, format, width, height, 0, size, pointer + offset);
+              GL.CompressedTexImage2D (target, i, format, width, height, 0, size, pointer + offset);
             }
           else
             {
-              var pixel = OpenTK.Graphics.OpenGL4.PixelFormat.Rgba;
+              var pixel = OpenTK.Graphics.OpenGL.PixelFormat.Rgba;
               unsafe
               {
                 var pointer = (IntPtr) pin.Pointer;
                 GL.CompressedTexSubImage2D (target, i, 0, 0, width, height, pixel, size, pointer + offset);
+              }
+            }
+
+          offset += size;
+          height >>= 1;
+          width >>= 1;
+        }
+    }
+
+    public void Load3D (TextureTarget target, int depth, bool create)
+    {
+      var header = file.header;
+      var fmt = header.format;
+
+      var width = this.Width;
+      var height = this.Height;
+      var n_mipmap = this.Mipmaps;
+      var format = this.InternalFormat;
+      var blocksz = (Format == FormatType.DXT1) ? 8 : 16;
+      var pixels = new Memory<byte> (data);
+      var pin = pixels.Pin ();
+      int i, size, offset = 0;
+
+      for (i = 0; i < n_mipmap && (width > 0 || height > 0); i++)
+        {
+          size = ((width + 3) / 4) * ((height + 3) / 4) * blocksz;
+
+          if (create)
+            unsafe
+            {
+              var pointer = (IntPtr) pin.Pointer;
+              GL.CompressedTexImage3D (target, i, format, width, height, depth, 0, size, pointer + offset);
+            }
+          else
+            {
+              var pixel = (OpenTK.Graphics.OpenGL.PixelFormat) format;
+              unsafe
+              {
+                var pointer = (IntPtr) pin.Pointer;
+                GL.CompressedTexSubImage3D (target, i, 0, 0, depth, width, height, 1, pixel, size, pointer + offset);
               }
             }
 

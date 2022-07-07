@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace frontend.Gl
 {
-  internal class Loader : OpenTK.IBindingsContext
+  internal sealed class Loader : OpenTK.IBindingsContext
   {
     private static Func loader;
     private const int RTLD_LAZY = 0x0001;
@@ -104,7 +104,7 @@ namespace frontend.Gl
       if (IsWindows)
         {
           var lib = LoadLibrary ("opengl32.dll");
-          if (lib == null)
+          if (lib == IntPtr.Zero)
             throw new Exception ("can't find OpenGL library");
           else
             {
@@ -118,11 +118,12 @@ namespace frontend.Gl
       else
         {
           var lib = LoadLibrary ("libGL.so");
-          if (lib == null)
+          if (lib == IntPtr.Zero)
             throw new Exception ("can't find OpenGL library");
           else
             {
               IntPtr addr;
+              lib = IntPtr.Zero;
 
               addr = GetProcAddress (lib, "glXGetProcAddress");
               if (addr != IntPtr.Zero)

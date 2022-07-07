@@ -3,17 +3,19 @@
  *
  */
 using System.Text.RegularExpressions;
-using OpenTK.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.Text;
 
 namespace frontend.Gl
 {
-  public class Skybox
+  public sealed class Skybox
   {
     private Program pid;
     private int locSkybox;
     private int locJvp;
+
+    public bool Visible { get; set; }
 
     private bool ActiveTexUnit = false;
     public bool UseEs = false;
@@ -132,7 +134,7 @@ namespace frontend.Gl
         ActiveTexUnit = true;
       else
         {
-          if (GameWindow.CheckExtension ("GL_ARB_direct_state_access"))
+          if (GameWindow.CheckExtension ("ARB_direct_state_access"))
             ActiveTexUnit = true;
         }
 
@@ -206,6 +208,7 @@ namespace frontend.Gl
       int i;
 
       GL.BindTexture (TextureTarget.TextureCubeMap, tio);
+      Visible = true;
 
       for (i = 0; i < cubeSides.Length; i++)
         {
@@ -256,6 +259,9 @@ namespace frontend.Gl
 
     public void Draw ()
     {
+      if (!Visible)
+        return;
+
       pid.Use ();
       GL.DepthFunc (DepthFunction.Lequal);
 
