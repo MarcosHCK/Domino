@@ -14,6 +14,7 @@ namespace frontend
     public static string ApplicationVersion = "1.0.0.0";
     public static string ApplicationWebsite = "https://github.com/MarcosHCK/domino/";
     private static Gdk.Pixbuf? ApplicationIcon = null;
+    public static string LibexecDir = "backend/bin/Debug/net6.0/";
     public static string DataDir = "data/";
     public static string BaseDir = "rules/";
 #endregion

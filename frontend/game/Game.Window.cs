@@ -19,6 +19,7 @@ namespace frontend.Game
     private Gl.Mvp mvps;
 
     public List<Game.Object> Objects { get; private set; }
+    public Game.Engine Engine { get; private set; }
 
     private const int targetFPS = 60;
     private const float fov = 45;
@@ -93,7 +94,6 @@ namespace frontend.Game
 
       GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
       DoRender ();
-      GL.Flush ();
 
       a.RetVal = true;
     }
@@ -107,6 +107,12 @@ namespace frontend.Game
       update = true;
       mvps.Project (a.Width, a.Height, fov);
       this.QueueDraw ();
+    }
+
+    private void OnDeleteEvent (object? o, Gtk.DeleteEventArgs a)
+    {
+      Engine.StopAndWait ();
+      a.RetVal = false;
     }
 
     private void OnRealize (object? o, EventArgs a)
@@ -189,11 +195,13 @@ namespace frontend.Game
       locJvp = program.Uniform ("aJvp");
       locMvp = program.Uniform ("aMvp");
       Gl.Model.BindUnits (program);
+      Engine.Start ();
 
       clock = GLib.Timeout.Add
       (((uint) 1000 / targetFPS),
        () =>
         {
+          glarea1!.QueueRender ();
           return true;
         });
     }
@@ -210,19 +218,22 @@ namespace frontend.Game
 
 #region Constructors
 
-
-    public Window () : base (null)
+    public Window (Engine engine) : base (null)
     {
       Gtk.TemplateBuilder.InitTemplate (this);
       Objects = new List<Game.Object> ();
+      Engine = engine;
       mvps = new Gl.Mvp ();
     }
-
-    public Window (Rule rule) : this () { }
 
     static Window ()
     {
       extensions = new Dictionary<string, bool> ();
+    }
+
+    ~Window ()
+    {
+      Engine.Stop ();
     }
 
 #endregion

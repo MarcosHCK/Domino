@@ -44,7 +44,10 @@ namespace frontend
       if (row is RuleListBoxRow)
         {
           var rule = ((RuleListBoxRow) row).Rule;
-          var game = new Game.Window (rule);
+          var path = frontend.Application.LibexecDir;
+          var binary = System.IO.Path.Combine (path, "backend");
+          var engine = new Game.Engine (rule, binary);
+          var game = new Game.Window (engine);
           var appl = Application;
 
           game.Application = appl;
