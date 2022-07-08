@@ -27,7 +27,7 @@ public class Equipo
     public override string ToString()
     {
         string retorno = this.nombre + ":";
-        foreach(string miembro in this._miembros)retorno += ' ' + miembro;
+        foreach(string miembro in this._miembros)retorno += ", " + miembro;
         return retorno;
     }
 }

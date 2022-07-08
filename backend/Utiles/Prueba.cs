@@ -121,6 +121,8 @@ public static class Prueba
     }
     public static void Prueba_Usual(string partida = null)
     {
+        for (int i = 0; i < 1000; i++){
+        try{
         Jugador_Random Yosvany, Yusimy, El_Brayan, Yuniela;
         Yosvany = new Jugador_Random("Yosvany");
         Yusimy = new Jugador_Random("Yusimy");
@@ -135,6 +137,9 @@ public static class Prueba
         Prueba.MostrarJuego(juego);
         Console.WriteLine();
         Console.WriteLine();
+        }catch{Console.WriteLine(i); return;}
+        }
+        Console.WriteLine("Mil juegos de Camaron sin errores");
     }
     public static void Prueba_Con_Humano()
     {

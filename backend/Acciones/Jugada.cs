@@ -14,7 +14,7 @@ public class Jugada : Action
     }
     public override string ToString()
     {
-        if(this.EsPase)return this.autor + " pase";
-        return this.autor + " " + this.ficha.ToString() + " " + this.cabeza_usada.ToString() + " " + this.cara_de_la_mesa.ToString() + " " + this.fichas_restantes.ToString();
+        if(this.EsPase)return "Jugada " + this.autor + " pase";
+        return "Jugada " + this.autor + " " + this.ficha.ToString() + " " + this.cabeza_usada.ToString() + " " + this.cara_de_la_mesa.ToString() + " " + this.fichas_restantes.ToString();
     }
 }

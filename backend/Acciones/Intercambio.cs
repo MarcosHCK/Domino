@@ -9,6 +9,6 @@ public class Intercambio : Action
     }
     public override string ToString()
     {
-        return this.autor + " -" + fichas_devueltas.ToString() + " +" + fichas_tomadas.ToString();
+        return "Intercambio " + this.autor + " -" + fichas_devueltas.ToString() + " +" + fichas_tomadas.ToString();
     }
 }

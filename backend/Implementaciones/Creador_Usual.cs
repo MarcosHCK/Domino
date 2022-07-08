@@ -10,7 +10,7 @@ public class Creador_Usual : ICreador
             return _cant_d_fichas;
         }
     }
-    protected List<Ficha> _fichas;//Notar que no estoy permitiendo que se creen dos tipos de fichas diferentes en el juego. De querer esto debo cambiar some stuff
+    List<Ficha> _fichas;//Notar que no estoy permitiendo que se creen dos tipos de fichas diferentes en el juego. De querer esto debo cambiar some stuff
     public Creador_Usual(bool dobles = true, int repeticiones = 1)
     {
         this.dobles = dobles;

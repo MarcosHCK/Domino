@@ -26,7 +26,7 @@ public class Juego
             {
                 estado.PasarTurno(reglas, mano);
                 Jugador jugador = organizador[estado.Jugador_en_Turno];
-                Console.WriteLine(jugador.nombre);
+                Console.WriteLine("Turno " + jugador.nombre);
                 MostrarMano();
                 if(estado.YaSeHaJugado)MostrarCaras();
                 else MostrarEquipos();
@@ -48,7 +48,6 @@ public class Juego
                 estado.Actualizar(jugada);
                 yield return jugada;
                 Console.WriteLine("EndTurn");
-                Console.WriteLine();
             }
         }
     }
@@ -64,20 +63,21 @@ public class Juego
     }
     void MostrarMano()
     {
-        Console.WriteLine();
+        Console.WriteLine("Mano " + estado.Jugador_en_Turno);
         foreach(Ficha ficha in portal[estado.Jugador_en_Turno])Console.WriteLine(ficha);
-        Console.WriteLine();
+        Console.WriteLine("break");
     }
     void MostrarCaras()
     {
         string AMostrar = "";
         foreach(int cara in estado.caras_de_la_mesa)AMostrar += (cara + " ");
         AMostrar.Substring(0, AMostrar.Length - 1);
-        Console.WriteLine(AMostrar);
-        Console.WriteLine();
+        Console.WriteLine("Caras: " + AMostrar);
     }
     void MostrarEquipos()
     {
+        Console.WriteLine("Equipos");
         foreach(Equipo equipo in estado.equipos)Console.WriteLine(equipo);
+        Console.WriteLine("break");
     }
 }
