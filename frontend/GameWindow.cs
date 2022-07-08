@@ -136,6 +136,8 @@ namespace frontend
         }
 
       GL.ClearColor (0, 0, 0, 1);
+      GL.ClearDepth (1d);
+
       Console.WriteLine ("OpenGL context attached");
       Console.WriteLine ("Version: " + GL.GetString (StringName.Version));
       Console.WriteLine ("Renderer: " + GL.GetString (StringName.Renderer));
@@ -166,6 +168,7 @@ namespace frontend
       var program = new Gl.Program ();
       var shaders = new (string, ShaderType) [2];
       var skybox = new Gl.Skybox (skyboxdir, "$s.dds");
+
       this.pencil = new Gl.Pencil ();
       this.program = program;
       this.skybox = skybox;
@@ -182,24 +185,15 @@ namespace frontend
         }
 
       program.Link (shaders);
-      Gl.Model.BindUnits (program);
+
       locJvp = program.Uniform ("aJvp");
       locMvp = program.Uniform ("aMvp");
+      Gl.Model.BindUnits (program);
 
-      var backpack = new GameObject (System.IO.Path.Combine (datadir, "models/backpack.obj"));
-          backpack.Position = new OpenTK.Mathematics.Vector3 (20, 0, 0);
-          backpack.Direction = new OpenTK.Mathematics.Vector3 (0, 1, 0);
-          backpack.Visible = true;
-          Objects.Add (backpack);
-
-      var angle = 0;
       clock = GLib.Timeout.Add
-      (((uint) 50),
+      (((uint) 1000 / targetFPS),
        () =>
         {
-          backpack.Angle = OpenTK.Mathematics.MathHelper.DegreesToRadians (angle++);
-          glarea1!.QueueRender ();
-          update = true;
           return true;
         });
     }
