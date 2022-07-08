@@ -23,7 +23,7 @@ namespace frontend
     protected override void OnActivated ()
     {
       var
-      window = new GameWindow ();
+      window = new Window ();
       window.Icon = Application.ApplicationIcon;
       window.Application = this;
       window.Present ();

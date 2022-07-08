@@ -44,7 +44,7 @@ namespace frontend
       if (row is RuleListBoxRow)
         {
           var rule = ((RuleListBoxRow) row).Rule;
-          var game = new GameWindow (rule);
+          var game = new Game.Window (rule);
           var appl = Application;
 
           game.Application = appl;

@@ -4,9 +4,9 @@
  */
 using OpenTK.Mathematics;
 
-namespace frontend
+namespace frontend.Game
 {
-  public class GameObject : Gl.IDrawable, Gl.ILocalizable, Gl.IRotable, Gl.IScalable, Gl.IModelable
+  public class Object : Gl.IDrawable, Gl.ILocalizable, Gl.IRotable, Gl.IScalable, Gl.IModelable
   {
     private Gl.IDrawable model;
     public Matrix4 Model { get; set; }
@@ -85,7 +85,7 @@ namespace frontend
 
 #region Constructors
 
-    protected GameObject (Gl.IDrawable model)
+    protected Object (Gl.IDrawable model)
     {
       this.model = model;
       _Position = new Vector3 (0, 0, 0);
@@ -93,7 +93,7 @@ namespace frontend
       Direction = new Vector3 (1, 0, 0);
     }
 
-    public GameObject (string model) : this (new Gl.SingleModel (model)) { }
+    public Object (string model) : this (new Gl.SingleModel (model)) { }
 
 #endregion
   }

@@ -130,13 +130,9 @@ namespace frontend.Gl
       var datadir = frontend.Application.DataDir;
       var glsldir = System.IO.Path.Combine (datadir, "glsl");
 
-      if (GameWindow.CheckVersion (4, 5))
-        ActiveTexUnit = true;
-      else
-        {
-          if (GameWindow.CheckExtension ("ARB_direct_state_access"))
-            ActiveTexUnit = true;
-        }
+      ActiveTexUnit = false;
+      ActiveTexUnit |= Game.Window.CheckVersion (4, 5);
+      ActiveTexUnit |= Game.Window.CheckExtension ("ARB_direct_state_access");
 
       string LoadShaderCode (string name)
       {

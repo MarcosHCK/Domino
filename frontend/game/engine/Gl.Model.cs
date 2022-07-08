@@ -81,10 +81,10 @@ namespace frontend.Gl
         meshes = new List<Mesh> ();
         tios = new int [uniforms.Length];
 
-        multiple = GameWindow.CheckVersion (4, 4);
-        multiple ^= GameWindow.CheckExtension ("ARB_multi_bind");
-        direct = GameWindow.CheckVersion (4, 5);
-        direct ^= GameWindow.CheckExtension ("ARB_direct_state_access");
+        multiple = Game.Window.CheckVersion (4, 4);
+        multiple ^= Game.Window.CheckExtension ("ARB_multi_bind");
+        direct = Game.Window.CheckVersion (4, 5);
+        direct ^= Game.Window.CheckExtension ("ARB_direct_state_access");
 
         GL.GenTextures (tios.Length, tios);
       }
@@ -110,8 +110,8 @@ namespace frontend.Gl
     public static void BindUnits (Program program)
     {
       bool
-      separate  = GameWindow.CheckVersion (4, 1);
-      separate |= GameWindow.CheckExtension ("ARB_separate_shader_objects");
+      separate  = Game.Window.CheckVersion (4, 1);
+      separate |= Game.Window.CheckExtension ("ARB_separate_shader_objects");
       int unit = 0;
 
       if (!separate)
@@ -332,8 +332,8 @@ namespace frontend.Gl
                       }
 
                       bool create = false;
-                        create |= GameWindow.CheckVersion (4, 2);
-                        create |= GameWindow.CheckExtension ("ARB_texture_storage");
+                        create |= Game.Window.CheckVersion (4, 2);
+                        create |= Game.Window.CheckExtension ("ARB_texture_storage");
 
                       if (create)
                         {

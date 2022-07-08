@@ -143,8 +143,10 @@ namespace frontend.Gl
     public Program()
     {
       pid = GL.CreateProgram();
-      separate  = GameWindow.CheckVersion (4, 1);
-      separate |= GameWindow.CheckExtension ("ARB_separate_shader_objects");
+
+      separate = false;
+      separate |= Game.Window.CheckVersion (4, 1);
+      separate |= Game.Window.CheckExtension ("ARB_separate_shader_objects");
     }
 
     ~Program()

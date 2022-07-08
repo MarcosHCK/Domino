@@ -76,8 +76,9 @@ namespace frontend.Gl
       GL.GenVertexArray ();
       GL.BindVertexArray (vao);
 
-      attrfmt  = GameWindow.CheckVersion (4, 3);
-      attrfmt |= GameWindow.CheckExtension ("ARB_vertex_attrib_binding");
+      attrfmt = false;
+      attrfmt |= Game.Window.CheckVersion (4, 3);
+      attrfmt |= Game.Window.CheckExtension ("ARB_vertex_attrib_binding");
 
       for (int i = 0; i < offsets.Length; i++)
         {

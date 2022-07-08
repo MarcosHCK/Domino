@@ -5,11 +5,11 @@
 using OpenTK.Graphics.OpenGL;
 using System.Text;
 
-namespace frontend
+namespace frontend.Game
 {
   [GLib.TypeName ("DominoGameWindow")]
   [Gtk.Template (ResourceName = "gamewindow.ui")]
-  public sealed class GameWindow : Gtk.Window
+  public sealed class Window : Gtk.Window
   {
     [Gtk.Builder.Object]
     private Gtk.GLArea? glarea1;
@@ -18,7 +18,7 @@ namespace frontend
     private Gl.Skybox? skybox;
     private Gl.Mvp mvps;
 
-    public List<GameObject> Objects { get; private set; }
+    public List<Game.Object> Objects { get; private set; }
 
     private const int targetFPS = 60;
     private const float fov = 45;
@@ -211,16 +211,16 @@ namespace frontend
 #region Constructors
 
 
-    public GameWindow () : base (null)
+    public Window () : base (null)
     {
       Gtk.TemplateBuilder.InitTemplate (this);
-      Objects = new List<GameObject> ();
+      Objects = new List<Game.Object> ();
       mvps = new Gl.Mvp ();
     }
 
-    public GameWindow (Rule rule) : this () { }
+    public Window (Rule rule) : this () { }
 
-    static GameWindow ()
+    static Window ()
     {
       extensions = new Dictionary<string, bool> ();
     }
