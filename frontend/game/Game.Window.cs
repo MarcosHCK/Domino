@@ -3,6 +3,7 @@
  *
  */
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using System.Text;
 
 namespace frontend.Game
@@ -19,6 +20,7 @@ namespace frontend.Game
     private Gl.Mvp mvps;
 
     public List<Game.Object> Objects { get; private set; }
+    public Game.Objects.PieceBoard? Board { get; private set; }
     public Game.Engine Engine { get; private set; }
 
     private const int targetFPS = 60;
@@ -195,7 +197,13 @@ namespace frontend.Game
       locJvp = program.Uniform ("aJvp");
       locMvp = program.Uniform ("aMvp");
       Gl.Model.BindUnits (program);
+
+      Board = new Game.Objects.PieceBoard (2);
+      Objects.Add (Board);
       Engine.Start ();
+
+      Board.Visible = true;
+      Board.Append (2, 5);
 
       clock = GLib.Timeout.Add
       (((uint) 1000 / targetFPS),
@@ -209,6 +217,10 @@ namespace frontend.Game
     private void OnUnrealize (object? o, EventArgs a)
     {
       GLib.Source.Remove (clock);
+
+      Objects.Clear ();
+      Board = null;
+
       program = null;
       pencil = null;
       skybox = null;
@@ -223,7 +235,10 @@ namespace frontend.Game
       Gtk.TemplateBuilder.InitTemplate (this);
       Objects = new List<Game.Object> ();
       Engine = engine;
+
       mvps = new Gl.Mvp ();
+      mvps.Position = new Vector3 (0, 10, 10);
+      mvps.LookAt (0, 0, 0);
     }
 
     static Window ()

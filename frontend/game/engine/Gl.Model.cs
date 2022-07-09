@@ -131,6 +131,29 @@ namespace frontend.Gl
 
 #endregion
 
+#region private API
+
+    private string LocateTexture (string basedir, Material material, TextureType type, int idx)
+    {
+      TextureSlot slot;
+      material.GetMaterialTexture (type, idx, out slot);
+      var filepath = slot.FilePath;
+
+      if (filepath != null)
+        return Path.Combine (basedir, filepath);
+      else
+        {
+          if (slot.TextureIndex != idx)
+            return LocateTexture (basedir, material, type, slot.TextureIndex);
+          else
+            {
+              throw new NotImplementedException ();
+            }
+        }
+    }
+
+#endregion
+
 #region Constructor
 
     public Model (string filename)
@@ -144,7 +167,11 @@ namespace frontend.Gl
       var import = new AssimpContext ();
       var steps  = PostProcessSteps.CalculateTangentSpace;
           steps |= PostProcessSteps.GenerateSmoothNormals;
+          steps |= PostProcessSteps.GenerateNormals;
+          steps |= PostProcessSteps.RemoveRedundantMaterials;
+          steps |= PostProcessSteps.ImproveCacheLocality;
           steps |= PostProcessSteps.GenerateUVCoords;
+          steps |= PostProcessSteps.FlipUVs;
           steps |= PostProcessSteps.JoinIdenticalVertices;
           steps |= PostProcessSteps.OptimizeGraph;
           steps |= PostProcessSteps.OptimizeMeshes;
@@ -303,9 +330,7 @@ namespace frontend.Gl
 
                       for (int k = 0; k < n_images; k++)
                       {
-                        TextureSlot slot;
-                        material.GetMaterialTexture (type, k, out slot);
-                        var path = Path.Combine (basedir, slot.FilePath);
+                        var path = LocateTexture (basedir, material, type, k);
                         var image = new Dds (path);
 
                         images [k] = image;

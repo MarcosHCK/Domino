@@ -23,8 +23,16 @@ namespace frontend
 
     protected override void OnActivated ()
     {
+      var rule = new Rule ("Usual");
+      var ruleName = Path.Combine (BaseDir, rule.Name!);
+      var saveDir = GLib.FileFactory.NewForPath (ruleName);
+          rule.Load (saveDir);
+
+      var execBin = Path.Combine (LibexecDir, "backend");
+      var engine = new Game.Engine (rule, execBin);
+
       var
-      window = new Window ();
+      window = new Game.Window (engine);
       window.Icon = Application.ApplicationIcon;
       window.Application = this;
       window.Present ();

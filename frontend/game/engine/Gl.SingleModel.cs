@@ -7,10 +7,9 @@ using OpenTK.Mathematics;
 
 namespace frontend.Gl
 {
-  public sealed class SingleModel : Model, IDrawable, ILocalizable
+  public class SingleModel : Model, IDrawable
   {
     private List<Group> groups;
-    public Vector3 Position { get; set; }
     public bool Visible { get; set; }
 
     struct Group

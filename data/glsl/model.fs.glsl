@@ -4,7 +4,10 @@
  */
 #version 330 core
 out vec4 FragColor;
+in vec3 Normals;
 in vec3 TexCoords;
+in vec3 Tangent;
+in vec3 Bitangent;
 
 uniform sampler2DArray aDiffuse;
 uniform sampler2DArray aSpecular;

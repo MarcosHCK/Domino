@@ -241,6 +241,8 @@ namespace frontend.Game
     private void OnError (object? o, DataReceivedEventArgs a)
     {
       Console.Error.WriteLine (a.Data);
+      Console.Error.WriteLine (proc.MainModule);
+      Console.Error.WriteLine (proc.ExitCode);
       throw new EngineException ("Game engine give us error output");
     }
 

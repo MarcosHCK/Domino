@@ -79,6 +79,7 @@ namespace frontend.Gl
       Projection = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 100);
     }
 
+    private static Vector3 worldup = new Vector3(0, 1, 0);
     private static float max_pitch = MathHelper.DegreesToRadians (89);
     private static float min_pitch = MathHelper.DegreesToRadians (-89);
     private static float angle_center = MathHelper.DegreesToRadians (0);
@@ -91,24 +92,23 @@ namespace frontend.Gl
       if (pitch < min_pitch)
         pitch = min_pitch;
 
-      var worldup = new Vector3 (0, 1, 0);
       var front = new Vector3 ();
 
       front.X = (float) (MathHelper.Cos (yaw) * MathHelper.Cos (pitch));
       front.Y = (float) (MathHelper.Sin (pitch));
       front.Z = (float) (MathHelper.Sin (yaw) * MathHelper.Cos (pitch));
+      front = Vector3.Normalize (front);
 
       var right = Vector3.Cross (worldup, front);
+          right.Normalize ();
       var up = Vector3.Cross (front, right);
-      var center = Vector3.Add (Position, front);
-      View = Matrix4.LookAt (Position, center, up);
+      View = Matrix4.LookAt (_Position, _Position + front, up);
     }
 
     public void LookAt (float x, float y, float z)
     {
-      var center = new Vector3 (x, y, z);
-      var up = new Vector3 (0, 1, 0);
-      View = Matrix4.LookAt (Position, center, up);
+      var target = new Vector3 (x, y, z);
+      View = Matrix4.LookAt (_Position, target, worldup);
     }
 
     public void MoveAt (float x, float y, float z)

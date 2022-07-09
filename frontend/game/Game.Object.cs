@@ -6,20 +6,15 @@ using OpenTK.Mathematics;
 
 namespace frontend.Game
 {
-  public class Object : Gl.IDrawable, Gl.ILocalizable, Gl.IRotable, Gl.IScalable, Gl.IModelable
+  public abstract class Object : Gl.IDrawable, Gl.IModelable, Gl.ILocalizable, Gl.IRotable, Gl.IScalable
   {
     private Gl.IDrawable model;
     public Matrix4 Model { get; set; }
 
-    private bool _Visible;
     public bool Visible
     {
-      get => _Visible;
-      set
-      {
-        _Visible = value;
-        model.Visible = value;
-      }
+      get => model.Visible;
+      set => model.Visible = value;
     }
 
     private void UpdateModel ()
@@ -27,7 +22,7 @@ namespace frontend.Game
       var trans = Matrix4.CreateTranslation (_Position);
       var rotat = Matrix4.CreateFromAxisAngle (_Direction, _Angle);
       var scale = Matrix4.CreateScale (_Scale);
-      var tmp = Matrix4.Mult (rotat, scale);
+      var tmp = Matrix4.Mult (scale, rotat);
       Model = Matrix4.Mult (tmp, trans);
     }
 
@@ -75,13 +70,7 @@ namespace frontend.Game
       }
     }
 
-    public void Draw (Gl.Pencil pencil)
-    {
-      if (Visible)
-      {
-        model.Draw (pencil);
-      }
-    }
+    public virtual void Draw (Gl.Pencil pencil) => model.Draw (pencil);
 
 #region Constructors
 
@@ -92,8 +81,6 @@ namespace frontend.Game
       _Scale = new Vector3 (1, 1, 1);
       Direction = new Vector3 (1, 0, 0);
     }
-
-    public Object (string model) : this (new Gl.SingleModel (model)) { }
 
 #endregion
   }
