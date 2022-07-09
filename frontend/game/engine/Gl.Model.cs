@@ -209,8 +209,8 @@ namespace frontend.Gl
 
       unsafe
       {
-        vertices_ = GL.MapBuffer (BufferTarget.ArrayBuffer, BufferAccess.ReadWrite);//BufferAccess.WriteOnly);
-        indices_ = GL.MapBuffer (BufferTarget.ElementArrayBuffer, BufferAccess.ReadWrite);//BufferAccess.WriteOnly);
+        vertices_ = GL.MapBuffer (BufferTarget.ArrayBuffer, BufferAccess.WriteOnly);
+        indices_ = GL.MapBuffer (BufferTarget.ElementArrayBuffer, BufferAccess.WriteOnly);
         vertices = new Span<Pencil.Vertex> ((void*) vertices_, n_vertices);
         indices = new Span<int> ((void*) indices_, n_indices);
       }

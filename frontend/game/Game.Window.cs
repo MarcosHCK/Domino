@@ -2,6 +2,7 @@
  * This file is part of Domino/frontend.
  *
  */
+using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.Text;
@@ -181,17 +182,38 @@ namespace frontend.Game
               for (int i = 0; i < available; i++)
                 {
                   var extension = GL.GetString (StringNameIndexed.Extensions, i);
-                  extensions.Add (extension, true);
+                  extensions.TryAdd (extension, true);
                 }
             }
         }
 
-      GL.ClearColor (0, 0, 0, 1);
-      GL.ClearDepth (1d);
-
       Console.WriteLine ("OpenGL context attached");
       Console.WriteLine ("Version: " + GL.GetString (StringName.Version));
       Console.WriteLine ("Renderer: " + GL.GetString (StringName.Renderer));
+
+      if (CheckVersion (4, 3)
+        || CheckExtension ("KHR_debug"))
+        {
+          var sources = DebugSourceControl.DontCare;
+          var types = DebugTypeControl.DontCare;
+          var severities = DebugSeverityControl.DontCare;
+
+          GL.DebugMessageControl (sources, types, severities, 0, (int[]) null!, true);
+
+          GL.DebugMessageCallback (
+          (source, type, id, severity, length, message, userParam) =>
+          {
+            var content = Marshal.PtrToStringUTF8 (message, length);
+            if (severity != DebugSeverity.DebugSeverityNotification
+              && severity != DebugSeverity.DontCare)
+              Console.Error.WriteLine ("{0} {2}, {1} {3}: {4}", source, type, id, severity, content);
+            else
+              Console.WriteLine ("{0} {2}, {1} {3}: {4}", source, type, id, severity, content);
+          }, IntPtr.Zero);
+        }
+
+      GL.ClearColor (0, 0, 0, 1);
+      GL.ClearDepth (1d);
 
       var datadir = frontend.Application.DataDir;
       var glsldir = System.IO.Path.Combine (datadir, "glsl");
@@ -245,7 +267,28 @@ namespace frontend.Game
       var
       board = new Game.Objects.PieceBoard (2);
       board.Visible = true;
-      board.Append (2, 5);
+      //board.Append (new int [] { 0, 2 });
+
+      Engine.Move += (o, a) =>
+      {
+        if (a.Piece != null)
+        {
+          var piece = a.Piece.ToArray ();
+          long locker = 1;
+
+          GLib.Idle.Add (() =>
+          {
+            board.Append (piece);
+            Interlocked.Decrement (ref locker);
+            return false;
+          });
+
+          SpinWait.SpinUntil (() =>
+            {
+              return Interlocked.Read (ref locker) == 0;
+            });
+        }
+      };
 
       Objects.Add (board);
       Engine.Start ();
