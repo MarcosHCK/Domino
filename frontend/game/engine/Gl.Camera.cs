@@ -2,20 +2,32 @@
  * This file is part of Domino/frontend.
  *
  */
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
 namespace frontend.Gl
 {
-  public sealed class Mvp : ILocalizable
+  public sealed class Camera : ILocalizable
   {
-    private Matrix4 _Model;
-    public Matrix4 Model
+    private Vector3 _Position;
+    public Vector3 Position
     {
-      get => _Model;
+      get => _Position;
       set
       {
-        _Model = value;
-        Full = Matrix4.Mult (_Model, _Jvp);
+        _Position = value;
+        View = Matrix4.LookAt (_Position, _Target, worldup);
+      }
+    }
+
+    private Vector3 _Target;
+    public Vector3 Target
+    {
+      get => _Target;
+      set
+      {
+        _Target = value;
+        View = Matrix4.LookAt (_Position, _Target, worldup);
       }
     }
 
@@ -40,17 +52,6 @@ namespace frontend.Gl
       }
     }
 
-    private Vector3 _Position;
-    public Vector3 Position
-    {
-      get => _Position;
-      set
-      {
-        _Position = value;
-        Jvp = Matrix4.Mult (_View, _Projection);
-      }
-    }
-
     private Matrix4 _Jvp;
     public Matrix4 Jvp
     {
@@ -58,31 +59,19 @@ namespace frontend.Gl
       private set
       {
         _Jvp = value;
-        Full = Matrix4.Mult (_Model, _Jvp);
       }
     }
 
-    private Matrix4 _Full;
-    public Matrix4 Full
-    {
-      get => _Full;
-      private set
-      {
-        _Full = value;
-      }
-    }
-
-    public void Project (int width, int height, float fov)
-    {
-      var fovy = MathHelper.DegreesToRadians (fov);
-      var aspect = ((float) width) / ((float) height);
-      Projection = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 100);
-    }
-
-    private static Vector3 worldup = new Vector3(0, 1, 0);
+    private static Vector3 worldup = new Vector3 (0, 1, 0);
     private static float max_pitch = MathHelper.DegreesToRadians (89);
     private static float min_pitch = MathHelper.DegreesToRadians (-89);
     private static float angle_center = MathHelper.DegreesToRadians (0);
+
+    public void Project (int width, int height, float fovy)
+    {
+      var aspect = ((float) width) / ((float) height);
+      Projection = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 100f);
+    }
 
     public void LookAt (float yaw, float pitch)
     {
@@ -92,34 +81,29 @@ namespace frontend.Gl
       if (pitch < min_pitch)
         pitch = min_pitch;
 
-      var front = new Vector3 ();
-
+      Vector3 front;
       front.X = (float) (MathHelper.Cos (yaw) * MathHelper.Cos (pitch));
       front.Y = (float) (MathHelper.Sin (pitch));
       front.Z = (float) (MathHelper.Sin (yaw) * MathHelper.Cos (pitch));
-      front = Vector3.Normalize (front);
+      front.Normalize ();
 
       var right = Vector3.Cross (worldup, front);
           right.Normalize ();
       var up = Vector3.Cross (front, right);
-      View = Matrix4.LookAt (_Position, _Position + front, up);
+          up.Normalize ();
+
+      _Target = _Position + front;
+      View = Matrix4.LookAt (_Position, _Target, up);
     }
 
     public void LookAt (float x, float y, float z)
     {
-      var target = new Vector3 (x, y, z);
-      View = Matrix4.LookAt (_Position, target, worldup);
+      Target = new Vector3 (x, y, z);
     }
 
     public void MoveAt (float x, float y, float z)
     {
       Position = new Vector3 (x, y, z);
-    }
-
-    public Mvp ()
-    {
-      MoveAt (0, 0, 0);
-      LookAt (angle_center, angle_center);
     }
   }
 }

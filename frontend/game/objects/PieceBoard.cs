@@ -13,6 +13,7 @@ namespace frontend.Game.Objects
     public int Head1Value { get; private set; }
     public PieceObject? Head2 { get; private set; }
     public int Head2Value { get; private set; }
+    private static readonly Vector3 displace;
 
 #region API
 
@@ -25,8 +26,8 @@ namespace frontend.Game.Objects
 
       if (Head1 == Head2 && Head1 == null)
         {
-          piece.Direction = Vector3.UnitY + Vector3.UnitZ;
-          piece.Angle = MathHelper.DegreesToRadians (90);
+          piece.Direction = Vector3.UnitZ + Vector3.UnitX;
+          piece.Angle = MathHelper.DegreesToRadians (180);
           piece.Position = Vector3.Zero;
 
           Head1 = piece;
@@ -44,31 +45,32 @@ namespace frontend.Game.Objects
 
 #region Gl.IDrawable
 
-    public class Board : Gl.IDrawable
+    public class Board : Gl.SingleModel
     {
-      public bool Visible { get; set; }
-      public void Draw (Gl.Pencil pencil) { }
+      private static string modelName;
+      public Board () : base (modelName) { }
+      static Board ()
+      {
+        var basedir = Application.DataDir;
+        var relative = "models/table/scene.gltf";
+        modelName = Path.Combine (basedir, relative);
+      }
     }
 
-    private int locMvp = -1;
-    public override void Draw (Gl.Pencil pencil)
+    public override void Draw (Gl.Frame frame)
     {
-      if (locMvp == -1)
-        {
-          var pid = GL.GetInteger (GetPName.CurrentProgram);
-          locMvp = GL.GetUniformLocation (pid, "aMvp");
-        }
-
       if (Visible)
         {
-          base.Draw (pencil);
+          var camera = frame.Camera;
+          var target = camera.Target;
           var list = Head1;
+
+          base.Position = target + displace;
+          base.Draw (frame);
+
           while (list != null)
             {
-              var mvp = list.Model;
-              GL.UniformMatrix4 (locMvp, false, ref mvp);
-
-              list.Draw (pencil);
+              list.Draw (frame);
               list = list.Next;
             }
         }
@@ -85,6 +87,13 @@ namespace frontend.Game.Objects
         {
           throw new Exception ("can't handle more than two faces");
         }
+
+      Scale = new Vector3 (10, 10, 10);
+    }
+
+    static PieceBoard ()
+    {
+      displace = new Vector3 (0, -0.2f, 0);
     }
 
 #endregion

@@ -28,16 +28,13 @@ namespace frontend.Game.Objects
         }
 
       var tex = textures.Single ();
-      var surface1 = new ImageSurface (Format.Argb32, canvasWidth, canvasHeight);
-      var cairo1 = new Cairo.Context (surface1);
-      var surface2 = new ImageSurface (Format.Argb32, canvasWidth, canvasHeight);
-      var cairo2 = new Cairo.Context (surface2);
     }
 
     static PieceModel ()
     {
       var parent = Application.DataDir;
       var relative = "models/piece/scene.gltf";
+
       modelPath = System.IO.Path.Combine (parent, relative);
       canvasHeight = bottomMost - topMost;
       canvasWidth = rightMost - leftMost;

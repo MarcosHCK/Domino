@@ -6,15 +6,21 @@ using OpenTK.Mathematics;
 
 namespace frontend.Game
 {
-  public abstract class Object : Gl.IDrawable, Gl.IModelable, Gl.ILocalizable, Gl.IRotable, Gl.IScalable
+  public abstract class Object : Gl.IDrawable, Gl.ILocalizable, Gl.IRotable, Gl.IScalable
   {
-    private Gl.IDrawable model;
-    public Matrix4 Model { get; set; }
+    private Gl.IDrawable drawable;
+
+    private Matrix4 _Model;
+    public Matrix4 Model
+    {
+      get => _Model;
+      set => _Model = value;
+    }
 
     public bool Visible
     {
-      get => model.Visible;
-      set => model.Visible = value;
+      get => drawable.Visible;
+      set => drawable.Visible = value;
     }
 
     private void UpdateModel ()
@@ -70,13 +76,17 @@ namespace frontend.Game
       }
     }
 
-    public virtual void Draw (Gl.Pencil pencil) => model.Draw (pencil);
+    public virtual void Draw (Gl.Frame frame)
+    {
+      frame.Model = _Model;
+      drawable.Draw (frame);
+    }
 
 #region Constructors
 
-    protected Object (Gl.IDrawable model)
+    protected Object (Gl.IDrawable drawable)
     {
-      this.model = model;
+      this.drawable = drawable;
       _Position = new Vector3 (0, 0, 0);
       _Scale = new Vector3 (1, 1, 1);
       Direction = new Vector3 (1, 0, 0);

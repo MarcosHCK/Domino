@@ -8,27 +8,28 @@ namespace frontend.Gl
 {
   public class Program
   {
-    private int pid;
+    private int _Pid;
+    public int Pid { get => _Pid; }
     private bool separate;
 
-    public void Use () => GL.UseProgram (pid);
-    public int Uniform (string name) => GL.GetUniformLocation (pid, name);
+    public void Use () => GL.UseProgram (_Pid);
+    public int Uniform (string name) => GL.GetUniformLocation (_Pid, name);
 
     public void Link ()
     {
       var result = new int [1];
       var length = new int [1];
 
-      GL.LinkProgram (pid);
-      GL.GetProgram (pid, GetProgramParameterName.LinkStatus, result);
-      GL.GetProgram (pid, GetProgramParameterName.InfoLogLength, length);
+      GL.LinkProgram (_Pid);
+      GL.GetProgram (_Pid, GetProgramParameterName.LinkStatus, result);
+      GL.GetProgram (_Pid, GetProgramParameterName.InfoLogLength, length);
 
       if (result[0] == (int) All.False)
         {
           string infoLog;
           int Length;
 
-          GL.GetProgramInfoLog (pid, length [0], out Length, out infoLog);
+          GL.GetProgramInfoLog (_Pid, length [0], out Length, out infoLog);
           throw new ProgramException ("can't link: " + infoLog);
         }
     }
@@ -75,13 +76,13 @@ namespace frontend.Gl
     public void SetUniform (int loc, int value)
     {
       if (!separate) throw new NotSupportedException ();
-      GL.ProgramUniform1 (pid, loc, value);
+      GL.ProgramUniform1 (_Pid, loc, value);
     }
 
     public void SetUniform (int loc, uint value)
     {
       if (!separate) throw new NotSupportedException ();
-      GL.ProgramUniform1 (pid, loc, value);
+      GL.ProgramUniform1 (_Pid, loc, value);
     }
 
     [System.Serializable]
@@ -132,8 +133,8 @@ namespace frontend.Gl
       }
 
       public void Load (string code) => GL.ShaderSource (sid, 1, new string [] { code }, new int [] { code.Length });
-      public void Attach (Program program) => GL.AttachShader (program.pid, sid);
-      public void Detach (Program program) => GL.DetachShader (program.pid, sid);
+      public void Attach (Program program) => GL.AttachShader (program._Pid, sid);
+      public void Detach (Program program) => GL.DetachShader (program._Pid, sid);
       public Shader (ShaderType type) => sid = GL.CreateShader (type);
       ~Shader () => GL.DeleteShader (sid);
     }
@@ -142,7 +143,7 @@ namespace frontend.Gl
 
     public Program()
     {
-      pid = GL.CreateProgram();
+      _Pid = GL.CreateProgram();
 
       separate = false;
       separate |= Game.Window.CheckVersion (4, 1);
@@ -151,7 +152,7 @@ namespace frontend.Gl
 
     ~Program()
     {
-      GL.DeleteProgram(pid);
+      GL.DeleteProgram(_Pid);
     }
 
 #endregion

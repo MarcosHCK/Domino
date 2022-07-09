@@ -20,11 +20,12 @@ namespace frontend.Gl
       public int[] vertices;
     }
 
-    public void Draw (Pencil pencil)
+    public void Draw (Frame frame)
     {
       if (Visible)
       {
         var target = BufferTarget.ElementArrayBuffer;
+        var pencil = frame.Pencil;
 
         pencil.BindBuffer (vbo);
         GL.BindBuffer (target, ebo);

@@ -8,6 +8,6 @@ namespace frontend.Gl
   public interface IDrawable
   {
     public bool Visible { get; set; }
-    public void Draw (Pencil pencil);
+    public void Draw (Frame frame);
   }
 }

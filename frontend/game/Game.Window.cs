@@ -15,12 +15,11 @@ namespace frontend.Game
     [Gtk.Builder.Object]
     private Gtk.GLArea? glarea1;
     private Gl.Program? program;
-    private Gl.Pencil? pencil;
+    private Gl.Frame? frame;
     private Gl.Skybox? skybox;
-    private Gl.Mvp mvps;
+    private Vector3 defaultcamera;
 
     public List<Game.Object> Objects { get; private set; }
-    public Game.Objects.PieceBoard? Board { get; private set; }
     public Game.Engine Engine { get; private set; }
 
     private const int targetFPS = 60;
@@ -52,14 +51,10 @@ namespace frontend.Game
 
     private void DoPipeline ()
     {
-      pencil!.BindArray ();
+      frame!.Pencil!.BindArray ();
       foreach (var object_ in Objects)
       {
-        mvps.Model = object_.Model;
-        var mvp = mvps.Full;
-
-        GL.UniformMatrix4 (locMvp, false, ref mvp);
-        object_.Draw (pencil!);
+        object_.Draw (frame!);
       }
     }
 
@@ -69,10 +64,10 @@ namespace frontend.Game
       if (update)
         {
           update = false;
-          var jvp = mvps.Jvp;
+          var camera = frame!.Camera;
+          var jvp = camera.Jvp;
+
           GL.UniformMatrix4 (locJvp, false, ref jvp);
-          var mvp = mvps.Full;
-          GL.UniformMatrix4 (locMvp, false, ref mvp);
 
           DoPipeline ();
           skybox!.Jvp = jvp;
@@ -106,8 +101,10 @@ namespace frontend.Game
       if (glarea1!.Error != IntPtr.Zero)
         throw new Exception ("GL");
 
+      var fovy = MathHelper.DegreesToRadians (fov);
+      frame!.Camera.Project (a.Width, a.Height, fovy);
       update = true;
-      mvps.Project (a.Width, a.Height, fov);
+
       this.QueueDraw ();
     }
 
@@ -115,6 +112,52 @@ namespace frontend.Game
     {
       Engine.StopAndWait ();
       a.RetVal = false;
+    }
+
+    private void OnKeyPressed (object? o, Gtk.KeyPressEventArgs a)
+    {
+      var press = a.Event;
+      var mods = press.State;
+      Vector3 pos;
+
+      if (!mods.HasFlag (Gdk.ModifierType.ReleaseMask))
+      {
+        switch (a.Event.Key)
+        {
+          case Gdk.Key.A:
+          case Gdk.Key.a:
+            pos = frame!.Camera.Position;
+            pos.X -= 1;
+            frame!.Camera.Position = pos;
+            update = true;
+            glarea1!.QueueRender ();
+            break;
+          case Gdk.Key.D:
+          case Gdk.Key.d:
+            pos = frame!.Camera.Position;
+            pos.X += 1;
+            frame!.Camera.Position = pos;
+            update = true;
+            glarea1!.QueueRender ();
+            break;
+          case Gdk.Key.W:
+          case Gdk.Key.w:
+            pos = frame!.Camera.Position;
+            pos.Y += 1;
+            frame!.Camera.Position = pos;
+            update = true;
+            glarea1!.QueueRender ();
+            break;
+          case Gdk.Key.S:
+          case Gdk.Key.s:
+            pos = frame!.Camera.Position;
+            pos.Y -= 1;
+            frame!.Camera.Position = pos;
+            update = true;
+            glarea1!.QueueRender ();
+            break;
+        }
+      }
     }
 
     private void OnRealize (object? o, EventArgs a)
@@ -173,13 +216,7 @@ namespace frontend.Game
           }
       }
 
-      var program = new Gl.Program ();
       var shaders = new (string, ShaderType) [2];
-      var skybox = new Gl.Skybox (skyboxdir, "$s.dds");
-
-      this.pencil = new Gl.Pencil ();
-      this.program = program;
-      this.skybox = skybox;
 
       if (glarea1!.UseEs)
         {
@@ -192,18 +229,26 @@ namespace frontend.Game
           shaders [1] = (LoadShaderCode ("model.fs.glsl"), ShaderType.FragmentShader);
         }
 
+      skybox = new Gl.Skybox (skyboxdir, "$s.dds");
+      program = new Gl.Program ();
       program.Link (shaders);
 
       locJvp = program.Uniform ("aJvp");
       locMvp = program.Uniform ("aMvp");
+      frame = new Gl.Frame (locMvp);
       Gl.Model.BindUnits (program);
 
-      Board = new Game.Objects.PieceBoard (2);
-      Objects.Add (Board);
-      Engine.Start ();
+      defaultcamera = new Vector3 (0, 7, 13);
+      frame.Camera.Position = defaultcamera;
+      frame.Camera.LookAt (0, 0, 0);
 
-      Board.Visible = true;
-      Board.Append (2, 5);
+      var
+      board = new Game.Objects.PieceBoard (2);
+      board.Visible = true;
+      board.Append (2, 5);
+
+      Objects.Add (board);
+      Engine.Start ();
 
       clock = GLib.Timeout.Add
       (((uint) 1000 / targetFPS),
@@ -216,13 +261,13 @@ namespace frontend.Game
 
     private void OnUnrealize (object? o, EventArgs a)
     {
+      Console.WriteLine ("OpenGL context detached");
       GLib.Source.Remove (clock);
 
       Objects.Clear ();
-      Board = null;
 
       program = null;
-      pencil = null;
+      frame = null;
       skybox = null;
     }
 
@@ -235,10 +280,6 @@ namespace frontend.Game
       Gtk.TemplateBuilder.InitTemplate (this);
       Objects = new List<Game.Object> ();
       Engine = engine;
-
-      mvps = new Gl.Mvp ();
-      mvps.Position = new Vector3 (0, 10, 10);
-      mvps.LookAt (0, 0, 0);
     }
 
     static Window ()

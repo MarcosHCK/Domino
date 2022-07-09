@@ -173,7 +173,7 @@ namespace frontend.Gl
       GL.UniformMatrix4 (locJvp, false, ref _Jvp);
     }
 
-    private Skybox () : this (new Program())
+    private Skybox () : this (new Program ())
     {
       vao = GL.GenVertexArray ();
       tio = GL.GenTexture ();
