@@ -25,7 +25,9 @@ namespace frontend.Game
     private Gl.Skybox? skybox;
     private Vector3 defaultcamera;
 
+    private List<(int, int[])> boarded;
     private List<Game.Object> objects;
+    private Game.Engine.ActionHandler? actionHandler;
     private Game.Engine engine;
 
     private const int targetFPS = 60;
@@ -33,7 +35,6 @@ namespace frontend.Game
     private bool update = true;
     private int locJvp;
     private int locMvp;
-    private uint clock;
 
     private static Dictionary<string, bool> extensions;
     private static bool opentk_done = false;
@@ -272,21 +273,40 @@ namespace frontend.Game
       var
       board = new Objects.PieceBoard (2);
       board.Visible = true;
-
       objects.Add (board);
 
-      clock = GLib.Timeout.Add
-      (((uint) 1000 / targetFPS),
-       () =>
+      foreach (var tuple in boarded)
         {
-          glarea1!.QueueRender ();
-          return true;
-        });
+          board.Append (tuple.Item1, tuple.Item2);
+        }
+
+      actionHandler = (o, arg) =>
+        {
+          if (arg is Engine.MoveArgs)
+          {
+            var a = (Engine.MoveArgs) arg;
+            var putat = a.PutAt;
+            var piece = a.Piece;
+            if (piece != null)
+            {
+              GLib.Idle.Add (() =>
+              {
+                boarded.Add ((putat, piece));
+                board.Append (putat, piece);
+                glarea1!.QueueRender ();
+                return false;
+              });
+            }
+          }
+        };
+
+      engine.Action += actionHandler;
     }
 
     private void OnUnrealize (object? o, EventArgs a)
     {
-      GLib.Source.Remove (clock);
+      engine.Action -= actionHandler;
+
       objects.Clear ();
 
       program = null;
@@ -304,8 +324,39 @@ namespace frontend.Game
     {
       Gtk.TemplateBuilder.InitTemplate (this);
 
+      this.boarded = new List<(int, int[])> ();
       this.objects = new List<Game.Object> ();
       this.engine = engine;
+
+      forward1!.Clicked += (o, a) =>
+      {
+        if (frame != null)
+        {
+          engine.PollNext ();
+        }
+      };
+
+      var clock = (uint) 0;
+      keep1!.AddNotification ("active", (o, a) =>
+        {
+          var keep1 = (Gtk.ToggleButton) o!;
+          if (keep1.Active && clock == 0)
+          {
+            Console.WriteLine ("activating");
+            clock = GLib.Timeout.Add (400, () =>
+            {
+              engine.PollNext ();
+              return true;
+            });
+          }
+          else
+          if (!keep1.Active && clock != 0)
+          {
+            Console.WriteLine ("deactivating");
+            GLib.Timeout.Remove (clock);
+            clock = 0;
+          }
+        });
     }
 
     static Window ()

@@ -3,6 +3,7 @@
  *
  */
 using System.Text.RegularExpressions;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 
@@ -11,56 +12,14 @@ namespace frontend.Game
   public class Engine
   {
     private Process proc;
-    private string argument = "None";
-
-#region Process API
-
+    private ConcurrentQueue<ActionArgs> pendings;
+    private long QuitFlag = 0;
+    private long NextFlag = 0;
     public bool HasExited { get; private set; }
-    public bool Started { get; private set; }
-
-    public void Start ()
-    {
-      if (HasExited)
-        return;
-      if (Started)
-        return;
-
-      proc.Start ();
-      proc.BeginOutputReadLine ();
-      proc.BeginErrorReadLine ();
-      proc.StandardInput.WriteLine (argument);
-      Started = true;
-    }
-
-    public void Stop ()
-    {
-      if (HasExited)
-        return;
-      if (!Started)
-        return;
-
-      proc.CancelErrorRead ();
-      proc.CancelOutputRead ();
-      proc.Kill ();
-    }
-
-    public void StopAndWait ()
-    {
-      if (HasExited)
-        return;
-      if (!Started)
-        return;
-
-      this.Stop ();
-      proc.WaitForExit ();
-    }
-
-#endregion
 
 #region Commands API
 
-    public event ExchangeHandler Exchange;
-    public event MoveHandler Move;
+    public event ActionHandler Action;
 
     public delegate void ActionHandler (Engine engine, ActionArgs a);
     public class ActionArgs : EventArgs
@@ -92,7 +51,7 @@ namespace frontend.Game
     {
       public bool Passes { get; private set; }
       public int PutAt { get; private set; }
-      public List<int>? Piece { get; private set; }
+      public int[]? Piece { get; private set; }
 
       public MoveArgs (string Player)
         : base (Player)
@@ -100,22 +59,24 @@ namespace frontend.Game
         this.Passes = true;
       }
 
-      public MoveArgs (string Player, int PutAt, params int[] pieces)
+      public MoveArgs (string Player, int PutAt, params int[] piece)
         : base (Player)
       {
         this.Passes = false;
         this.PutAt = PutAt;
-        this.Piece = new List<int> ();
-        this.Piece.Concat (pieces);
+        this.Piece = piece;
       }
+    }
 
-      public MoveArgs (string Player, int PutAt, List<int> Piece)
-        : base (Player)
-      {
-        this.Passes = false;
-        this.PutAt = PutAt;
-        this.Piece = Piece;
-      }
+#endregion
+
+#region API
+
+    public void PollNext ()
+    {
+      ActionArgs? action;
+      if (pendings.TryDequeue (out action))
+        Action (this, action);
     }
 
 #endregion
@@ -126,14 +87,14 @@ namespace frontend.Game
     public class EngineException : System.Exception
     {
       public EngineException () { }
-      public EngineException (string message) : base(message) { }
-      public EngineException (string message, System.Exception inner) : base(message, inner) { }
+      public EngineException (string message) : base (message) { }
+      public EngineException (string message, System.Exception inner) : base (message, inner) { }
       protected EngineException (
         System.Runtime.Serialization.SerializationInfo info,
-        System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+        System.Runtime.Serialization.StreamingContext context) : base (info, context) { }
     }
 
-    private List<int>? MakePiece (string piece_)
+    private int[]? MakePiece (string piece_)
     {
       var match = piece.Match (piece_);
       var list = (List<int>?) null;
@@ -148,11 +109,14 @@ namespace frontend.Game
           match = match.NextMatch ();
         } while (match.Success);
       }
-    return list;
+    return list == null ? null : list.ToArray ();
     }
 
     private void OnOutput (object? o, DataReceivedEventArgs a)
     {
+      if (Interlocked.Read (ref QuitFlag) > 0)
+        return;
+
       var line = a.Data;
       if (line != null)
       {
@@ -189,7 +153,7 @@ namespace frontend.Game
                       throw new EngineException (message);
                     }
 
-                  Exchange (this, new ExchangeArgs (player, losses, takes));
+                  pendings.Enqueue (new ExchangeArgs (player, losses, takes));
                 }
               break;
             case "Jugada":
@@ -205,7 +169,8 @@ namespace frontend.Game
                   else
                   {
                     var player = match.Groups [1].Value;
-                    Move (this, new MoveArgs (player));
+
+                    pendings.Enqueue (new MoveArgs (player));
                   }
                 }
               else
@@ -230,7 +195,7 @@ namespace frontend.Game
                       throw new EngineException (message);
                     }
 
-                  Move (this, new MoveArgs (player, piece_head, piece));
+                  pendings.Enqueue (new MoveArgs (player, piece_head, piece));
                 }
               break;
           }
@@ -240,10 +205,17 @@ namespace frontend.Game
 
     private void OnError (object? o, DataReceivedEventArgs a)
     {
-      Console.Error.WriteLine (a.Data);
-      Console.Error.WriteLine (proc.MainModule);
-      Console.Error.WriteLine (proc.ExitCode);
-      throw new EngineException ("Game engine give us error output");
+      if (HasExited)
+        {
+          Console.Error.WriteLine (proc.MainModule);
+          Console.Error.WriteLine (proc.ExitCode);
+          throw new EngineException ("Game engine crashed");
+        }
+      else
+        {
+          Console.Error.WriteLine (a.Data);
+          throw new EngineException ("Game engine give us error output");
+        }
     }
 
     private void OnExited (object? o, EventArgs a)
@@ -257,7 +229,9 @@ namespace frontend.Game
 
     private Engine (string binary)
     {
-      var
+      ProcessStartInfo info;
+      pendings = new ConcurrentQueue<ActionArgs> ();
+
       info = new ProcessStartInfo ();
       info.FileName = binary;
       info.CreateNoWindow = true;
@@ -272,18 +246,30 @@ namespace frontend.Game
       proc.ErrorDataReceived += OnError;
       proc.Exited += OnExited;
 
-      Exchange += (o, a) => { };
-      Move += (o, a) => { };
+      Action += (o, a) => { };
     }
 
     public Engine (Rule rule, string binary) : this (binary)
     {
-      if (rule.Name != null)
-        argument = rule.Name;
+      if (rule.Name == null)
+        throw new NullReferenceException ();
       else
         {
-          throw new NullReferenceException ();
+          proc.Start ();
+          proc.BeginOutputReadLine ();
+          proc.BeginErrorReadLine ();
+          proc.StandardInput.WriteLine (rule.Name);
         }
+    }
+
+    ~Engine ()
+    {
+      Console.WriteLine ("termination");
+      Interlocked.Increment (ref QuitFlag);
+      proc.CancelErrorRead ();
+      proc.CancelOutputRead ();
+      proc.Kill ();
+      proc.WaitForExit ();
     }
 
     private static Regex actions;
