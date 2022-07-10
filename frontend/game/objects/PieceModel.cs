@@ -12,7 +12,7 @@ namespace frontend.Game.Objects
 
 #region Constructors
 
-    private static readonly double textureSize = 2048;
+    private static readonly double textureSize = 256;
     private static readonly double canvasWidth = (480d / 2048d) * textureSize;
     private static readonly double canvasHeight = (420d / 2048d) * textureSize;
     private static readonly double topX = (190d / 2048d) * textureSize;

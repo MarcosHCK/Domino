@@ -15,13 +15,18 @@ namespace frontend.Game
   {
     [Gtk.Builder.Object]
     private Gtk.GLArea? glarea1;
+    [Gtk.Builder.Object]
+    private Gtk.ToggleButton? keep1;
+    [Gtk.Builder.Object]
+    private Gtk.Button? forward1;
+
     private Gl.Program? program;
     private Gl.Frame? frame;
     private Gl.Skybox? skybox;
     private Vector3 defaultcamera;
 
-    public List<Game.Object> Objects { get; private set; }
-    public Game.Engine Engine { get; private set; }
+    private List<Game.Object> objects;
+    private Game.Engine engine;
 
     private const int targetFPS = 60;
     private const float fov = 45;
@@ -53,7 +58,7 @@ namespace frontend.Game
     private void DoPipeline ()
     {
       frame!.Pencil!.BindArray ();
-      foreach (var object_ in Objects)
+      foreach (var object_ in objects)
       {
         object_.Draw (frame!);
       }
@@ -111,7 +116,6 @@ namespace frontend.Game
 
     private void OnDeleteEvent (object? o, Gtk.DeleteEventArgs a)
     {
-      Engine.StopAndWait ();
       a.RetVal = false;
     }
 
@@ -258,6 +262,7 @@ namespace frontend.Game
       locJvp = program.Uniform ("aJvp");
       locMvp = program.Uniform ("aMvp");
       frame = new Gl.Frame (locMvp);
+
       Gl.Model.BindUnits (program);
 
       defaultcamera = new Vector3 (0, 7, 13);
@@ -265,33 +270,10 @@ namespace frontend.Game
       frame.Camera.LookAt (0, 0, 0);
 
       var
-      board = new Game.Objects.PieceBoard (2);
+      board = new Objects.PieceBoard (2);
       board.Visible = true;
-      //board.Append (new int [] { 0, 2 });
 
-      Engine.Move += (o, a) =>
-      {
-        if (a.Piece != null)
-        {
-          var piece = a.Piece.ToArray ();
-          long locker = 1;
-
-          GLib.Idle.Add (() =>
-          {
-            board.Append (piece);
-            Interlocked.Decrement (ref locker);
-            return false;
-          });
-
-          SpinWait.SpinUntil (() =>
-            {
-              return Interlocked.Read (ref locker) == 0;
-            });
-        }
-      };
-
-      Objects.Add (board);
-      Engine.Start ();
+      objects.Add (board);
 
       clock = GLib.Timeout.Add
       (((uint) 1000 / targetFPS),
@@ -304,14 +286,14 @@ namespace frontend.Game
 
     private void OnUnrealize (object? o, EventArgs a)
     {
-      Console.WriteLine ("OpenGL context detached");
       GLib.Source.Remove (clock);
-
-      Objects.Clear ();
+      objects.Clear ();
 
       program = null;
       frame = null;
       skybox = null;
+
+      Console.WriteLine ("OpenGL context detached");
     }
 
 #endregion
@@ -321,18 +303,14 @@ namespace frontend.Game
     public Window (Engine engine) : base (null)
     {
       Gtk.TemplateBuilder.InitTemplate (this);
-      Objects = new List<Game.Object> ();
-      Engine = engine;
+
+      this.objects = new List<Game.Object> ();
+      this.engine = engine;
     }
 
     static Window ()
     {
       extensions = new Dictionary<string, bool> ();
-    }
-
-    ~Window ()
-    {
-      Engine.Stop ();
     }
 
 #endregion

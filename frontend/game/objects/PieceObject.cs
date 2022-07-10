@@ -25,7 +25,7 @@ namespace frontend.Game.Objects
         System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 
-    public PieceObject Append (PieceObject head, PieceObject link)
+    public static PieceObject Append (PieceObject head, PieceObject link)
     {
       var last = Last (head);
       last.Next = link;
@@ -33,14 +33,14 @@ namespace frontend.Game.Objects
     return head;
     }
 
-    public PieceObject Prepend (PieceObject head, PieceObject link)
+    public static PieceObject Prepend (PieceObject head, PieceObject link)
     {
       head.Prev = link;
       link.Next = head;
     return link;
     }
 
-    public PieceObject Last (PieceObject head)
+    public static PieceObject Last (PieceObject head)
     {
       while (head.Next != null)
         head = head.Next;
