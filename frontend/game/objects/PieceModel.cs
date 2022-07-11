@@ -149,7 +149,7 @@ namespace frontend.Game.Objects
         GL.BindTexture (TextureTarget.Texture2DArray, 0);
         GL.ActiveTexture (TextureUnit.Texture0);
 
-        textures.Single ().tios [0] = tio;
+        materials.Single ().Material.Textures [0] = tio;
       }
     }
 

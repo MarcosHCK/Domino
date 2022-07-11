@@ -13,86 +13,20 @@ namespace frontend.Gl
     protected int vbo;
     protected int ebo;
 
-    protected Texture[] textures;
+    protected MaterialGroup[] materials;
     protected Mesh[] meshes;
 
-#region Types
+#region Type
 
-    protected class Texture
+    protected class MaterialGroup
     {
-      public List<Mesh> meshes { get; private set; }
-      public int [] tios {get; private set; }
-      private bool multiple = false;
-      private bool direct = false;
+      public Material Material { get; private set; }
+      public List<Mesh> Meshes { get; private set; }
 
-      public int diffuse { get => tios [0]; }
-      public int specular { get => tios [1]; }
-      public int normals { get => tios [2]; }
-      public int height { get => tios [3]; }
-
-      public static readonly string [] uniforms =
-      new string []
+      public MaterialGroup (Assimp.Material loader, string basedir)
       {
-        "aDiffuse",
-        "aSpecular",
-        "aNormals",
-        "aHeight",
-      };
-
-      public static readonly TextureType [] aitype =
-      new TextureType []
-      {
-        TextureType.Diffuse,
-        TextureType.Specular,
-        TextureType.Normals,
-        TextureType.Height,
-      };
-
-      public void Switch ()
-      {
-        if (multiple)
-          GL.BindTextures (0, tios.Length, tios);
-        else if (direct)
-          {
-            int i;
-            for (i = 0; i < tios.Length; i++)
-            {
-              GL.BindTextureUnit (i, tios [i]);
-            }
-          }
-        else
-          {
-            int i;
-            for (i = 0; i < tios.Length; i++)
-            {
-              GL.ActiveTexture (TextureUnit.Texture0 + i);
-              GL.BindTexture (TextureTarget.Texture2DArray, tios [i]);
-            }
-          }
-      }
-
-      public Texture ()
-      {
-        var
-        combined = GL.GetInteger (GetPName.MaxCombinedTextureImageUnits);
-        if (combined < uniforms.Length)
-          throw new Exception ("Too few image units");
-
-        meshes = new List<Mesh> ();
-        tios = new int [uniforms.Length];
-
-        multiple = Game.Window.CheckVersion (4, 4);
-        multiple ^= Game.Window.CheckExtension ("ARB_multi_bind");
-        direct = Game.Window.CheckVersion (4, 5);
-        direct ^= Game.Window.CheckExtension ("ARB_direct_state_access");
-
-        GL.GenTextures (tios.Length, tios);
-      }
-
-      static Texture ()
-      {
-        if (uniforms.Length != aitype.Length)
-          throw new Exception ();
+        Material = new Material (loader, basedir);
+        Meshes = new List<Mesh> ();
       }
     }
 
@@ -105,35 +39,9 @@ namespace frontend.Gl
 
 #endregion
 
-#region Static API
-
-    public static void BindUnits (Program program)
-    {
-      bool
-      separate  = Game.Window.CheckVersion (4, 1);
-      separate |= Game.Window.CheckExtension ("ARB_separate_shader_objects");
-      int unit = 0;
-
-      if (!separate)
-        {
-          program.Use ();
-        }
-
-      foreach (var name in Texture.uniforms)
-      {
-        var loc = program.Uniform (name);
-        if (separate)
-          program.SetUniform (loc, unit++);
-        else
-          GL.Uniform1 (loc, unit++);
-      }
-    }
-
-#endregion
-
 #region private API
 
-    private string LocateTexture (string basedir, Material material, TextureType type, int idx)
+    private string LocateTexture (string basedir, Assimp.Material material, TextureType type, int idx)
     {
       TextureSlot slot;
       material.GetMaterialTexture (type, idx, out slot);
@@ -218,7 +126,7 @@ namespace frontend.Gl
       vertices.Fill (default (Pencil.Vertex));
       indices.Fill (default (int));
 
-      textures = new Texture [scene.MaterialCount];
+      materials = new MaterialGroup [scene.MaterialCount];
       meshes = new Mesh [scene.MeshCount];
 
       try
@@ -301,88 +209,15 @@ namespace frontend.Gl
             var mat = mesh.MaterialIndex;
             if (mat >= 0)
               {
-                if (textures[mat] == null)
+                if (materials[mat] == null)
                 {
-                  var texture = new Texture ();
-                  var material = scene.Materials [mat];
-                  var tios = texture.tios;
-                  textures[mat] = texture;
-
-                  j = 0;
-                  foreach (var tio in tios)
-                  {
-                    GL.ActiveTexture (TextureUnit.Texture0);
-                    GL.BindTexture (TextureTarget.Texture2DArray, tio);
-
-                    try
-                    {
-                      var type = Texture.aitype [j++];
-                      var n_images = material.GetMaterialTextureCount (type);
-
-                      if (n_images == 0)
-                        continue;
-
-                      var images = new Dds [n_images];
-                      var format = (InternalFormat) (-1);
-                      var width = (int) -1;
-                      var height = (int) -1;
-                      var mipmaps = (int) -1;
-
-                      for (int k = 0; k < n_images; k++)
-                      {
-                        var path = LocateTexture (basedir, material, type, k);
-                        var image = new Dds (path);
-
-                        images [k] = image;
-
-                        if (format == (InternalFormat) (-1))
-                          format = image.InternalFormat;
-                        else if (format != image.InternalFormat)
-                          throw new Exception ("Imcompatible material textures");
-
-                        if (width == -1)
-                          width = image.Width;
-                        else if (width != image.Width)
-                          throw new Exception ("Imcompatible material textures");
-
-                        if (height == -1)
-                          height = image.Height;
-                        else if (height != image.Height)
-                          throw new Exception ("Imcompatible material textures");
-
-                        if (mipmaps == -1)
-                          mipmaps = image.Mipmaps;
-                        else if (mipmaps != image.Mipmaps)
-                          throw new Exception ("Imcompatible material textures");
-                      }
-
-                      bool create = false;
-                        create |= Game.Window.CheckVersion (4, 2);
-                        create |= Game.Window.CheckExtension ("ARB_texture_storage");
-
-                      if (create)
-                        {
-                          var format_ = (SizedInternalFormat) format;
-                          GL.TexStorage3D (TextureTarget3d.Texture2DArray, mipmaps, format_, width, height, n_images);
-                        }
-
-                      for (int k = 0; k < n_images; k++)
-                      {
-                        images [k].Load3D (TextureTarget.Texture2DArray, k, !create);
-                      }
-
-                      GL.TexParameter (TextureTarget.Texture2DArray, TextureParameterName.TextureMinFilter, (int) All.LinearMipmapLinear);
-                      GL.TexParameter (TextureTarget.Texture2DArray, TextureParameterName.TextureMagFilter, (int) All.Linear);
-                      GL.TexParameter (TextureTarget.Texture2DArray, TextureParameterName.TextureWrapS, (int) All.ClampToEdge);
-                      GL.TexParameter (TextureTarget.Texture2DArray, TextureParameterName.TextureWrapT, (int) All.ClampToEdge);
-                    }
-                    catch { GL.BindTexture (TextureTarget.Texture2DArray, 0); throw; }
-                    finally { GL.BindTexture (TextureTarget.Texture2DArray, 0); } 
-                  }
+                  var loader = scene.Materials [mat];
+                  var material = new MaterialGroup (loader, basedir);
+                  materials [mat] = material;
                 }
 
                 var
-                list = textures [mat].meshes;
+                list = materials [mat].Meshes;
                 list.Add (meshes [i]);
               }
 

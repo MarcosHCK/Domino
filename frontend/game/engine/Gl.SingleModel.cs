@@ -14,7 +14,7 @@ namespace frontend.Gl
 
     struct Group
     {
-      public Model.Texture texture;
+      public Material material;
       public int[] counts;
       public int[] indices;
       public int[] vertices;
@@ -32,7 +32,7 @@ namespace frontend.Gl
 
         foreach (var group in groups)
         {
-          group.texture.Switch ();
+          frame.Material = group.material;
           GL.MultiDrawElementsBaseVertex<int>
           (PrimitiveType.Triangles,
            group.counts,
@@ -52,9 +52,9 @@ namespace frontend.Gl
     {
       groups = new List<Group> ();
 
-      foreach (var texture in textures)
+      foreach (var materialGroup in materials)
         {
-          if (texture == null)
+          if (materialGroup == null)
             continue;
 
           var group = new Group ();
@@ -62,7 +62,7 @@ namespace frontend.Gl
           var indices = new List <int> ();
           var vertices = new List <int> ();
 
-          foreach (var mesh in texture.meshes)
+          foreach (var mesh in materialGroup.Meshes)
           {
             if (mesh == null)
               continue;
@@ -75,7 +75,7 @@ namespace frontend.Gl
           if (counts.Count == 0)
             continue;
 
-          group.texture = texture;
+          group.material = materialGroup.Material;
           group.counts = counts.ToArray ();
           group.indices = indices.ToArray ();
           group.vertices = vertices.ToArray ();

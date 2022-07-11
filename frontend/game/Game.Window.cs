@@ -20,21 +20,15 @@ namespace frontend.Game
     [Gtk.Builder.Object]
     private Gtk.Button? forward1;
 
-    private Gl.Program? program;
-    private Gl.Frame? frame;
-    private Gl.Skybox? skybox;
-    private Vector3 defaultcamera;
-
     private List<(int, int[])> boarded;
     private List<Game.Object> objects;
+    private Gl.Frame? frame;
+
     private Game.Engine.ActionHandler? actionHandler;
     private Game.Engine engine;
 
     private const int targetFPS = 60;
     private const float fov = 45;
-    private bool update = true;
-    private int locJvp;
-    private int locMvp;
 
     private static Dictionary<string, bool> extensions;
     private static bool opentk_done = false;
@@ -56,37 +50,6 @@ namespace frontend.Game
       a.RetVal = context;
     }
 
-    private void DoPipeline ()
-    {
-      frame!.Pencil!.BindArray ();
-      foreach (var object_ in objects)
-      {
-        object_.Draw (frame!);
-      }
-    }
-
-    private void DoRender ()
-    {
-      program!.Use ();
-      if (update)
-        {
-          update = false;
-          var camera = frame!.Camera;
-          var jvp = camera.Jvp;
-
-          GL.UniformMatrix4 (locJvp, false, ref jvp);
-
-          DoPipeline ();
-          skybox!.Jvp = jvp;
-          skybox!.Draw ();
-        }
-      else
-        {
-          DoPipeline ();
-          skybox!.Draw ();
-        }
-    }
-
     private void OnRender (object? o, Gtk.RenderArgs a)
     {
       glarea1!.MakeCurrent ();
@@ -97,7 +60,10 @@ namespace frontend.Game
         }
 
       GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-      DoRender ();
+      frame!.Begin ();
+
+      foreach (var object_ in objects)
+        object_.Draw (frame!);
 
       a.RetVal = true;
     }
@@ -110,7 +76,7 @@ namespace frontend.Game
 
       var fovy = MathHelper.DegreesToRadians (fov);
       frame!.Camera.Project (a.Width, a.Height, fovy);
-      update = true;
+      frame!.ShouldUpdate = true;
 
       this.QueueDraw ();
     }
@@ -135,7 +101,8 @@ namespace frontend.Game
             pos = frame!.Camera.Position;
             pos.X -= 1;
             frame!.Camera.Position = pos;
-            update = true;
+            frame!.Camera.LookAt (pos.X, 0, 0);
+            frame!.ShouldUpdate = true;
             glarea1!.QueueRender ();
             break;
           case Gdk.Key.D:
@@ -143,7 +110,8 @@ namespace frontend.Game
             pos = frame!.Camera.Position;
             pos.X += 1;
             frame!.Camera.Position = pos;
-            update = true;
+            frame!.Camera.LookAt (pos.X, 0, 0);
+            frame!.ShouldUpdate = true;
             glarea1!.QueueRender ();
             break;
           case Gdk.Key.W:
@@ -151,7 +119,7 @@ namespace frontend.Game
             pos = frame!.Camera.Position;
             pos.Y += 1;
             frame!.Camera.Position = pos;
-            update = true;
+            frame!.ShouldUpdate = true;
             glarea1!.QueueRender ();
             break;
           case Gdk.Key.S:
@@ -159,7 +127,7 @@ namespace frontend.Game
             pos = frame!.Camera.Position;
             pos.Y -= 1;
             frame!.Camera.Position = pos;
-            update = true;
+            frame!.ShouldUpdate = true;
             glarea1!.QueueRender ();
             break;
         }
@@ -217,15 +185,10 @@ namespace frontend.Game
           }, IntPtr.Zero);
         }
 
-      GL.ClearColor (0, 0, 0, 1);
-      GL.ClearDepth (1d);
-
-      var datadir = frontend.Application.DataDir;
-      var glsldir = System.IO.Path.Combine (datadir, "glsl");
-      var skyboxdir = System.IO.Path.Combine (datadir, "skybox");
-
       string LoadShaderCode (string name)
       {
+        var datadir = frontend.Application.DataDir;
+        var glsldir = System.IO.Path.Combine (datadir, "glsl");
         var fullpath = System.IO.Path.Combine (glsldir, name);
         using (var stream = new FileStream (fullpath, FileMode.Open))
           {
@@ -256,24 +219,26 @@ namespace frontend.Game
           shaders [1] = (LoadShaderCode ("model.fs.glsl"), ShaderType.FragmentShader);
         }
 
-      skybox = new Gl.Skybox (skyboxdir, "$s.dds");
-      program = new Gl.Program ();
-      program.Link (shaders);
+      frame = new Gl.Frame ();
 
-      locJvp = program.Uniform ("aJvp");
-      locMvp = program.Uniform ("aMvp");
-      frame = new Gl.Frame (locMvp);
-
-      Gl.Model.BindUnits (program);
-
-      defaultcamera = new Vector3 (0, 7, 13);
-      frame.Camera.Position = defaultcamera;
+      var camera_at = new Vector3 (0, 7, 13);
+      frame.Camera.Position = camera_at;
       frame.Camera.LookAt (0, 0, 0);
+      frame.ShouldUpdate = true;
 
       var
       board = new Objects.PieceBoard (2);
       board.Visible = true;
       objects.Add (board);
+
+      var
+      skybox = new Game.Skybox ();
+      skybox.Direction = Vector3.UnitY;
+      skybox.Angle = MathHelper.DegreesToRadians (180);
+      skybox.Position = Vector3.Zero;
+      skybox.Scale = Vector3.One * 60;
+      skybox.Visible = true;
+      objects.Add (skybox);
 
       foreach (var tuple in boarded)
         {
@@ -308,10 +273,7 @@ namespace frontend.Game
       engine.Action -= actionHandler;
 
       objects.Clear ();
-
-      program = null;
       frame = null;
-      skybox = null;
 
       Console.WriteLine ("OpenGL context detached");
     }

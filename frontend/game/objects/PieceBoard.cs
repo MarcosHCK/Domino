@@ -2,7 +2,6 @@
  * This file is part of Domino/frontend.
  *
  */
-using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
 namespace frontend.Game.Objects
@@ -15,13 +14,13 @@ namespace frontend.Game.Objects
     public int Head2Value { get; private set; }
     private static readonly Vector3 displace = new Vector3 (0, -0.2f, 0);
     private static readonly Vector3 piece_scale = new Vector3 (30, 30, 30);
-    private static readonly float piece_angle = MathHelper.DegreesToRadians (180);
-    private static readonly Vector3 piece_width = new Vector3 (0.8f, 0, 0);
-    private static readonly Vector3 piece_heigth = new Vector3 (1.6f, 0, 0);
+    private static readonly Vector3 piece_width = new Vector3 (1.2f, 0, 0);
+    private static readonly Vector3 piece_heigth = new Vector3 (1.58f, 0, 0);
+    private static readonly float piece_angle = MathHelper.DegreesToRadians(180);
 
 #region API
 
-    private void AppendHead (int[] faces, int tail, ref PieceObject head, ref int value)
+    private void AppendSimple (int[] faces, int tail, ref PieceObject head, ref int value)
     {
       PieceObject piece;
       if (faces [0] == value)
@@ -62,7 +61,28 @@ namespace frontend.Game.Objects
       piece.Scale = piece_scale;
       piece.Angle = piece_angle;
       piece.Direction = Vector3.UnitZ + Vector3.UnitX;
-      piece.Position = head.Position + (tail * piece_heigth);
+      piece.Visible = true;
+
+      if (head.Head1 != head.Head2)
+        piece.Position = head.Position + (tail * piece_heigth);
+      else
+        piece.Position = head.Position + (tail * piece_width);
+
+      if (tail > 0)
+        PieceObject.Append (head, piece);
+      else
+        PieceObject.Prepend (head, piece);
+      head = piece;
+    }
+
+    private void AppendDouble (int[] faces, int tail, ref PieceObject head, ref int value)
+    {
+      var
+      piece = new PieceObject (faces);
+      piece.Scale = piece_scale;
+      piece.Angle = piece_angle;
+      piece.Direction = Vector3.UnitZ;
+      piece.Position = head.Position + (tail * piece_width);
       piece.Visible = true;
 
       if (tail > 0)
@@ -70,6 +90,14 @@ namespace frontend.Game.Objects
       else
         PieceObject.Prepend (head, piece);
       head = piece;
+    }
+
+    private void AppendHead (int[] faces, int tail, ref PieceObject head, ref int value)
+    {
+      if (faces [0] != faces [1])
+        AppendSimple (faces, tail, ref head, ref value);
+      else
+        AppendDouble (faces, tail, ref head, ref value);
     }
 
     public void Append (int where, params int[] faces)
@@ -92,9 +120,13 @@ namespace frontend.Game.Objects
           piece = new PieceObject (faces);
           piece.Scale = piece_scale;
           piece.Angle = piece_angle;
-          piece.Direction = Vector3.UnitZ + Vector3.UnitX;
           piece.Position = Vector3.Zero;
           piece.Visible = true;
+
+          if (piece.Head1 != piece.Head2)
+            piece.Direction = Vector3.UnitZ + Vector3.UnitX;
+          else
+            piece.Direction = Vector3.UnitZ;
 
           Head1 = piece;
           Head1Value = piece.Head1;
@@ -147,15 +179,14 @@ namespace frontend.Game.Objects
 
     public override void Draw (Gl.Frame frame)
     {
+      var list = Head1;
       if (Visible)
         {
           var camera = frame.Camera;
           var target = camera.Target;
-          var list = Head1;
+          Position = target + displace;
 
-          base.Position = target + displace;
           base.Draw (frame);
-
           while (list != null)
             {
               list.Draw (frame);
@@ -176,7 +207,8 @@ namespace frontend.Game.Objects
           throw new Exception ("can't handle more than two faces");
         }
 
-      Scale = new Vector3 (10, 10, 10);
+      Scale = new Vector3 (6, 6, 6);
+      Position = displace;
     }
 
 #endregion

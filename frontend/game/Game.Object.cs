@@ -89,7 +89,8 @@ namespace frontend.Game
       this.drawable = drawable;
       _Position = new Vector3 (0, 0, 0);
       _Scale = new Vector3 (1, 1, 1);
-      Direction = new Vector3 (1, 0, 0);
+      _Direction = new Vector3 (1, 0, 0);
+      UpdateModel ();
     }
 
 #endregion
