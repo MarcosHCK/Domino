@@ -143,7 +143,7 @@ namespace frontend.Game
       if (opentk_done == false)
         {
           opentk_done = true;
-          GL.LoadBindings (new Gl.Loader ());
+          OpenTK.Graphics.OpenGL.GL.LoadBindings (new Gl.Loader ());
           opengl_major = GL.GetInteger (GetPName.MajorVersion);
           opengl_minor = GL.GetInteger (GetPName.MinorVersion);
 
@@ -157,6 +157,11 @@ namespace frontend.Game
                   var extension = GL.GetString (StringNameIndexed.Extensions, i);
                   extensions.TryAdd (extension, true);
                 }
+
+              if (CheckVersion (4, 0))
+              {
+                OpenTK.Graphics.OpenGL4.GL.LoadBindings (new Gl.Loader ());
+              }
             }
         }
 

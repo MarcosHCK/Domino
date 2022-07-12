@@ -2,44 +2,55 @@
  * This file is part of Domino/frontend.
  *
  */
-using System.Runtime.InteropServices;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using System.Collections;
 
 namespace frontend.Gl
 {
   public sealed class Ssbo<T> : IList<T>
-    where T: notnull
+    where T: IPackable
   {
     static BufferTarget target;
     static BufferRangeTarget range;
     static BufferUsageHint usage;
     static Stack<int> used;
-    static int top;
+    static int max = -1;
+    static int top = 0;
+
+    public int Binding { get => binding; }
 
     private IList<T> back;
-    private bool freezed;
+    private int freezed;
     private int binding;
     private int ssbo;
 
 #region API
 
-    public void Freeze () => freezed = true;
-    public void Unfreeze () => freezed = false;
+    public void Freeze () => ++freezed;
+    public void Thaw () => freezed = 0;
+    public void Unfreeze ()
+    {
+      if (0 == --freezed)
+        Update ();
+      if (freezed == -1)
+        freezed = 0;
+    }
+
     public void Update ()
     {
-      var array = back.ToArray ();
-      var sizet = Marshal.SizeOf (typeof (T));
-      var size = array.Length * sizet;
-      var zone = new ReadOnlyMemory<T> (array);
+      var stream = new MemoryStream ();
+      foreach (var packable in back)
+        packable.Pack (stream);
 
       unsafe
       {
-        var pointer = zone.Pin ().Pointer;
-        var data = (IntPtr) pointer;
+        stream.Flush ();
+        stream.Close ();
+        var array = stream.ToArray ();
+        var size = array.Length;
 
         GL.BindBuffer (target, ssbo);
-        GL.BufferData (target, size, data, usage);
+        GL.BufferData<byte> (target, size, array, usage);
         GL.BindBuffer (target, 0);
       }
     }
@@ -59,21 +70,21 @@ namespace frontend.Gl
     public void Add (T e)
     {
       back.Add (e);
-      if (!freezed)
+      if (freezed == 0)
         Update ();
     }
 
     public void Insert (int at, T e)
     {
       back.Insert (at, e);
-      if (!freezed)
+      if (freezed == 0)
         Update ();
     }
 
     public void RemoveAt (int at)
     {
       back.RemoveAt (at);
-      if (!freezed)
+      if (freezed == 0)
         Update ();
     }
 
@@ -83,7 +94,7 @@ namespace frontend.Gl
     {
       var was =
       back.Remove (e);
-      if (!freezed)
+      if (freezed == 0)
         Update ();
       return was;
     }
@@ -96,10 +107,31 @@ namespace frontend.Gl
     {
       lock (used)
       {
+        if (max < 0)
+        {
+          bool ssbos = false;
+          ssbos |= Game.Window.CheckVersion (4, 3);
+          ssbos |= Game.Window.CheckExtension ("ARB_shader_storage_buffer_object");
+          if (!ssbos)
+            {
+              throw new Exception ();
+            }
+
+          var
+          pname = All.MaxShaderStorageBufferBindings;
+          max = GL.GetInteger ((GetPName) pname);
+        }
+
         if (used.Count > 0)
           binding = used.Pop ();
         else
-          binding = top++;
+          {
+            binding = top++;
+            if (binding > max)
+            {
+              throw new Exception ();
+            }
+          }
       }
 
       ssbo = GL.GenBuffer ();
@@ -116,7 +148,6 @@ namespace frontend.Gl
       range = BufferRangeTarget.ShaderStorageBuffer;
       usage = BufferUsageHint.DynamicRead;
       used = new Stack<int> ();
-      top = 1;
     }
 
     ~Ssbo ()

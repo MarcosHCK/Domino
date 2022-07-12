@@ -22,6 +22,9 @@ namespace frontend.Gl
     private int locModelInverse;
 
     /* Fragment shader */
+    private Ssbo<Light> dirlights;
+    private Ssbo<Light> pointlights;
+    private Ssbo<Light> spotlights;
     private int locShininess;
 
     /* extensions */
@@ -157,6 +160,27 @@ namespace frontend.Gl
       locProjectionInverse = Program.Uniform ("aProjectionInverse");
       locViewInverse = Program.Uniform ("aViewInverse");
       locModelInverse = Program.Uniform ("aModelInverse");
+
+      dirlights = new Ssbo<Light> ();
+      pointlights = new Ssbo<Light> ();
+      spotlights = new Ssbo<Light> ();
+
+      int loc;
+
+      loc = GL.GetProgramResourceIndex (Program.Pid, ProgramInterface.ShaderStorageBlock, "bDirLights");
+      GL.ShaderStorageBlockBinding (Program.Pid, loc, dirlights.Binding);
+      loc = GL.GetProgramResourceIndex (Program.Pid, ProgramInterface.ShaderStorageBlock, "bPointLights");
+      GL.ShaderStorageBlockBinding (Program.Pid, loc, pointlights.Binding);
+      loc = GL.GetProgramResourceIndex (Program.Pid, ProgramInterface.ShaderStorageBlock, "bSpotLights");
+      GL.ShaderStorageBlockBinding (Program.Pid, loc, spotlights.Binding);
+
+      DirLight ambient;
+      ambient = new DirLight ();
+      ambient.Ambient = new Vector3 (0.2f, 0.2f, 0.2f);
+      ambient.Diffuse = new Vector3 (0.5f, 0.5f, 0.5f);
+      ambient.Specular = new Vector3 (1.0f, 1.0f, 1.0f);
+      ambient.Direction = new Vector3 (-0.2f, -1.0f, -0.3f);
+      dirlights.Add (ambient);
 
       /* fragment shader */
       locShininess = Program.Uniform ("aShininess");

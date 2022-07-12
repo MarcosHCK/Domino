@@ -2,7 +2,7 @@
  * This file is part of Domino/frontend.
  *
  */
-#version 330 core
+#version 430 core
 
 struct DirLight
 {
@@ -29,15 +29,15 @@ struct SpotLight
   vec3 ambient;
   vec3 diffuse;
   vec3 specular;
-  vec3 direction;
   vec3 position;
 
-  float cutOff;
-  float outerCutOff;
-  
   float constant;
   float linear;
   float quadratic;
+
+  vec3 direction;
+  float cutOff;
+  float outerCutOff;
 };
 
 /* Inputs */
@@ -58,8 +58,12 @@ uniform sampler2DArray aDiffuse;
 uniform sampler2DArray aSpecular;
 uniform sampler2DArray aNormals;
 uniform sampler2DArray aHeight;
-uniform DirLight aAmbientLight;
 uniform float aShininess;
+
+/* Buffers (SSBOs) */
+layout(std430) buffer bDirLights { DirLight aDirLights []; };
+layout(std430) buffer bPointLights { PointLight aPointLights []; };
+layout(std430) buffer bSpotLights { SpotLight aSpotLights []; };
 
 /*
  * Functions
@@ -150,8 +154,12 @@ void main()
   vec3 viewDir = normalize (aViewPosition - Position);
   vec3 result = vec3 (0, 0, 0);
 
-  /* ambient light */
-  result += vec3 (texture (aDiffuse, TexCoords));
+  for (int i = 0; i < aDirLights.length (); i++)
+    result += CalcDirLight (aDirLights [0], norm, viewDir);
+  for (int i = 0; i < aPointLights.length (); i++)
+    result += CalcPointLight (aPointLights [0], norm, Position, viewDir);
+  for (int i = 0; i < aSpotLights.length (); i++)
+    result += CalcSpotLight (aSpotLights [0], norm, Position, viewDir);
 
   /* emit color */
   FragColor = vec4 (result, 1.0);
