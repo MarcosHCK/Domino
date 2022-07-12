@@ -50,10 +50,8 @@ in vec3 Bitangent;
 /* Output */
 out vec4 FragColor;
 
-/* vertex uniforms */
-uniform vec3 aViewPosition;
-
 /* Uniforms */
+uniform vec3 aViewPosition;
 uniform sampler2DArray aDiffuse;
 uniform sampler2DArray aSpecular;
 uniform sampler2DArray aNormals;

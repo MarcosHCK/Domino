@@ -17,23 +17,6 @@ namespace Engine
     private static readonly Vector3 defaultcamera;
     private static bool opentk_done = false;
 
-    /* vertex shader */
-    private int locMvp;
-    private int locJvp;
-    private int locProjection;
-    private int locView;
-    private int locViewPosition;
-    private int locModel;
-    private int locProjectionInverse;
-    private int locViewInverse;
-    private int locModelInverse;
-
-    /* Fragment shader */
-    private Ssbo<Light> dirlights;
-    private Ssbo<Light> pointlights;
-    private Ssbo<Light> spotlights;
-    private int locShininess;
-
     private Program program;
     private Pencil pencil;
     private Camera camera;
@@ -49,11 +32,40 @@ namespace Engine
       {
         var mvp = Matrix4.Mult (value, camera.Jvp);
         var inv = Matrix4.Invert (value);
-        GL.UniformMatrix4 (locModel, false, ref value);
-        GL.UniformMatrix4 (locModelInverse, false, ref inv);
-        GL.UniformMatrix4 (locMvp, false, ref mvp);
+        matrices [(int) Matrices.aModel] = value;
+        matrices [(int) Matrices.aModelInverse] = inv;
+        matrices [(int) Matrices.aMvp] = mvp;
       }
     }
+
+#region Vertex shader
+
+    private Ubo<Matrix4> matrices;
+    private int locViewPosition;
+
+    enum Matrices
+    {
+      aProjection = 0,
+      aProjectionInverse,
+      aView,
+      aViewInverse,
+      aModelInverse,
+      aModel,
+      aJvp,
+      aMvp,
+      NUMBER,
+    }
+
+#endregion
+
+#region Fragment shader
+
+    private Ssbo<Light> dirlights;
+    private Ssbo<Light> pointlights;
+    private Ssbo<Light> spotlights;
+    private int locShininess;
+
+#endregion
 
 #region OpenGL API control
 
@@ -91,17 +103,17 @@ namespace Engine
           Vector3 vec3;
 
           matrix = camera.Projection;
-          GL.UniformMatrix4 (locProjection, false, ref matrix);
+          matrices [(int) Matrices.aProjection] = matrix;
           matrix = Matrix4.Invert (camera.Projection);
-          GL.UniformMatrix4 (locProjectionInverse, false, ref matrix);
+          matrices [(int) Matrices.aProjectionInverse] = matrix;
           matrix = camera.View;
-          GL.UniformMatrix4 (locView, false, ref matrix);
+          matrices [(int) Matrices.aView] = matrix;
+          matrix = Matrix4.Invert (camera.View);
+          matrices [(int) Matrices.aViewInverse] = matrix;
+          matrix = camera.Jvp;
+          matrices [(int) Matrices.aJvp] = matrix;
           vec3 = camera.Position;
           GL.Uniform3 (locViewPosition, ref vec3);
-          matrix = Matrix4.Invert (camera.View);
-          GL.UniformMatrix4 (locViewInverse, false, ref matrix);
-          matrix = camera.Jvp;
-          GL.UniformMatrix4 (locJvp, false, ref matrix);
           ShouldUpdate = false;
         }
 
@@ -195,6 +207,7 @@ namespace Engine
       program = new Program ();
       pencil = new Pencil ();
       camera = new Camera ();
+      matrices = new Ubo<Matrix4> ((int) Matrices.NUMBER);
       dirlights = new Ssbo<Light> ();
       pointlights = new Ssbo<Light> ();
       spotlights = new Ssbo<Light> ();
@@ -214,17 +227,13 @@ namespace Engine
       program.Use ();
 
       /* location TODO: put in uniform buffer */
-      locMvp = program.Uniform ("aMvp");
-      locJvp = program.Uniform ("aJvp");
-      locProjection = program.Uniform ("aProjection");
-      locView = program.Uniform ("aView");
       locViewPosition = program.Uniform ("aViewPosition");
-      locModel = program.Uniform ("aModel");
-      locProjectionInverse = program.Uniform ("aProjectionInverse");
-      locViewInverse = program.Uniform ("aViewInverse");
-      locModelInverse = program.Uniform ("aModelInverse");
 
       int loc;
+
+      /* UBOs */
+      loc = GL.GetUniformBlockIndex (program.Pid, "aMatrices");
+      GL.UniformBlockBinding (program.Pid, loc, matrices.Binding);
 
       /* SSBOs */
       loc = GL.GetProgramResourceIndex (program.Pid, ProgramInterface.ShaderStorageBlock, "bDirLights");

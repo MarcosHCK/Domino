@@ -19,14 +19,17 @@ out vec3 Tangent;
 out vec3 Bitangent;
 
 /* Uniforms */
-uniform mat4 aProjection;
-uniform mat4 aView;
-uniform mat4 aModel;
-uniform mat4 aProjectionInverse;
-uniform mat4 aViewInverse;
-uniform mat4 aModelInverse;
-uniform mat4 aJvp;
-uniform mat4 aMvp;
+layout (std140) uniform aMatrices
+{
+  mat4 aProjection;
+  mat4 aProjectionInverse;
+  mat4 aView;
+  mat4 aViewInverse;
+  mat4 aModelInverse;
+  mat4 aModel;
+  mat4 aJvp;
+  mat4 aMvp;
+};
 
 void main()
 {
