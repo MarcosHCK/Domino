@@ -22,44 +22,51 @@ namespace Gtk
 {
   public sealed class TemplateBuilder
   {
-    public static void InitTemplate (Gtk.Widget widget)
+    public static string BaseDir { get; set; }
+
+    public static Gtk.Builder InitTemplate (Gtk.Widget widget, string template)
     {
-      var type = widget.GetType ();
+      var builder = new Gtk.Builder ();
+      var path = Path.Combine (BaseDir, template);
       var g_type = ((GLib.Object) widget).NativeType;
-      var attrtype = typeof (TemplateAttribute);
-      var attr = type.GetCustomAttribute (attrtype);
-      if (attr != null)
+      using (var stream = new FileStream (path, FileMode.Open))
       {
-        var template = (TemplateAttribute) attr;
-        if (template.ResourceName != TemplateAttribute.INVALID)
-        {
-          var assembly = type.Assembly;
-          var builder = new Gtk.Builder ();
-          using (var stream = assembly.GetManifestResourceStream (template.ResourceName))
-          {
-            if(stream != null)
-            {
-              var bytes = new byte [stream.Length];
-              stream.Read (bytes, 0, bytes.Length);
-              var code = Encoding.UTF8.GetString (bytes);
-              builder.ExtendWithTemplate (widget, g_type, code);
-              builder.Autoconnect (widget);
-            }
-            else
-            {
-              throw new TemplateBuilderException ("Non-accessible template resource");
-            }
-          }
-        }
+        if(stream == null)
+          throw new TemplateBuilderException ("Can't open template resource");
         else
         {
-          throw new TemplateBuilderException ("Invalid template resource name");
+          var bytes = new byte [stream.Length];
+          stream.Read (bytes, 0, bytes.Length);
+          var code = Encoding.UTF8.GetString (bytes);
+          builder.ExtendWithTemplate (widget, g_type, code);
+          builder.Autoconnect (widget);
+          return builder;
         }
       }
+    }
+
+    public static Gtk.Builder InitTemplate (Gtk.Widget widget)
+    {
+      var type = widget.GetType ();
+      var attrtype = typeof (TemplateAttribute);
+      var attr = type.GetCustomAttribute (attrtype);
+      if (attr == null)
+        throw new TemplateBuilderException ("Type doesn't have '" + attrtype.Name + "' attribute");
       else
       {
-        throw new TemplateBuilderException ("Type doesn't have '" + attrtype.Name + "' attribute");
+        var template = (TemplateAttribute) attr;
+        if (template.ResourceName == TemplateAttribute.INVALID)
+          throw new TemplateBuilderException ("Invalid template resource name");
+        else
+        {
+          return InitTemplate (widget, template.ResourceName);
+        }
       }
+    }
+
+    static TemplateBuilder ()
+    {
+      BaseDir = ".";
     }
   }
 }

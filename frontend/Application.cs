@@ -3,7 +3,6 @@
  *
  */
 using Gtk;
-using System.Reflection;
 
 namespace frontend
 {
@@ -23,16 +22,8 @@ namespace frontend
 
     protected override void OnActivated ()
     {
-      var rule = new Rule ("Usual");
-      var ruleName = Path.Combine (BaseDir, rule.Name!);
-      var saveDir = GLib.FileFactory.NewForPath (ruleName);
-          rule.Load (saveDir);
-
-      var execBin = Path.Combine (LibexecDir, "backend");
-      var engine = new Game.Backend (rule, execBin);
-
       var
-      window = new Game.Window (engine);
+      window = new Window ();
       window.Icon = Application.ApplicationIcon;
       window.Application = this;
       window.Present ();
@@ -44,6 +35,12 @@ namespace frontend
 
     public Application () : base (null, GLib.ApplicationFlags.None) { }
     public Application (string application_id, GLib.ApplicationFlags flags) : base (application_id, flags) { }
+
+    static Application ()
+    {
+      var uidir = Path.Combine (DataDir, "ui/");
+      TemplateBuilder.BaseDir = uidir;
+    }
 
 #endregion
 

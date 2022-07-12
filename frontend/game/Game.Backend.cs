@@ -5,7 +5,7 @@
 using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Text;
+using libRule;
 
 namespace frontend.Game
 {
@@ -22,7 +22,7 @@ namespace frontend.Game
     public event ActionHandler Action;
 
     public delegate void ActionHandler (Backend engine, ActionArgs a);
-    public class ActionArgs : EventArgs
+    public abstract class ActionArgs : EventArgs
     {
       public string Player { get; private set; }
 
@@ -32,8 +32,7 @@ namespace frontend.Game
       }
     }
 
-    public delegate void ExchangeHandler (Backend engine, ExchangeArgs a);
-    public class ExchangeArgs : ActionArgs
+    public sealed class ExchangeArgs : ActionArgs
     {
       public int Losses { get; private set; }
       public int Takes { get; private set; }
@@ -46,8 +45,7 @@ namespace frontend.Game
       }
     }
 
-    public delegate void MoveHandler (Backend engine, MoveArgs a);
-    public class MoveArgs : ActionArgs
+    public sealed class MoveArgs : ActionArgs
     {
       public bool Passes { get; private set; }
       public int PutAt { get; private set; }
@@ -68,6 +66,26 @@ namespace frontend.Game
       }
     }
 
+    public sealed class EmitTeamArgs : ActionArgs
+    {
+      public (string, string[])[] Teams { get; private set; }
+      public EmitTeamArgs ((string, string[])[] Teams)
+        : base ("")
+      {
+        this.Teams = Teams;
+      }
+    }
+
+    public sealed class GameOverArgs : ActionArgs
+    {
+      public (string, int)[] Scores { get; private set; }
+      public GameOverArgs ((string, int)[] Scores)
+        : base ("")
+      {
+        this.Scores = Scores;
+      }
+    }
+
 #endregion
 
 #region API
@@ -81,7 +99,7 @@ namespace frontend.Game
 
 #endregion
 
-#region Callbacks
+#region internal API
 
     [System.Serializable]
     public class EngineException : System.Exception
@@ -112,6 +130,28 @@ namespace frontend.Game
     return list == null ? null : list.ToArray ();
     }
 
+    private string[]? MakeTeam (string entry)
+    {
+      var match = teamplayer.Match (entry);
+      var list = (List<string>?) null;
+
+      if (match.Success)
+      {
+        list = new List<string> ();
+
+        do
+        {
+          list.Add (match.Value);
+          match = match.NextMatch ();
+        } while (match.Success);
+      }
+    return list == null ? null : list.ToArray ();
+    }
+
+#endregion
+
+#region Callbacks
+
     private void OnOutput (object? o, DataReceivedEventArgs a)
     {
       if (Interlocked.Read (ref QuitFlag) > 0)
@@ -124,6 +164,11 @@ namespace frontend.Game
         if (match.Success)
         {
           var action = match.Value;
+
+          DataReceivedEventHandler? handler = null;
+          var pendings_ = pendings;
+          var proc_ = proc;
+
           switch (action)
           {
             case "Intercambio":
@@ -197,6 +242,92 @@ namespace frontend.Game
 
                   pendings.Enqueue (new MoveArgs (player, piece_head, piece));
                 }
+              break;
+            case "Equipos":
+              var teams = new List<(string, string[])> ();
+              handler = (o, a) => {
+                var line = a.Data;
+                if (line != null)
+                {
+                  var match = actions.Match (line);
+                  if (match.Success)
+                  {
+                    var name = match.Value;
+                    if (name != "break")
+                    {
+                      match = team.Match (line);
+                      if (!match.Success)
+                        throw new EngineException ("Malformed team entry");
+                      else
+                      {
+                        var name_ = match.Groups [1].Value;
+                        var entry = match.Groups [2].Value;
+                        if (name != name_)
+                          throw new Exception ("Malformed team entry");
+                        else
+                        {
+                          var players = MakeTeam (entry);
+                          if (players == null)
+                            throw new Exception ("Malformed team entry");
+                          else
+                          {
+                            teams.Add ((name, players));
+                          }
+                        }
+                      }
+                    }
+                    else
+                    {
+                      var array = teams.ToArray ();
+                      pendings_.Enqueue (new EmitTeamArgs (array));
+                      proc_.OutputDataReceived -= handler;
+                    }
+                  }
+                }
+              };
+
+              proc.OutputDataReceived += handler;
+              break;
+            case "GameOver":
+              var scores = new List<(string,int)> ();
+              handler = (o, a) => {
+                var line = a.Data;
+                if (line != null)
+                {
+                  var match = actions.Match (line);
+                  if (match.Success)
+                  {
+                    var contender = match.Value;
+                    if (contender != "Introduzca"
+                      && contender != "break")
+                    {
+                      match = score.Match (line);
+                      if (!match.Success)
+                        throw new EngineException ("Malformed score entry");
+                      else
+                      {
+                        var name = match.Groups[1].Value;
+                        var value = match.Groups [2].Value;
+                        if (name != contender)
+                          throw new Exception ("Malformed score entry");
+                        else
+                        {
+                          var score = int.Parse (value);
+                          scores.Add ((contender, score));
+                        }
+                      }
+                    }
+                    else
+                    {
+                      var array = scores.ToArray ();
+                      pendings_.Enqueue (new GameOverArgs (array));
+                      proc_.OutputDataReceived -= handler;
+                    }
+                  }
+                }
+              };
+
+              proc.OutputDataReceived += handler;
               break;
           }
         }
@@ -272,11 +403,14 @@ namespace frontend.Game
       proc.WaitForExit ();
     }
 
-    private static Regex actions;
-    private static Regex exchange;
-    private static Regex pass;
-    private static Regex move;
-    private static Regex piece;
+    private readonly static Regex actions;
+    private readonly static Regex exchange;
+    private readonly static Regex pass;
+    private readonly static Regex move;
+    private readonly static Regex piece;
+    private readonly static Regex team;
+    private readonly static Regex teamplayer;
+    private readonly static Regex score;
 
     static Backend ()
     {
@@ -287,6 +421,9 @@ namespace frontend.Game
       pass = new Regex ("^Jugada ([\\w]+) pase", flags);
       move = new Regex ("^Jugada ([\\w]+) \\(([^\\)]+)\\) ([0-9\\-]+) ([0-9\\-]+) ([0-9\\-]+)", flags);
       piece = new Regex ("([0-9]+)", flags);
+      team = new Regex ("^([\\w]+)\\:, (.+)", flags);
+      teamplayer = new Regex ("([\\w]+)", flags);
+      score = new Regex ("^([\\w]+) ([0-9\\-]+)", flags);
     }
 
 #endregion

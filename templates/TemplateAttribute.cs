@@ -24,9 +24,7 @@ namespace Gtk
     public string ResourceName {get; set;}
     public static string INVALID = "__invalid__id__";
 
-    public TemplateAttribute()
-    {
-      ResourceName = INVALID;
-    }
+    public TemplateAttribute () => ResourceName = INVALID;
+    public TemplateAttribute (string name) => ResourceName = name;
   }
 }

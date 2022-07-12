@@ -60,6 +60,10 @@ Author: MarcosHCK
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can-focus">False</property>
+        <property name="margin-start">3</property>
+        <property name="margin-end">3</property>
+        <property name="margin-top">3</property>
+        <property name="margin-bottom">3</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
@@ -116,7 +120,7 @@ Author: MarcosHCK
           </packing>
         </child>
         <child>
-          <!-- n-columns=1 n-rows=5 -->
+          <!-- n-columns=1 n-rows=10 -->
           <object class="GtkGrid">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
@@ -409,39 +413,24 @@ Author: MarcosHCK
               </packing>
             </child>
             <child>
-              <object class="GtkFrame">
+              <object class="GtkExpander">
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="can-focus">True</property>
                 <property name="hexpand">True</property>
-                <property name="vexpand">True</property>
-                <property name="label-xalign">0</property>
-                <property name="shadow-type">none</property>
                 <child>
-                  <!-- n-columns=1 n-rows=1 -->
-                  <object class="GtkGrid">
+                  <object class="GtkScrolledWindow">
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="margin-start">5</property>
-                    <property name="row-spacing">5</property>
-                    <property name="column-spacing">10</property>
+                    <property name="can-focus">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="shadow-type">in</property>
                     <child>
-                      <object class="GtkTreeView" id="treeview1">
+                      <object class="GtkViewport" id="placeholder1">
                         <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="hexpand">True</property>
-                        <property name="vexpand">True</property>
-                        <property name="headers-visible">False</property>
-                        <property name="enable-search">False</property>
-                        <child internal-child="selection">
-                          <object class="GtkTreeSelection">
-                            <property name="mode">none</property>
-                          </object>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <placeholder/>
                         </child>
                       </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">0</property>
-                      </packing>
                     </child>
                   </object>
                 </child>
@@ -449,7 +438,6 @@ Author: MarcosHCK
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="margin-bottom">3</property>
                     <property name="label" translatable="yes">&lt;b&gt;Finisher&lt;/b&gt;</property>
                     <property name="use-markup">True</property>
                   </object>
@@ -458,6 +446,183 @@ Author: MarcosHCK
               <packing>
                 <property name="left-attach">0</property>
                 <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkExpander">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="hexpand">True</property>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="shadow-type">in</property>
+                    <child>
+                      <object class="GtkViewport" id="placeholder2">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Emparejador&lt;/b&gt;</property>
+                    <property name="use-markup">True</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkExpander">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="hexpand">True</property>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="shadow-type">in</property>
+                    <child>
+                      <object class="GtkViewport" id="placeholder3">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Validador&lt;/b&gt;</property>
+                    <property name="use-markup">True</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkExpander">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="shadow-type">in</property>
+                    <child>
+                      <object class="GtkViewport" id="placeholder4">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Mover Turno&lt;/b&gt;</property>
+                    <property name="use-markup">True</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkExpander">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="shadow-type">in</property>
+                    <child>
+                      <object class="GtkViewport" id="placeholder5">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Refrescador&lt;/b&gt;</property>
+                    <property name="use-markup">True</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">8</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkExpander">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="shadow-type">in</property>
+                    <child>
+                      <object class="GtkViewport" id="placeholder6">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Repartidor&lt;/b&gt;</property>
+                    <property name="use-markup">True</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">9</property>
               </packing>
             </child>
           </object>

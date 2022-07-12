@@ -2,7 +2,7 @@
  * This file is part of Domino/frontend.
  *
  */
-using GtkChild = Gtk.Builder.ObjectAttribute;
+using libRule;
 
 namespace frontend
 {
@@ -11,13 +11,13 @@ namespace frontend
   public sealed class Window : Gtk.Window
   {
     private GLib.IFile basedir;
-    [GtkChild]
+    [Gtk.Builder.Object]
     private Gtk.ListBox? listbox1;
 
     public sealed class RuleListBoxRow : Gtk.ListBoxRow
     {
       private Gtk.Label label;
-      public Rule Rule;
+      public Rule Rule { get; private set; }
 
       private void OnNameChanged (object? o, GLib.NotifyArgs args)
       {
@@ -62,6 +62,7 @@ namespace frontend
       dialog.TransientFor = this;
       dialog.Run ();
       dialog.Destroy ();
+      UpdateRules ();
     }
 
     public void EditRule (object? button, EventArgs ev)
@@ -75,6 +76,7 @@ namespace frontend
           dialog.TransientFor = this;
           dialog.Run ();
           dialog.Destroy ();
+          UpdateRules ();
         }
     }
 
@@ -140,13 +142,15 @@ namespace frontend
 #endregion
 
 #region Constructors
-    public Window () : this (false) { }
-    private Window (bool re) : base (null)
+
+    private void UpdateRules ()
     {
-      Gtk.TemplateBuilder.InitTemplate (this);
       var basedir = frontend.Application.BaseDir;
       var dirs = Directory.EnumerateDirectories (basedir);
-      this.basedir = GLib.FileFactory.NewForPath (basedir);
+
+      foreach (RuleListBoxRow row in listbox1!.Children)
+        OnRemovedRule (row.Rule.Name);
+
       foreach (var path in dirs)
         {
           var name = System.IO.Path.GetFileName (path);
@@ -156,6 +160,15 @@ namespace frontend
           rule.Load (file);
           OnAddedRule (rule);
         }
+    }
+
+    public Window () : this (false) { }
+    private Window (bool re) : base (null)
+    {
+      Gtk.TemplateBuilder.InitTemplate (this);
+      var basedir = frontend.Application.BaseDir;
+      this.basedir = GLib.FileFactory.NewForPath (basedir);
+      UpdateRules ();
     }
 #endregion
   }

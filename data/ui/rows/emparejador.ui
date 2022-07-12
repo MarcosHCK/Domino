@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 
+
+The MIT License (MIT)
+
+Copyright (c) Copyright 2021-2025 MarcosHCK
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+Author: MarcosHCK
+
+-->
+<interface domain="en_US">
+  <requires lib="gtk+" version="3.24"/>
+  <!-- interface-license-type mit -->
+  <!-- interface-name Domino -->
+  <!-- interface-description DominoListBoxRow+emparejador -->
+  <!-- interface-copyright Copyright 2021-2025 MarcosHCK -->
+  <!-- interface-authors MarcosHCK -->
+  <!-- n-columns=1 n-rows=2 -->
+  <template class="DominoListBoxRow+emparejador" parent="GtkGrid">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <child>
+      <object class="GtkComboBoxText" id="combo1">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="hexpand">True</property>
+        <property name="active-id">1</property>
+        <items>
+          <item id="1" translatable="yes">Usual</item>
+          <item id="2" translatable="yes">Puedes poner un doble cuando quieras</item>
+          <item id="3" translatable="yes">Sucesor</item>
+          <item id="4" translatable="yes">Doble Modular</item>
+          <item id="5" translatable="yes">Cualquier ficha</item>
+        </items>
+        <signal name="changed" handler="OnChanged" swapped="no"/>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">0</property>
+      </packing>
+    </child>
+    <child>
+      <!-- n-columns=1 n-rows=1 -->
+      <object class="GtkGrid" id="placeholder1">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">1</property>
+      </packing>
+    </child>
+  </template>
+</interface>

@@ -59,6 +59,7 @@ Author: MarcosHCK
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
+                <property name="relief">none</property>
                 <signal name="clicked" handler="StartRule" object="DominoWindow" swapped="no"/>
                 <child>
                   <object class="GtkImage">
@@ -79,6 +80,7 @@ Author: MarcosHCK
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
+                <property name="relief">none</property>
                 <signal name="clicked" handler="EditRule" object="DominoWindow" swapped="no"/>
                 <child>
                   <object class="GtkImage">
@@ -99,6 +101,7 @@ Author: MarcosHCK
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
+                <property name="relief">none</property>
                 <signal name="clicked" handler="AddRule" object="DominoWindow" swapped="no"/>
                 <child>
                   <object class="GtkImage">
@@ -119,6 +122,7 @@ Author: MarcosHCK
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
+                <property name="relief">none</property>
                 <signal name="clicked" handler="RemoveRule" object="DominoWindow" swapped="no"/>
                 <child>
                   <object class="GtkImage">

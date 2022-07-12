@@ -2,10 +2,7 @@
  * This file is part of Domino/frontend.
  *
  */
-using System.Runtime.InteropServices;
-using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using System.Text;
 
 namespace frontend.Game
 {
@@ -20,9 +17,12 @@ namespace frontend.Game
     [Gtk.Builder.Object]
     private Gtk.Button? forward1;
 
-    private List<(int, int[])> boarded;
     private static readonly float fov = 45;
+    private static readonly uint putinterval = 400;
+    private List<(int, int[])> boarded;
+    private Objects.PieceBoard? board;
     private Engine.Gl? renderer;
+    private uint clock;
 
     private Game.Backend.ActionHandler? actionHandler;
     private Game.Backend engine;
@@ -64,9 +64,26 @@ namespace frontend.Game
       this.QueueDraw ();
     }
 
-    private void OnDeleteEvent (object? o, Gtk.DeleteEventArgs a)
+    private void SmoothMove (Vector3 distance, uint interval)
     {
-      a.RetVal = false;
+      const int min = 50;
+      var renderer_ = renderer;
+      var viewport = renderer!.Viewport;
+      var glarea1_ = glarea1;
+
+      var leaps = interval / min;
+      var leap = distance / (float) leaps;
+
+      GLib.Timeout.Add (min,
+        () => {
+          viewport.Position += leap;
+          var x = viewport.Position.X;
+
+          viewport.LookAt (x, 0, 0);
+          renderer!.ShouldUpdate = true;
+          glarea1_!.QueueRender ();
+          return leaps-- > 0;
+      });
     }
 
     private void OnKeyPressed (object? o, Gtk.KeyPressEventArgs a)
@@ -81,22 +98,13 @@ namespace frontend.Game
         {
           case Gdk.Key.A:
           case Gdk.Key.a:
-            pos = renderer!.Viewport.Position;
-            pos.X -= 1;
-            renderer!.Viewport.Position = pos;
-            renderer!.Viewport.LookAt (pos.X, 0, 0);
-            renderer!.ShouldUpdate = true;
-            glarea1!.QueueRender ();
+            SmoothMove (new Vector3 ( 1, 0, 0), 200);
             break;
           case Gdk.Key.D:
           case Gdk.Key.d:
-            pos = renderer!.Viewport.Position;
-            pos.X += 1;
-            renderer!.Viewport.Position = pos;
-            renderer!.Viewport.LookAt (pos.X, 0, 0);
-            renderer!.ShouldUpdate = true;
-            glarea1!.QueueRender ();
+            SmoothMove (new Vector3 (-1, 0, 0), 200);
             break;
+/*
           case Gdk.Key.W:
           case Gdk.Key.w:
             pos = renderer!.Viewport.Position;
@@ -113,6 +121,20 @@ namespace frontend.Game
             renderer!.ShouldUpdate = true;
             glarea1!.QueueRender ();
             break;
+*/
+          case Gdk.Key.Key_1:
+            if (board != null)
+            {
+              var head = board!.Head1;
+              if (head != null)
+              {
+                var viewport = renderer!.Viewport;
+                var distance = Vector3.Zero;
+                distance.X = head.Position.X - viewport.Position.X;
+                SmoothMove (distance, 300);
+              }
+            }
+            break;
         }
       }
     }
@@ -123,14 +145,13 @@ namespace frontend.Game
       if (glarea1!.Error != IntPtr.Zero)
         throw new Exception ("GL");
 
+      Engine.Skybox skybox;
       renderer = new Engine.Gl ();
 
-      var
       board = new Objects.PieceBoard (2);
       board.Visible = true;
       renderer.Objects.Add (board);
 
-      var
       skybox = new Engine.Skybox ();
       skybox.Direction = Vector3.UnitY;
       skybox.Angle = MathHelper.DegreesToRadians (180);
@@ -144,23 +165,35 @@ namespace frontend.Game
           board.Append (tuple.Item1, tuple.Item2);
         }
 
-      actionHandler = (o, arg) =>
+      var boarded_ = boarded;
+      var glarea1_ = glarea1;
+      var engine_ = engine;
+      var board_ = board;
+
+      actionHandler += (o, arg) =>
         {
           if (arg is Backend.MoveArgs)
           {
             var a = (Backend.MoveArgs) arg;
             var putat = a.PutAt;
             var piece = a.Piece;
+
             if (piece != null)
             {
               GLib.Idle.Add (() =>
               {
-                boarded.Add ((putat, piece));
-                board.Append (putat, piece);
-                glarea1!.QueueRender ();
+                boarded_.Add ((putat, piece));
+                if (board_ != null)
+                  {
+                    board_.Append (putat, piece);
+                    glarea1_!.QueueRender ();
+                  }
                 return false;
               });
             }
+          } else
+          {
+            engine_.PollNext ();
           }
         };
 
@@ -184,35 +217,28 @@ namespace frontend.Game
       this.boarded = new List<(int, int[])> ();
       this.engine = engine;
 
-      forward1!.Clicked += (o, a) =>
-      {
-        if (renderer != null)
-        {
-          engine.PollNext ();
-        }
-      };
+      var renderer_ = renderer;
+      var engine_ = engine;
+      var keep1_ = keep1;
 
-      var clock = (uint) 0;
-      keep1!.AddNotification ("active", (o, a) =>
+      forward1!.Clicked += (o, a) =>
         {
-          var keep1 = (Gtk.ToggleButton) o!;
-          if (keep1.Active && clock == 0)
-          {
-            Console.WriteLine ("activating");
-            clock = GLib.Timeout.Add (400, () =>
-            {
-              engine.PollNext ();
-              return true;
-            });
-          }
-          else
-          if (!keep1.Active && clock != 0)
-          {
-            Console.WriteLine ("deactivating");
-            GLib.Timeout.Remove (clock);
-            clock = 0;
-          }
+          if (renderer_ != null)
+            engine_.PollNext();
+        };
+
+      clock = GLib.Timeout.Add (
+        putinterval, () =>
+        {
+          if (keep1_!.Active == true)
+            engine_.PollNext ();
+          return true;
         });
+    }
+
+    ~ Window ()
+    {
+      GLib.Source.Remove (clock);
     }
 
 #endregion
