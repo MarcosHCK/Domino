@@ -4,8 +4,9 @@
  */
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
+namespace Engine;
 
-namespace frontend.Gl
+public partial class Gl
 {
   public sealed class Pencil
   {
@@ -76,8 +77,8 @@ namespace frontend.Gl
       GL.BindVertexArray (vao);
 
       attrfmt = false;
-      attrfmt |= Game.Window.CheckVersion (4, 3);
-      attrfmt |= Game.Window.CheckExtension ("ARB_vertex_attrib_binding");
+      attrfmt |= CheckVersion (4, 3);
+      attrfmt |= CheckExtension ("ARB_vertex_attrib_binding");
 
       for (int i = 0; i < offsets.Length; i++)
         {

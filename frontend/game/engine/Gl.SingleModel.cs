@@ -3,9 +3,9 @@
  *
  */
 using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
+namespace Engine;
 
-namespace frontend.Gl
+public partial class Gl
 {
   public class SingleModel : Model, IDrawable
   {
@@ -20,19 +20,19 @@ namespace frontend.Gl
       public int[] vertices;
     }
 
-    public void Draw (Frame frame)
+    public void Draw (Gl gl)
     {
       if (Visible)
       {
         var target = BufferTarget.ElementArrayBuffer;
-        var pencil = frame.Pencil;
+        var pencil = gl.pencil;
 
         pencil.BindBuffer (vbo);
         GL.BindBuffer (target, ebo);
 
         foreach (var group in groups)
         {
-          frame.Material = group.material;
+          group.material.Use (gl);
           GL.MultiDrawElementsBaseVertex<int>
           (PrimitiveType.Triangles,
            group.counts,

@@ -3,10 +3,11 @@
  *
  */
 using OpenTK.Graphics.OpenGL;
+namespace Engine;
 
-namespace frontend.Gl
+public partial class Gl
 {
-  public class Program
+  public sealed class Program
   {
     private int _Pid;
     public int Pid { get => _Pid; }
@@ -146,8 +147,8 @@ namespace frontend.Gl
       _Pid = GL.CreateProgram();
 
       separate = false;
-      separate |= Game.Window.CheckVersion (4, 1);
-      separate |= Game.Window.CheckExtension ("ARB_separate_shader_objects");
+      separate |= CheckVersion (4, 1);
+      separate |= CheckExtension ("ARB_separate_shader_objects");
     }
 
     ~Program()

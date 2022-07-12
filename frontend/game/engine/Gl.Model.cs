@@ -3,10 +3,10 @@
  *
  */
 using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
 using Assimp;
 
-namespace frontend.Gl
+namespace Engine;
+public partial class Gl
 {
   public abstract class Model
   {

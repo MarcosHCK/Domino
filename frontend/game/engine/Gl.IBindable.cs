@@ -2,14 +2,12 @@
  * This file is part of Domino/frontend.
  *
  */
-using OpenTK.Mathematics;
 namespace Engine;
 
 public partial class Gl
 {
-  public interface IRotable
+  public interface IBindable
   {
-    public float Angle { get; set; }
-    public Vector3 Direction { get; set; }
+    public int Binding { get; }
   }
 }

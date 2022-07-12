@@ -3,8 +3,9 @@
  *
  */
 using OpenTK.Mathematics;
+namespace Engine;
 
-namespace frontend.Gl
+public partial class Gl
 {
   public class SpotLight : PointLight, IPackable
   {

@@ -3,10 +3,11 @@
  *
  */
 using OpenTK.Mathematics;
+using Engine;
 
 namespace frontend.Game.Objects
 {
-  public class PieceBoard : Game.Object
+  public class PieceBoard : Engine.Object
   {
     public PieceObject? Head1 { get; private set; }
     public int Head1Value { get; private set; }
@@ -177,19 +178,19 @@ namespace frontend.Game.Objects
       }
     }
 
-    public override void Draw (Gl.Frame frame)
+    public override void Draw (Gl gl)
     {
       var list = Head1;
       if (Visible)
         {
-          var camera = frame.Camera;
+          var camera = gl.Viewport;
           var target = camera.Target;
           Position = target + displace;
 
-          base.Draw (frame);
+          base.Draw (gl);
           while (list != null)
             {
-              list.Draw (frame);
+              list.Draw (gl);
               list = list.Next;
             }
         }

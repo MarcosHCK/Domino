@@ -4,10 +4,11 @@
  */
 using OpenTK.Graphics.OpenGL4;
 using System.Collections;
+namespace Engine;
 
-namespace frontend.Gl
+public partial class Gl
 {
-  public sealed class Ssbo<T> : IList<T>
+  public sealed class Ssbo<T> : IList<T>, IBindable
     where T: IPackable
   {
     static BufferTarget target;
@@ -110,8 +111,8 @@ namespace frontend.Gl
         if (max < 0)
         {
           bool ssbos = false;
-          ssbos |= Game.Window.CheckVersion (4, 3);
-          ssbos |= Game.Window.CheckExtension ("ARB_shader_storage_buffer_object");
+          ssbos |= CheckVersion (4, 3);
+          ssbos |= CheckExtension ("ARB_shader_storage_buffer_object");
           if (!ssbos)
             {
               throw new Exception ();

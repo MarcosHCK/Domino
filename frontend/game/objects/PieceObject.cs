@@ -5,7 +5,7 @@
 
 namespace frontend.Game.Objects
 {
-  public class PieceObject : Game.Object
+  public class PieceObject : Engine.Object
   {
 #region List
 

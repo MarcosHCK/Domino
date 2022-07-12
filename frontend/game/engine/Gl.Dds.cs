@@ -3,8 +3,9 @@
  *
  */
 using OpenTK.Graphics.OpenGL;
+namespace Engine;
 
-namespace frontend.Gl
+public partial class Gl
 {
   public sealed class Dds
   {

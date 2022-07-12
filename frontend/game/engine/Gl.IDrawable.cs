@@ -2,12 +2,13 @@
  * This file is part of Domino/frontend.
  *
  */
+namespace Engine;
 
-namespace frontend.Gl
+public partial class Gl
 {
   public interface IDrawable
   {
     public bool Visible { get; set; }
-    public void Draw (Frame frame);
+    public void Draw (Gl gl);
   }
 }

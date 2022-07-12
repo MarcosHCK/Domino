@@ -2,10 +2,10 @@
  * This file is part of Domino/frontend.
  *
  */
-using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+namespace Engine;
 
-namespace frontend.Gl
+public partial class Gl
 {
   public sealed class Camera : ILocalizable
   {

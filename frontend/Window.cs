@@ -46,7 +46,7 @@ namespace frontend
           var rule = ((RuleListBoxRow) row).Rule;
           var path = frontend.Application.LibexecDir;
           var binary = System.IO.Path.Combine (path, "backend");
-          var engine = new Game.Engine (rule, binary);
+          var engine = new Game.Backend (rule, binary);
           var game = new Game.Window (engine);
           var appl = Application;
 

@@ -9,7 +9,7 @@ using System.Text;
 
 namespace frontend.Game
 {
-  public class Engine
+  public class Backend
   {
     private Process proc;
     private ConcurrentQueue<ActionArgs> pendings;
@@ -21,7 +21,7 @@ namespace frontend.Game
 
     public event ActionHandler Action;
 
-    public delegate void ActionHandler (Engine engine, ActionArgs a);
+    public delegate void ActionHandler (Backend engine, ActionArgs a);
     public class ActionArgs : EventArgs
     {
       public string Player { get; private set; }
@@ -32,7 +32,7 @@ namespace frontend.Game
       }
     }
 
-    public delegate void ExchangeHandler (Engine engine, ExchangeArgs a);
+    public delegate void ExchangeHandler (Backend engine, ExchangeArgs a);
     public class ExchangeArgs : ActionArgs
     {
       public int Losses { get; private set; }
@@ -46,7 +46,7 @@ namespace frontend.Game
       }
     }
 
-    public delegate void MoveHandler (Engine engine, MoveArgs a);
+    public delegate void MoveHandler (Backend engine, MoveArgs a);
     public class MoveArgs : ActionArgs
     {
       public bool Passes { get; private set; }
@@ -227,7 +227,7 @@ namespace frontend.Game
 
 #region Constructors
 
-    private Engine (string binary)
+    private Backend (string binary)
     {
       ProcessStartInfo info;
       pendings = new ConcurrentQueue<ActionArgs> ();
@@ -249,7 +249,7 @@ namespace frontend.Game
       Action += (o, a) => { };
     }
 
-    public Engine (Rule rule, string binary) : this (binary)
+    public Backend (Rule rule, string binary) : this (binary)
     {
       if (rule.Name == null)
         throw new NullReferenceException ();
@@ -262,7 +262,7 @@ namespace frontend.Game
         }
     }
 
-    ~Engine ()
+    ~Backend ()
     {
       Console.WriteLine ("termination");
       Interlocked.Increment (ref QuitFlag);
@@ -278,7 +278,7 @@ namespace frontend.Game
     private static Regex move;
     private static Regex piece;
 
-    static Engine ()
+    static Backend ()
     {
       var flags = RegexOptions.Compiled | RegexOptions.Singleline;
 

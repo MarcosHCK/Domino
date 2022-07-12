@@ -3,6 +3,7 @@
  *
  */
 using OpenTK.Graphics.OpenGL;
+using Engine;
 
 namespace frontend.Game.Objects
 {

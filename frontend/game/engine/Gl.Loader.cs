@@ -3,8 +3,9 @@
  *
  */
 using System.Runtime.InteropServices;
+namespace Engine;
 
-namespace frontend.Gl
+public partial class Gl
 {
   internal sealed class Loader : OpenTK.IBindingsContext
   {

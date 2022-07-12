@@ -5,18 +5,34 @@
 using OpenTK.Graphics.OpenGL;
 using Assimp;
 
-namespace frontend.Gl
+namespace Engine;
+public partial class Gl
 {
+#region Data blocks
+
+  private static readonly
+  string[] samplerNames =
+  new string []
+  {
+    "aDiffuse",
+    "aSpecular",
+    "aNormals",
+    "aHeight",
+  };
+
+  /* storage */
+  private static bool multiple = false;
+  private static bool direct = false;
+  private static bool storage = false;
+
+#endregion
+
   public sealed class Material
   {
-    
-    private static bool storage = false;
     public float Shininess { get; private set; }
     public int [] Textures { get; private set; }
 
-#region Data blocks
-
-    public static readonly
+    private static readonly
     TextureType[] textureTypes =
     new TextureType []
     {
@@ -26,27 +42,24 @@ namespace frontend.Gl
       TextureType.Height,
     };
 
-    public static readonly
-    string[] samplerNames =
-    new string []
+    public void Use (Gl gl)
     {
-      "aDiffuse",
-      "aSpecular",
-      "aNormals",
-      "aHeight",
-    };
+      var tios = Textures;
+      GL.Uniform1 (gl.locShininess, Shininess);
 
-#endregion
-
-    public static void BindUnits (int pid)
-    {
-      int unit = 0;
-      foreach (var name in samplerNames)
-      {
-        var loc =
-        GL.GetUniformLocation (pid, name);
-        GL.Uniform1 (loc, unit++);
-      }
+      if (multiple)
+        GL.BindTextures (0, tios.Length, tios);
+      else if (direct)
+        for (int i = 0; i < tios.Length; i++)
+        {
+          GL.BindTextureUnit (i, tios [i]);
+        }
+      else
+        for (int i = 0; i < tios.Length; i++)
+        {
+          GL.ActiveTexture (TextureUnit.Texture0 + i);
+          GL.BindTexture (TextureTarget.Texture2DArray, tios [i]);
+        }
     }
 
 #region Constructor
@@ -77,8 +90,8 @@ namespace frontend.Gl
       if (combined < textureTypes.Length)
         throw new Exception ("Too few image units");
 
-      storage |= Game.Window.CheckVersion (4, 2);
-      storage |= Game.Window.CheckExtension ("ARB_texture_storage");
+      storage |= CheckVersion (4, 2);
+      storage |= CheckExtension ("ARB_texture_storage");
       Textures = new int [textureTypes.Length];
       GL.GenTextures (Textures.Length, Textures);
     }

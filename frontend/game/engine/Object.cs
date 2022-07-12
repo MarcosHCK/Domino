@@ -4,7 +4,7 @@
  */
 using OpenTK.Mathematics;
 
-namespace frontend.Game
+namespace Engine
 {
   public abstract class Object : Gl.IDrawable, Gl.ILocalizable, Gl.IRotable, Gl.IScalable
   {
@@ -76,10 +76,10 @@ namespace frontend.Game
       }
     }
 
-    public virtual void Draw (Gl.Frame frame)
+    public virtual void Draw (Gl gl)
     {
-      frame.Model = _Model;
-      drawable.Draw (frame);
+      gl.Model4 = _Model;
+      drawable.Draw (gl);
     }
 
 #region Constructors

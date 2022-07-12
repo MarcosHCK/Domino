@@ -29,7 +29,7 @@ namespace frontend
           rule.Load (saveDir);
 
       var execBin = Path.Combine (LibexecDir, "backend");
-      var engine = new Game.Engine (rule, execBin);
+      var engine = new Game.Backend (rule, execBin);
 
       var
       window = new Game.Window (engine);
