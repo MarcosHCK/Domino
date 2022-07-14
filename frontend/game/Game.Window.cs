@@ -72,6 +72,7 @@ namespace frontend.Game
       var glarea1_ = glarea1;
 
       var leaps = interval / min;
+          leaps += (interval % min != 0) ? 1u : 0u;
       var leap = distance / (float) leaps;
 
       GLib.Timeout.Add (min,
@@ -90,7 +91,6 @@ namespace frontend.Game
     {
       var press = a.Event;
       var mods = press.State;
-      Vector3 pos;
 
       if (!mods.HasFlag (Gdk.ModifierType.ReleaseMask))
       {
@@ -104,6 +104,34 @@ namespace frontend.Game
           case Gdk.Key.d:
             SmoothMove (new Vector3 (-1, 0, 0), 200);
             break;
+
+          case Gdk.Key.Key_1:
+            if (board != null)
+            {
+              var head = board!.Head1;
+              if (head != null)
+              {
+                var viewport = renderer!.Viewport;
+                var distance = Vector3.Zero;
+                distance.X = head.Position.X - viewport.Position.X;
+                SmoothMove (distance, 300);
+              }
+            }
+            break;
+          case Gdk.Key.Key_2:
+            if (board != null)
+            {
+              var head = board!.Head2;
+              if (head != null)
+              {
+                var viewport = renderer!.Viewport;
+                var distance = Vector3.Zero;
+                distance.X = head.Position.X - viewport.Position.X;
+                SmoothMove (distance, 300);
+              }
+            }
+            break;
+
 /*
           case Gdk.Key.W:
           case Gdk.Key.w:
@@ -122,19 +150,6 @@ namespace frontend.Game
             glarea1!.QueueRender ();
             break;
 */
-          case Gdk.Key.Key_1:
-            if (board != null)
-            {
-              var head = board!.Head1;
-              if (head != null)
-              {
-                var viewport = renderer!.Viewport;
-                var distance = Vector3.Zero;
-                distance.X = head.Position.X - viewport.Position.X;
-                SmoothMove (distance, 300);
-              }
-            }
-            break;
         }
       }
     }
