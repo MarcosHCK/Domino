@@ -6,9 +6,10 @@ using Gtk;
 
 namespace frontend
 {
-  public sealed class Application : Gtk.Application
+  public sealed class Application : Patch.Application
   {
 #region Constants
+
     public static string ApplicationName = "Domino";
     public static string ApplicationVersion = "1.0.0.0";
     public static string ApplicationWebsite = "https://github.com/MarcosHCK/domino/";
@@ -16,9 +17,28 @@ namespace frontend
     public static string LibexecDir = "backend/bin/Debug/net6.0/";
     public static string DataDir = "data/";
     public static string BaseDir = "rules/";
+
 #endregion
 
 #region  GLib.Application
+
+    protected override void OnOpen (GLib.IFile[] files, string hint)
+    {
+      if (files.Length != 1)
+        throw new Exception ();
+      else
+      {
+        var rulename = files [0].Basename;
+        var binary = Path.Combine (LibexecDir, "backend");
+        var rule = new Rule.File (rulename);
+        var engine = new Game.Backend (rule, binary);
+        var window = new Game.Window (engine);
+
+        window.Icon = ApplicationIcon;
+        window.Application = this;
+        window.Present ();
+      }
+    }
 
     protected override void OnActivated ()
     {
@@ -33,8 +53,10 @@ namespace frontend
 
 #region Constructors
 
-    public Application () : base (null, GLib.ApplicationFlags.None) { }
-    public Application (string application_id, GLib.ApplicationFlags flags) : base (application_id, flags) { }
+    public Application ()
+      : base (null, GLib.ApplicationFlags.None) { }
+    public Application (string? application_id, GLib.ApplicationFlags flags)
+      : base (application_id, flags) { }
 
     static Application ()
     {
@@ -47,8 +69,34 @@ namespace frontend
     [STAThread]
     public static int Main (string[] argv)
     {
-      var app = new Application ("org.hck.Domino", GLib.ApplicationFlags.None);
-    return app.Run (ApplicationName, argv);
+      var flags = GLib.ApplicationFlags.HandlesOpen;
+      var app = new Application (null, flags);
+      var result = (int) 0;
+
+      GLib.ExceptionManager.UnhandledException +=
+      (o) => {
+        var e = (Exception) o.ExceptionObject;
+        var dialog = new Message (e);
+
+        dialog.Run ();
+        dialog.Destroy ();
+
+        o.ExitApplication = true;
+      };
+
+      try
+      {
+        result = app.Run(ApplicationName, argv);
+      }
+      catch (System.Exception e)
+      {
+        var
+        dialog = new Message (e);
+        dialog.Run ();
+        dialog.Destroy ();
+        return -1;
+      }
+    return result;
     }
   }
 }

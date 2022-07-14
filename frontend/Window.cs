@@ -2,7 +2,6 @@
  * This file is part of Domino/frontend.
  *
  */
-using libRule;
 
 namespace frontend
 {
@@ -17,14 +16,14 @@ namespace frontend
     public sealed class RuleListBoxRow : Gtk.ListBoxRow
     {
       private Gtk.Label label;
-      public Rule Rule { get; private set; }
+      public Rule.File Rule { get; private set; }
 
       private void OnNameChanged (object? o, GLib.NotifyArgs args)
       {
         label.Text = Rule.Name;
       }
 
-      public RuleListBoxRow (Rule Rule)
+      public RuleListBoxRow (Rule.File Rule)
       {
         this.label = new Gtk.Label ();
         this.Add ((Gtk.Widget) label);
@@ -44,14 +43,14 @@ namespace frontend
       if (row is RuleListBoxRow)
         {
           var rule = ((RuleListBoxRow) row).Rule;
-          var path = frontend.Application.LibexecDir;
-          var binary = System.IO.Path.Combine (path, "backend");
-          var engine = new Game.Backend (rule, binary);
-          var game = new Game.Window (engine);
-          var appl = Application;
-
-          game.Application = appl;
-          game.Present ();
+          if (rule.Name != null)
+          {
+            var args = new string [] { rule.Name, };
+            var domain = Thread.GetDomain ();
+            var basedir = domain.BaseDirectory;
+            var path = System.IO.Path.Combine (basedir, "frontend");
+            System.Diagnostics.Process.Start (path, args);
+          }
         }
     }
 
@@ -115,7 +114,7 @@ namespace frontend
         }
     }
 
-    public void OnAddedRule (Rule rule)
+    public void OnAddedRule (Rule.File rule)
     {
       var row =
       new RuleListBoxRow (rule);
@@ -155,7 +154,7 @@ namespace frontend
         {
           var name = System.IO.Path.GetFileName (path);
           var file = GLib.FileFactory.NewForPath (path);
-          var rule = new Rule (name);
+          var rule = new Rule.File (name);
 
           rule.Load (file);
           OnAddedRule (rule);

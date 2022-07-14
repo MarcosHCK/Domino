@@ -3,9 +3,9 @@
  *
  */
 
-namespace libRule
+namespace Rule
 {
-  public sealed partial class Rule : GLib.Object
+  public sealed partial class File : GLib.Object
   {
 #region Properties
 
@@ -71,7 +71,7 @@ namespace libRule
 
 #region Constructors
 
-    public Rule () : base ()
+    public File () : base ()
     {
       FinishConditions = new int [0][];
       PairingConditions = new (int, int [])[0];
@@ -81,7 +81,7 @@ namespace libRule
       ValidTakes = new ((int, int), (int, int), int[])[0];
     }
 
-    public Rule (string Name) : this ()
+    public File (string Name) : this ()
     {
       this.Name = Name;
     }

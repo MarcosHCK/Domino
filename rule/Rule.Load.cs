@@ -3,9 +3,9 @@
  *
  */
 
-namespace libRule
+namespace Rule
 {
-  public sealed partial class Rule : GLib.Object
+  public sealed partial class File : GLib.Object
   {
     private static bool IsBreak (string line)
     {

@@ -3,9 +3,9 @@
  *
  */
 
-namespace libRule
+namespace Rule
 {
-  public sealed partial class Rule : GLib.Object
+  public sealed partial class File : GLib.Object
   {
     public void Save (GLib.IFile savedir, GLib.Cancellable? cancellable = null)
     {

@@ -5,7 +5,6 @@
 using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using libRule;
 
 namespace frontend.Game
 {
@@ -380,7 +379,7 @@ namespace frontend.Game
       Action += (o, a) => { };
     }
 
-    public Backend (Rule rule, string binary) : this (binary)
+    public Backend (Rule.File rule, string binary) : this (binary)
     {
       if (rule.Name == null)
         throw new NullReferenceException ();
