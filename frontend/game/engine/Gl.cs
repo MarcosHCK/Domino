@@ -12,9 +12,6 @@ namespace Engine
   public partial class Gl
   {
     public static readonly string DataDir;
-    private static readonly int targetFPS = 60;
-    private static readonly float fov = 45;
-    private static readonly Vector3 defaultcamera;
     private static bool opentk_done = false;
 
     private Program program;
@@ -213,8 +210,8 @@ namespace Engine
       spotlights = new Ssbo<Light> ();
 
       /* camera initial state */
-      camera.Position = defaultcamera;
-      camera.LookAt(0, 0, 0);
+      camera.Position = Vector3.Zero;
+      camera.LookAt (0, 0, 0);
       ShouldUpdate = true;
 
       /* load shaders */
@@ -264,7 +261,6 @@ namespace Engine
     {
       DataDir = frontend.Application.DataDir;
       extensions = new Dictionary<string, bool> ();
-      defaultcamera = new Vector3 (0, 7, 13);
     }
 
 #endregion

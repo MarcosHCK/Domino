@@ -17,14 +17,16 @@ namespace frontend.Game.Objects
     private static readonly Vector3 piece_scale = new Vector3 (30, 30, 30);
     private static readonly Vector3 piece_width = new Vector3 (1.2f, 0, 0);
     private static readonly Vector3 piece_heigth = new Vector3 (1.58f, 0, 0);
-    private static readonly float piece_angle = MathHelper.DegreesToRadians(180);
+    private static readonly Vector3 table_scale = new Vector3 (7, 7, 7);
+    private static readonly Vector3 table_width = new Vector3 (2, 0, 0) * table_scale;
+    private static readonly float piece_angle = MathHelper.DegreesToRadians (180);
 
 #region API
 
-    private void AppendSimple (int[] faces, int tail, ref PieceObject head, ref int value)
+    private void AppendSimple (int[] faces, int by, int tail, ref PieceObject head, ref int value)
     {
       PieceObject piece;
-      if (faces [0] == value)
+      if (faces [0] == by)
         {
           if (tail < 0)
           {
@@ -76,7 +78,7 @@ namespace frontend.Game.Objects
       head = piece;
     }
 
-    private void AppendDouble (int[] faces, int tail, ref PieceObject head, ref int value)
+    private void AppendDouble (int[] faces, int by, int tail, ref PieceObject head, ref int value)
     {
       var
       piece = new PieceObject (faces);
@@ -93,22 +95,20 @@ namespace frontend.Game.Objects
       head = piece;
     }
 
-    private void AppendHead (int[] faces, int tail, ref PieceObject head, ref int value)
+    private void AppendHead (int[] faces, int by, int tail, ref PieceObject head, ref int value)
     {
       if (faces [0] != faces [1])
-        AppendSimple (faces, tail, ref head, ref value);
+        AppendSimple (faces, by, tail, ref head, ref value);
       else
-        AppendDouble (faces, tail, ref head, ref value);
+        AppendDouble (faces, by, tail, ref head, ref value);
     }
 
-    public void Append (int where, params int[] faces)
+    public void Append (int by, int where, params int[] faces)
     {
       if (faces.Length != 2)
         {
           throw new Exception ("can't handle more than two faces");
         }
-
-      Console.WriteLine ("piece {0}-{1}", faces [0], faces [1]);
 
       if (Head1 == Head2 && Head1 == null)
         {
@@ -140,7 +140,7 @@ namespace frontend.Game.Objects
             {
               var head = Head1!;
               var value = Head1Value;
-              AppendHead (faces, -1, ref head, ref value);
+              AppendHead (faces, by, -1, ref head, ref value);
 
               Head1Value = value;
               Head1 = head;
@@ -150,7 +150,7 @@ namespace frontend.Game.Objects
             {
               var head = Head2!;
               var value = Head2Value;
-              AppendHead (faces,  1, ref head, ref value);
+              AppendHead (faces, by,  1, ref head, ref value);
 
               Head2Value = value;
               Head2 = head;
@@ -183,11 +183,29 @@ namespace frontend.Game.Objects
       var list = Head1;
       if (Visible)
         {
-          var camera = gl.Viewport;
-          var target = camera.Target;
-          Position = target + displace;
-
+          var position = Position;
           base.Draw (gl);
+
+          while (Head1 != null)
+            {
+              Position -= table_width;
+              base.Draw (gl);
+
+              if (Position.X < Head1!.Position.X)
+                break;
+            }
+          Position = position;
+
+          while (Head2 != null)
+            {
+              Position += table_width;
+              base.Draw (gl);
+
+              if (Position.X > Head2!.Position.X)
+                break;
+            }
+          Position = position;
+
           while (list != null)
             {
               list.Draw (gl);
@@ -208,7 +226,7 @@ namespace frontend.Game.Objects
           throw new Exception ("can't handle more than two faces");
         }
 
-      Scale = new Vector3 (6, 6, 6);
+      Scale = table_scale;
       Position = displace;
     }
 

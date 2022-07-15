@@ -28,14 +28,25 @@ namespace frontend.Rows
     {
       [Gtk.Builder.Object]
       private Gtk.ComboBoxText? combo1;
+      [Gtk.Builder.Object]
+      private Gtk.CheckButton? checkbutton1;
       public event Action Changed;
 
       private void OnChanged (object? o, EventArgs a) => Changed ();
 
       public int Value
       {
-        get => int.Parse (combo1!.ActiveId);
-        set => combo1!.ActiveId = value.ToString ();
+        get => int.Parse (combo1!.ActiveId) * ((checkbutton1!.Active) ? -1 : 1);
+        set
+        {
+          if (value >= 0)
+            combo1!.ActiveId = value.ToString ();
+          else
+          {
+            checkbutton1!.Active = true;
+            combo1!.ActiveId = (-value).ToString ();
+          }
+        }
       }
 
       public Verbs ()
@@ -75,8 +86,6 @@ namespace frontend.Rows
 
       listbox1 = new ListBox<int, Verbs> ();
       placeholder1!.Add (listbox1);
-      listbox1.Hexpand = true;
-      listbox1.Vexpand = true;
       listbox1.ShowAll ();
     }
   }

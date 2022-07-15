@@ -16,14 +16,14 @@ namespace frontend
     public sealed class RuleListBoxRow : Gtk.ListBoxRow
     {
       private Gtk.Label label;
-      public Rule.File Rule { get; private set; }
+      public Rule.Playtime Rule { get; private set; }
 
       private void OnNameChanged (object? o, GLib.NotifyArgs args)
       {
         label.Text = Rule.Name;
       }
 
-      public RuleListBoxRow (Rule.File Rule)
+      public RuleListBoxRow (Rule.Playtime Rule)
       {
         this.label = new Gtk.Label ();
         this.Add ((Gtk.Widget) label);
@@ -48,7 +48,7 @@ namespace frontend
             var args = new string [] { rule.Name, };
             var domain = Thread.GetDomain ();
             var basedir = domain.BaseDirectory;
-            var path = System.IO.Path.Combine (basedir, "frontend");
+            var path = System.IO.Path.Combine (basedir, "Frontend");
             System.Diagnostics.Process.Start (path, args);
           }
         }
@@ -114,7 +114,7 @@ namespace frontend
         }
     }
 
-    public void OnAddedRule (Rule.File rule)
+    public void OnAddedRule (Rule.Playtime rule)
     {
       var row =
       new RuleListBoxRow (rule);
@@ -154,7 +154,7 @@ namespace frontend
         {
           var name = System.IO.Path.GetFileName (path);
           var file = GLib.FileFactory.NewForPath (path);
-          var rule = new Rule.File (name);
+          var rule = new Rule.Playtime (name);
 
           rule.Load (file);
           OnAddedRule (rule);

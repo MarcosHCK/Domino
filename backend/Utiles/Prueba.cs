@@ -6,6 +6,7 @@ public static class Prueba
         {
             Console.WriteLine(accion);
         }
+        Console.WriteLine ("GameOver");
         foreach(var tupla in juego.Puntuaciones)
             Console.WriteLine(tupla.Key + " " + tupla.Value.ToString());
     }

@@ -8,7 +8,7 @@ namespace Patch
 {
   public abstract class Application : Gtk.Application
   {
-    static OpenNativeDelegate Open_cb_delegate;
+    static OpenNativeDelegate? Open_cb_delegate;
 		static OpenNativeDelegate OpenVMCallback
     {
 			get

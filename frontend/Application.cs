@@ -29,9 +29,9 @@ namespace frontend
       else
       {
         var rulename = files [0].Basename;
-        var binary = Path.Combine (LibexecDir, "backend");
-        var rule = new Rule.File (rulename);
-        var engine = new Game.Backend (rule, binary);
+        var binary = Path.Combine (LibexecDir, "Backend");
+        var rule = new Rule.Playtime (rulename);
+        var engine = new Game.Backend (rule.Name!, binary);
         var window = new Game.Window (engine);
 
         window.Icon = ApplicationIcon;

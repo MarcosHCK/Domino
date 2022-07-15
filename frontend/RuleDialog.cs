@@ -10,7 +10,7 @@ namespace frontend
   public sealed class RuleDialog : Gtk.Dialog
   {
     private GLib.IFile basedir;
-    public Rule.File Rule;
+    public Rule.Playtime Rule;
  
     [Gtk.Builder.Object]
     private Gtk.EntryBuffer? entrybuffer1;
@@ -70,8 +70,8 @@ namespace frontend
       }
     }
 
-    public RuleDialog () : this (new Rule.File ()) { }
-    public RuleDialog (Rule.File Rule) : base ()
+    public RuleDialog () : this (new Rule.Playtime ()) { }
+    public RuleDialog (Rule.Playtime Rule) : base ()
     {
       var builder = Gtk.TemplateBuilder.InitTemplate (this);
       var basedir = GLib.FileFactory.NewForPath (frontend.Application.BaseDir);

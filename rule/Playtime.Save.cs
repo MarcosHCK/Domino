@@ -5,7 +5,7 @@
 
 namespace Rule
 {
-  public sealed partial class File : GLib.Object
+  public sealed partial class Playtime : GLib.Object, IFileBased
   {
     public void Save (GLib.IFile savedir, GLib.Cancellable? cancellable = null)
     {

@@ -11,6 +11,8 @@ namespace frontend.Game
   public sealed class Window : Gtk.Window
   {
     [Gtk.Builder.Object]
+    private Gtk.HeaderBar? headerbar1;
+    [Gtk.Builder.Object]
     private Gtk.GLArea? glarea1;
     [Gtk.Builder.Object]
     private Gtk.ToggleButton? keep1;
@@ -19,11 +21,12 @@ namespace frontend.Game
 
     private static readonly float fov = 45;
     private static readonly uint putinterval = 400;
-    private List<(int, int[])> boarded;
+    private List<(int, int, int[])> boarded;
     private Objects.PieceBoard? board;
     private Engine.Gl? renderer;
     private uint clock;
 
+    private System.EventHandler? clickedHandler;
     private Game.Backend.ActionHandler? actionHandler;
     private Game.Backend engine;
 
@@ -67,12 +70,11 @@ namespace frontend.Game
     private void SmoothMove (Vector3 distance, uint interval)
     {
       const int min = 50;
-      var renderer_ = renderer;
       var viewport = renderer!.Viewport;
-      var glarea1_ = glarea1;
+      var renderer_ = renderer!;
+      var glarea1_ = glarea1!;
 
       var leaps = interval / min;
-          leaps += (interval % min != 0) ? 1u : 0u;
       var leap = distance / (float) leaps;
 
       GLib.Timeout.Add (min,
@@ -81,9 +83,9 @@ namespace frontend.Game
           var x = viewport.Position.X;
 
           viewport.LookAt (x, 0, 0);
-          renderer!.ShouldUpdate = true;
-          glarea1_!.QueueRender ();
-          return leaps-- > 0;
+          renderer_.ShouldUpdate = true;
+          glarea1_.QueueRender ();
+        return --leaps > 0;
       });
     }
 
@@ -98,11 +100,11 @@ namespace frontend.Game
         {
           case Gdk.Key.A:
           case Gdk.Key.a:
-            SmoothMove (new Vector3 ( 1, 0, 0), 200);
+            SmoothMove (new Vector3 (-1, 0, 0), 200);
             break;
           case Gdk.Key.D:
           case Gdk.Key.d:
-            SmoothMove (new Vector3 (-1, 0, 0), 200);
+            SmoothMove (new Vector3 ( 1, 0, 0), 200);
             break;
 
           case Gdk.Key.Key_1:
@@ -131,25 +133,6 @@ namespace frontend.Game
               }
             }
             break;
-
-/*
-          case Gdk.Key.W:
-          case Gdk.Key.w:
-            pos = renderer!.Viewport.Position;
-            pos.Y += 1;
-            renderer!.Viewport.Position = pos;
-            renderer!.ShouldUpdate = true;
-            glarea1!.QueueRender ();
-            break;
-          case Gdk.Key.S:
-          case Gdk.Key.s:
-            pos = renderer!.Viewport.Position;
-            pos.Y -= 1;
-            renderer!.Viewport.Position = pos;
-            renderer!.ShouldUpdate = true;
-            glarea1!.QueueRender ();
-            break;
-*/
         }
       }
     }
@@ -160,36 +143,31 @@ namespace frontend.Game
       if (glarea1!.Error != IntPtr.Zero)
         throw new Exception ("GL");
 
-      Engine.Skybox skybox;
       renderer = new Engine.Gl ();
+      renderer.Viewport.Position = new Vector3 (0, 13, 13);
 
       board = new Objects.PieceBoard (2);
       board.Visible = true;
       renderer.Objects.Add (board);
 
-      skybox = new Engine.Skybox ();
-      skybox.Direction = Vector3.UnitY;
-      skybox.Angle = MathHelper.DegreesToRadians (180);
-      skybox.Position = Vector3.Zero;
-      skybox.Scale = Vector3.One * 60;
-      skybox.Visible = true;
-      renderer.Objects.Add (skybox);
-
       foreach (var tuple in boarded)
         {
-          board.Append (tuple.Item1, tuple.Item2);
+          board.Append (tuple.Item1, tuple.Item2, tuple.Item3);
         }
 
+      var headerbar = headerbar1;
       var boarded_ = boarded;
       var glarea1_ = glarea1;
       var engine_ = engine;
       var board_ = board;
+      var teamed = false;
 
       actionHandler += (o, arg) =>
         {
           if (arg is Backend.MoveArgs)
           {
             var a = (Backend.MoveArgs) arg;
+            var atby = a.AtBy;
             var putat = a.PutAt;
             var piece = a.Piece;
 
@@ -197,15 +175,20 @@ namespace frontend.Game
             {
               GLib.Idle.Add (() =>
               {
-                boarded_.Add ((putat, piece));
+                boarded_.Add ((atby, putat, piece));
                 if (board_ != null)
                   {
-                    board_.Append (putat, piece);
+                    board_.Append (atby, putat, piece);
                     glarea1_!.QueueRender ();
                   }
                 return false;
               });
             }
+          } else
+          if (arg is Backend.EmitTeamArgs)
+          {
+            var a = (Backend.EmitTeamArgs) arg;
+            teamed = true;
           } else
           if (arg is Backend.GameOverArgs)
           {
@@ -222,17 +205,57 @@ namespace frontend.Game
               best.Clear ();
               best.Add (score);
             }
+
+            var first = best.First ();
+            var kind = teamed ? "equipo" : "jugador";
+            var kinds = teamed ? "equipos" : "jugadores";
+            var match = best.Count;
+
+            GLib.Idle.Add (() =>
+            {
+              if (match > 1)
+              {
+                headerbar!.Title = "El juego terminó!";
+                headerbar!.Subtitle = $"Empataron {match} {kinds}";
+              }
+              else
+              {
+                headerbar!.Title = "El juego terminó!";
+                if (teamed)
+                  headerbar!.Subtitle = $"Ganó el equipo \"{first.Name}\" con {first.Score} puntos";
+                else
+                  headerbar!.Subtitle = $"Ganó \"{first.Name}\" con {first.Score} puntos";
+              }
+            return false;
+            });
           } else
           {
             engine_.PollNext ();
           }
         };
 
+      clickedHandler = (o, a) =>
+        {
+          engine_.PollNext();
+        };
+
+      forward1!.Clicked += clickedHandler;
       engine.Action += actionHandler;
+      var keep1_ = keep1;
+
+      clock = GLib.Timeout.Add (
+        putinterval, () =>
+        {
+          if (keep1_!.Active == true)
+            engine_.PollNext ();
+          return true;
+        });
     }
 
     private void OnUnrealize (object? o, EventArgs a)
     {
+      GLib.Source.Remove (clock);
+      forward1!.Clicked -= clickedHandler;
       engine.Action -= actionHandler;
       renderer = null;
     }
@@ -244,32 +267,8 @@ namespace frontend.Game
     public Window (Backend engine) : base (null)
     {
       Gtk.TemplateBuilder.InitTemplate (this);
-
-      this.boarded = new List<(int, int[])> ();
+      this.boarded = new List<(int, int, int[])> ();
       this.engine = engine;
-
-      var renderer_ = renderer;
-      var engine_ = engine;
-      var keep1_ = keep1;
-
-      forward1!.Clicked += (o, a) =>
-        {
-          if (renderer_ != null)
-            engine_.PollNext();
-        };
-
-      clock = GLib.Timeout.Add (
-        putinterval, () =>
-        {
-          if (keep1_!.Active == true)
-            engine_.PollNext ();
-          return true;
-        });
-    }
-
-    ~ Window ()
-    {
-      GLib.Source.Remove (clock);
     }
 
 #endregion

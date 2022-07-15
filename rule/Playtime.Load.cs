@@ -5,13 +5,8 @@
 
 namespace Rule
 {
-  public sealed partial class File : GLib.Object
+  public sealed partial class Playtime : GLib.Object, IFileBased
   {
-    private static bool IsBreak (string line)
-    {
-      return line.StartsWith ("break");
-    }
-
     private static int[][]
     LoadStyle1 (GLib.IFile file, GLib.Cancellable? cancellable = null)
     {
@@ -32,7 +27,7 @@ namespace Rule
           throw new Exception ("Unexpected end of file");
         else
         {
-          if (IsBreak (line))
+          if (Common.IsBreak (line))
             break;
 
           var two = line.Split ('\x20');
@@ -73,7 +68,7 @@ namespace Rule
           throw new Exception ("Unexpected end of file");
         else
         {
-          if (IsBreak (line))
+          if (Common.IsBreak (line))
             break;
 
           var two = line.Split ('\x20');
@@ -116,7 +111,7 @@ namespace Rule
           throw new Exception ("Unexpected end of file");
         else
         {
-          if (IsBreak (line))
+          if (Common.IsBreak (line))
             break;
 
           var four = line.Split ('\x20');
@@ -142,7 +137,7 @@ namespace Rule
           throw new Exception ("Unexpected end of file");
         else
         {
-          if (IsBreak (line))
+          if (Common.IsBreak (line))
             break;
 
           var two = line.Split ('\x20');
@@ -195,7 +190,7 @@ namespace Rule
           throw new Exception ("Unexpected end of file");
         else
         {
-          if (IsBreak (line))
+          if (Common.IsBreak (line))
             break;
 
           var two = line.Split ('\x20');
@@ -237,7 +232,7 @@ namespace Rule
           throw new Exception ("Unexpected end of file");
         else
         {
-          if (IsBreak (line))
+          if (Common.IsBreak (line))
             break;
 
           var two = line.Split ('\x20');

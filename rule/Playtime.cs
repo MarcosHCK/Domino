@@ -5,7 +5,7 @@
 
 namespace Rule
 {
-  public sealed partial class File : GLib.Object
+  public sealed partial class Playtime : GLib.Object, IFileBased
   {
 #region Properties
 
@@ -71,7 +71,7 @@ namespace Rule
 
 #region Constructors
 
-    public File () : base ()
+    public Playtime () : base ()
     {
       FinishConditions = new int [0][];
       PairingConditions = new (int, int [])[0];
@@ -81,7 +81,7 @@ namespace Rule
       ValidTakes = new ((int, int), (int, int), int[])[0];
     }
 
-    public File (string Name) : this ()
+    public Playtime (string Name) : this ()
     {
       this.Name = Name;
     }

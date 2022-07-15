@@ -13,7 +13,6 @@ namespace frontend.Game
     private Process proc;
     private ConcurrentQueue<ActionArgs> pendings;
     private long QuitFlag = 0;
-    private long NextFlag = 0;
     public bool HasExited { get; private set; }
 
 #region Commands API
@@ -47,6 +46,7 @@ namespace frontend.Game
     public sealed class MoveArgs : ActionArgs
     {
       public bool Passes { get; private set; }
+      public int AtBy { get; private set; }
       public int PutAt { get; private set; }
       public int[]? Piece { get; private set; }
 
@@ -56,10 +56,11 @@ namespace frontend.Game
         this.Passes = true;
       }
 
-      public MoveArgs (string Player, int PutAt, params int[] piece)
+      public MoveArgs (string Player, int AtBy, int PutAt, params int[] piece)
         : base (Player)
       {
         this.Passes = false;
+        this.AtBy = AtBy;
         this.PutAt = PutAt;
         this.Piece = piece;
       }
@@ -111,7 +112,7 @@ namespace frontend.Game
         System.Runtime.Serialization.StreamingContext context) : base (info, context) { }
     }
 
-    private int[]? MakePiece (string piece_)
+    private static int[]? MakePiece (string piece_)
     {
       var match = piece.Match (piece_);
       var list = (List<int>?) null;
@@ -129,7 +130,7 @@ namespace frontend.Game
     return list == null ? null : list.ToArray ();
     }
 
-    private string[]? MakeTeam (string entry)
+    private static string[]? MakeTeam (string entry)
     {
       var match = teamplayer.Match (entry);
       var list = (List<string>?) null;
@@ -174,7 +175,7 @@ namespace frontend.Game
               match = exchange.Match (line);
               if (!match.Success)
                 {
-                  var message = $"Malformed {action} action: {line}";
+                  var message = $"Malformed action {action}: {line}";
                   throw new EngineException (message);
                 }
               else
@@ -186,14 +187,14 @@ namespace frontend.Game
                   var losses = int.Parse (losses_);
                   if (losses > 0)
                     {
-                      var message = $"Malformed {action} action: {line}";
+                      var message = $"Malformed action {action}: {line}";
                       throw new EngineException (message);
                     }
 
                   var takes = int.Parse (takes_);
                   if (takes < 0)
                     {
-                      var message = $"Malformed {action} action: {line}";
+                      var message = $"Malformed action {action}: {line}";
                       throw new EngineException (message);
                     }
 
@@ -207,7 +208,7 @@ namespace frontend.Game
                   match = pass.Match (line);
                   if (!match.Success)
                   {
-                    var message = $"Malformed {action} action: {line}";
+                    var message = $"Malformed action {action}: {line}";
                     throw new EngineException (message);
                   }
                   else
@@ -227,19 +228,14 @@ namespace frontend.Game
                   var piece = MakePiece (piece_);
                   if (piece == null)
                     {
-                      var message = $"Malformed {action} action: {line}";
+                      var message = $"Malformed action {action}: {line}";
                       throw new EngineException (message);
                     }
 
                   var piece_head = int.Parse (piece_head_);
                   var table_head = int.Parse (table_head_);
-                  if (piece_head != table_head)
-                    {
-                      var message = $"Malformed {action} action: {line}";
-                      throw new EngineException (message);
-                    }
 
-                  pendings.Enqueue (new MoveArgs (player, piece_head, piece));
+                  pendings.Enqueue (new MoveArgs (player, piece_head, table_head, piece));
                 }
               break;
             case "Equipos":
@@ -379,17 +375,12 @@ namespace frontend.Game
       Action += (o, a) => { };
     }
 
-    public Backend (Rule.File rule, string binary) : this (binary)
+    public Backend (string ruleset, string binary) : this (binary)
     {
-      if (rule.Name == null)
-        throw new NullReferenceException ();
-      else
-        {
-          proc.Start ();
-          proc.BeginOutputReadLine ();
-          proc.BeginErrorReadLine ();
-          proc.StandardInput.WriteLine (rule.Name);
-        }
+      proc.Start ();
+      proc.BeginOutputReadLine ();
+      proc.BeginErrorReadLine ();
+      proc.StandardInput.WriteLine (ruleset);
     }
 
     ~Backend ()
