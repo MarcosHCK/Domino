@@ -13,7 +13,7 @@ namespace frontend
     [Gtk.Builder.Object]
     private Gtk.ListBox? listbox1;
 
-    public sealed class RuleListBoxRow : Gtk.ListBoxRow
+    sealed class RuleListBoxRow : Gtk.ListBoxRow
     {
       private Gtk.Label label;
       public Rule.Playtime Rule { get; private set; }
@@ -37,7 +37,7 @@ namespace frontend
 
 #region Callbacks
 
-    public void StartRule (object? button, EventArgs ev)
+    private void StartRule (object? button, EventArgs a)
     {
       var row = listbox1!.SelectedRow;
       if (row is RuleListBoxRow)
@@ -54,7 +54,7 @@ namespace frontend
         }
     }
 
-    public void AddRule (object? button, EventArgs ev)
+    private void AddRule (object? button, EventArgs a)
     {
       var
       dialog = new RuleDialog ();
@@ -64,7 +64,7 @@ namespace frontend
       UpdateRules ();
     }
 
-    public void EditRule (object? button, EventArgs ev)
+    private void EditRule (object? button, EventArgs a)
     {
       var row = listbox1!.SelectedRow;
       if (row is RuleListBoxRow)
@@ -98,7 +98,7 @@ namespace frontend
       }
     }
 
-    public void RemoveRule (object? button, EventArgs ev)
+    private void RemoveRule (object? button, EventArgs ev)
     {
       var row_ = listbox1!.SelectedRow;
       if (row_ is RuleListBoxRow)
@@ -114,7 +114,16 @@ namespace frontend
         }
     }
 
-    public void OnAddedRule (Rule.Playtime rule)
+    private void EditPlayers (object? button, EventArgs a)
+    {
+      var
+      dialog = new TeamDialog ();
+      dialog.TransientFor = this;
+      dialog.Run ();
+      dialog.Destroy ();
+    }
+
+    private void OnAddedRule (Rule.Playtime rule)
     {
       var row =
       new RuleListBoxRow (rule);
@@ -122,7 +131,7 @@ namespace frontend
       row.ShowAll ();
     }
 
-    public void OnRemovedRule (string? rule)
+    private void OnRemovedRule (string? rule)
     {
       Gtk.Widget? which = null;
       listbox1!.Foreach ((child) => {

@@ -7,7 +7,7 @@ namespace Rule
 {
   internal sealed class Common
   {
-    internal static bool IsBreak (string line)
+    public static bool IsBreak (string line)
     {
       return line.StartsWith ("break");
     }

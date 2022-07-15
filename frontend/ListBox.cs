@@ -57,9 +57,9 @@ namespace frontend
       Gtk.MenuItem item2;
 
       item1 = new Gtk.MenuItem ("Add");
-      item1.ShowAll ();
+      item1.Show ();
       item2 = new Gtk.MenuItem ("Delete");
-      item2.ShowAll ();
+      item2.Show ();
 
       var selected = listbox.SelectedRow;
       var box = listbox;
@@ -83,9 +83,10 @@ namespace frontend
 
       box._Value = new T [length + 1];
       listbox.Add (row);
-      row.ShowAll ();
+      row.Show ();
 
       row.Changed += () => OnRowChanged (listbox);
+      OnRowChanged (listbox);
     }
 
     private static void RowDelete (Gtk.ListBox listbox, Gtk.Widget? widget)
@@ -114,6 +115,9 @@ namespace frontend
         row = (R) bin.Child;
         box._Value [rowi++] = row.Value;
       }
+
+      box.Notify ("value");
+      box.Changed ();
     }
 
 #endregion

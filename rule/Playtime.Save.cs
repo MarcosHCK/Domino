@@ -21,9 +21,9 @@ namespace Rule
       file = savedir.GetChild ("Numeros.txt");
       stream = file.Replace (null, false, GLib.FileCreateFlags.None, cancellable);
       data = new GLib.DataOutputStream (stream);
-      data.PutString ($"{this.HeadMaxNumber}\r\n", cancellable);
-      data.PutString ($"{this.HeadsNumber}\r\n", cancellable);
-      data.PutString ($"{this.HandSize}\r\n", cancellable);
+      data.PutString ($"{this.HeadMaxNumber}\n", cancellable);
+      data.PutString ($"{this.HeadsNumber}\n", cancellable);
+      data.PutString ($"{this.HandSize}\n", cancellable);
       data.Close (cancellable);
       stream.Close (cancellable);
 
@@ -34,9 +34,9 @@ namespace Rule
       file = savedir.GetChild ("Puntuador.txt");
       stream = file.Replace (null, false, GLib.FileCreateFlags.None, cancellable);
       data = new GLib.DataOutputStream (stream);
-      data.PutString ($"{this.TokenRating}\r\n", cancellable);
-      data.PutString ($"{this.PlayerRating}\r\n", cancellable);
-      data.PutString ($"{this.TeamRating}\r\n", cancellable);
+      data.PutString ($"{this.TokenRating}\n", cancellable);
+      data.PutString ($"{this.PlayerRating}\n", cancellable);
+      data.PutString ($"{this.TeamRating}\n", cancellable);
       data.Close (cancellable);
       stream.Close (cancellable);
 
@@ -47,8 +47,8 @@ namespace Rule
       file = savedir.GetChild ("Creador.txt");
       stream = file.Replace (null, false, GLib.FileCreateFlags.None, cancellable);
       data = new GLib.DataOutputStream (stream);
-      data.PutString ((this.DoublesAppears ? "Si" : "No") + "\r\n", cancellable);
-      data.PutString ($"{this.TokenRepeats}\r\n", cancellable);
+      data.PutString ((this.DoublesAppears ? "Si" : "No") + "\n", cancellable);
+      data.PutString ($"{this.TokenRepeats}\n", cancellable);
       data.Close (cancellable);
       stream.Close (cancellable);
 
@@ -71,10 +71,10 @@ namespace Rule
           data.PutString (" " + array [i], cancellable);
         }
 
-        data.PutString ("\r\n", cancellable);
+        data.PutString ("\n", cancellable);
       }
 
-      data.PutString ("break\r\n", cancellable);
+      data.PutString ("break\n", cancellable);
       data.Close (cancellable);
       stream.Close (cancellable);
 
@@ -99,10 +99,10 @@ namespace Rule
           data.PutString (" " + array [i], cancellable);
         }
 
-        data.PutString ("\r\n", cancellable);
+        data.PutString ("\n", cancellable);
       }
 
-      data.PutString ("break\r\n", cancellable);
+      data.PutString ("break\n", cancellable);
       data.Close (cancellable);
       stream.Close (cancellable);
 
@@ -127,10 +127,10 @@ namespace Rule
           data.PutString (" " + array [i], cancellable);
         }
 
-        data.PutString ("\r\n", cancellable);
+        data.PutString ("\n", cancellable);
       }
 
-      data.PutString ("break\r\n", cancellable);
+      data.PutString ("break\n", cancellable);
       data.Close (cancellable);
       stream.Close (cancellable);
 
@@ -155,10 +155,10 @@ namespace Rule
           data.PutString (" " + array [i], cancellable);
         }
 
-        data.PutString ("\r\n", cancellable);
+        data.PutString ("\n", cancellable);
       }
 
-      data.PutString ("break\r\n", cancellable);
+      data.PutString ("break\n", cancellable);
       data.Close (cancellable);
       stream.Close (cancellable);
 
@@ -177,10 +177,10 @@ namespace Rule
         data.PutString (tuple.Item1 + " ", cancellable);
         data.PutString (tuple.Item2 + " ", cancellable);
         data.PutString (tuple.Item3 + " ", cancellable);
-        data.PutString (tuple.Item4 + "\r\n", cancellable);
+        data.PutString (tuple.Item4 + "\n", cancellable);
       }
 
-      data.PutString ("break\r\n", cancellable);
+      data.PutString ("break\n", cancellable);
 
       idx = 0;
       foreach (var tuple in ValidFlushes)
@@ -196,10 +196,10 @@ namespace Rule
           data.PutString (" " + array [i], cancellable);
         }
 
-        data.PutString ("\r\n", cancellable);
+        data.PutString ("\n", cancellable);
       }
 
-      data.PutString ("break\r\n", cancellable);
+      data.PutString ("break\n", cancellable);
 
       data.Close (cancellable);
       stream.Close (cancellable);
@@ -215,12 +215,12 @@ namespace Rule
       foreach (var tuple in ValidTakes)
       {
         data.PutString (tuple.Item1.Item1 + " ", cancellable);
-        data.PutString (tuple.Item1.Item2 + "\r\n", cancellable);
+        data.PutString (tuple.Item1.Item2 + "\n", cancellable);
         data.PutString (tuple.Item2.Item1 + " ", cancellable);
-        data.PutString (tuple.Item2.Item2 + "\r\n", cancellable);
+        data.PutString (tuple.Item2.Item2 + "\n", cancellable);
       }
 
-      data.PutString ("break\r\n", cancellable);
+      data.PutString ("break\n", cancellable);
 
       idx = 0;
       foreach (var tuple in ValidFlushes)
@@ -236,10 +236,10 @@ namespace Rule
           data.PutString (" " + array [i], cancellable);
         }
 
-        data.PutString ("\r\n", cancellable);
+        data.PutString ("\n", cancellable);
       }
 
-      data.PutString ("break\r\n", cancellable);
+      data.PutString ("break\n", cancellable);
 
       data.Close (cancellable);
       stream.Close (cancellable);
