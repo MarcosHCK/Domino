@@ -22,6 +22,7 @@ namespace Frontend.Game
     private static readonly float fov = 45;
     private static readonly uint putinterval = 400;
     private List<(int, int, int[])> boarded;
+    private Objects.AtrilObject? atril = null;
     private Objects.PieceBoard? board = null;
     private Engine.Gl? renderer = null;
     private uint clock;
@@ -146,6 +147,10 @@ namespace Frontend.Game
       renderer = new Engine.Gl ();
       renderer.Viewport.Position = new Vector3 (0, 13, 13);
 
+      atril = new Objects.AtrilObject ();
+      atril.Visible = false;
+      renderer.Objects.Add (atril);
+
       board = new Objects.PieceBoard (2);
       board.Visible = true;
       renderer.Objects.Add (board);
@@ -258,6 +263,7 @@ namespace Frontend.Game
       forward1!.Clicked -= clickedHandler;
       engine.Action -= actionHandler;
 
+      atril = null;
       board = null;
       renderer = null;
     }
