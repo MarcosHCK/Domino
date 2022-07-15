@@ -207,6 +207,22 @@ namespace frontend.Game
               });
             }
           } else
+          if (arg is Backend.GameOverArgs)
+          {
+            var a = (Backend.GameOverArgs) arg;
+            (string Name, int Score)[] scores = a.Scores;
+            var best = new List<(string Name, int Score)> ();
+                best.Add (scores.First ());
+
+            foreach (var score in scores)
+            if (score.Score == best.First ().Score)
+              best.Add (score);
+            else
+            {
+              best.Clear ();
+              best.Add (score);
+            }
+          } else
           {
             engine_.PollNext ();
           }
