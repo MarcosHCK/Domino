@@ -45,4 +45,9 @@ public static class Util
         Random Azar = new Random();
         return Azar.NextDouble()*Math.Pow(10, 12) + Azar.NextDouble()*Math.Pow(10, 6) + Azar.NextDouble();
     }
+    public static void Incrementar(Dictionary<int, int> D, int cabeza, bool incremento = true)
+    {
+        if(D.ContainsKey(cabeza))D[cabeza] += (incremento)?1:0;
+        else if(incremento)D.Add(cabeza, 1);
+    }
 }

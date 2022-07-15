@@ -18,8 +18,9 @@ public class Creador_Usual : ICreador
         this._fichas = new List<Ficha>();
         this._cant_d_fichas = 0;
     }
-    public virtual List<Ficha> fichas(int data_tope, int cabezas_por_ficha)
+    public List<Ficha> fichas(int data_tope, int cabezas_por_ficha)
     {
+        //this._cant_d_fichas = 0;
         if(this._fichas.Count != 0)return new List<Ficha>(this._fichas);
         int[] cabezas = new int[cabezas_por_ficha];
         for(; cabezas[0] < data_tope; Incrementar(dobles))

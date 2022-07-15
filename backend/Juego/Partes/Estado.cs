@@ -27,7 +27,7 @@ public class Estado
         this.YaSeHaJugado = false;
         this._acciones = otro.acciones;
         this._caras_de_la_mesa = otro.caras_de_la_mesa;
-        this.Jugador_en_Turno = otro.Jugador_en_Turno;
+        this.Jugador_en_Turno = new string(otro.Jugador_en_Turno);
         this._jugadores = otro.jugadores;
         this._equipos = otro.equipos;
         this.fichas_fuera = otro.fichas_fuera;

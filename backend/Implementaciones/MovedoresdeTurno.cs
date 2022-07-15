@@ -1,13 +1,9 @@
 public class MoverDerecha : IMoverTurno
 {
-    int index;
-    public MoverDerecha()
-    {
-        this.index = 0;
-    }
     public virtual string SgteJugador(Reglas_del_Juego reglas, Estado estado, List<Ficha> mano)
     {
         List<string> jugadores = estado.jugadores;
+        int index = jugadores.IndexOf(estado.Jugador_en_Turno);
         index = (index + 1)%jugadores.Count;
         return jugadores[index];
     }

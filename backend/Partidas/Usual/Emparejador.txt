@@ -12,12 +12,11 @@ anteriores:
     1- Siempre
     2- Tranque
     3- Al lider quedan menos de tres fichas
-    4- Juego No Iniciado
-    5- El jugador en turno es el mas atrasado
-    6- El jugador en turno es el mas adelantado
-    7- Este mismo jugador se acaba de pasar una vez despues de repartir
-    8- Han ocurrido dos pases consecutivos de un mismo jugador despues de repartir
-    9- Han ocurrido tres pases consecutivos de un mismo jugador despues de repartir
+    4- El jugador en turno es el mas atrasado
+    5- El jugador en turno es el mas adelantado
+    6- Este mismo jugador se acaba de pasar una vez despues de repartir
+    7- Han ocurrido dos pases consecutivos de un mismo jugador despues de repartir
+    8- Han ocurrido tres pases consecutivos de un mismo jugador despues de repartir
 Usted debera repetidamente escribir el numero de un criterio y luego todas las combinaciones que dan lugar
 a su uso.
 Finalmente break

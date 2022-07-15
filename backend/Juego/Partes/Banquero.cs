@@ -76,6 +76,7 @@ public class Banquero
                 this.manos[jugador.nombre].Remove(ficha);
                 this.fichas_fuera.Add(ficha);
             }
+            if(fichas_fuera.Count == 0){Console.WriteLine("Vacia-2"); Console.ReadKey();}
             List<Ficha> recogidas = cambiador.Reemplazar(fichas_fuera, descartes, puntuador, this.manos[jugador.nombre].Count);
             //Al reemplazar se borran las piezas del fichas fuera porq el Cambiador necesita borrar una ficha para saber que ya la dio
             //De todas formas puedo tratar eliminarlas de todas formas y ver si no da excepcion; para asegurar la eliminacion de las fichas aqui mismo
@@ -97,6 +98,7 @@ public class Banquero
                 this.manos[jugador.nombre].Remove(ficha);
                 this.fichas_fuera.Add(ficha);
             }
+            if(fichas_fuera.Count == 0){Console.WriteLine("Vacia-1"); Console.ReadKey();}
             List<Ficha> recogidas = cambiador.Reemplazar(fichas_fuera, descartes, puntuador, this.manos[jugador.nombre].Count);
             //Al reemplazar se borran las piezas del fichas fuera porq el Cambiador necesita borrar una ficha para saber que ya la dio
             //De todas formas puedo tratar eliminarlas de todas formas y ver si no da excepcion; para asegurar la eliminacion de las fichas aqui mismo
