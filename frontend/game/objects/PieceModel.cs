@@ -1,11 +1,11 @@
 /* Copyright 2021-2025 MarcosHCK
- * This file is part of Domino/frontend.
+ * This file is part of Domino/Frontend.
  *
  */
 using OpenTK.Graphics.OpenGL;
-using Engine;
+using Frontend.Engine;
 
-namespace frontend.Game.Objects
+namespace Frontend.Game.Objects
 {
   public class PieceModel : Gl.SingleModel
   {
@@ -156,7 +156,7 @@ namespace frontend.Game.Objects
 
     static PieceModel ()
     {
-      var parent = Application.DataDir;
+      var parent = Engine.Gl.DataDir;
       var relative = "models/piece/scene.gltf";
 
       modelPath = System.IO.Path.Combine (parent, relative);

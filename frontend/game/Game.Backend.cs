@@ -1,12 +1,12 @@
 /* Copyright 2021-2025 MarcosHCK
- * This file is part of Domino/frontend.
+ * This file is part of Domino/Frontend.
  *
  */
 using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
-namespace frontend.Game
+namespace Frontend.Game
 {
   public class Backend
   {

@@ -10,6 +10,22 @@ namespace Rule
     [GLib.Property ("name")]
     public string? Name { get; set; }
 
+    [GLib.Property ("has-human")]
+    public bool HasHuman
+    {
+      get
+      {
+        bool has = false;
+        foreach (var player in Players)
+        if (player.IsHuman)
+        {
+          has = true;
+          break;
+        }
+      return has;
+      }
+    }
+
     [GLib.Property ("players")]
     public Player[] Players { get; set; }
 

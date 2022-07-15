@@ -10,6 +10,22 @@ namespace Rule
     [GLib.Property ("teams")]
     public Team[] Them { get; set; }
 
+    [GLib.Property ("has-human")]
+    public bool HasHuman
+    {
+      get
+      {
+        bool has = false;
+        foreach (var team in Them)
+        if (team.HasHuman)
+        {
+          has = true;
+          break;
+        }
+      return has;
+      }
+    }
+
     public void Save (GLib.IFile savedir, GLib.Cancellable? cancellable = null)
     {
       GLib.IFile file = savedir.GetChild ("Jugadores.txt");

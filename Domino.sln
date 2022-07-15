@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "frontend", "frontend\Frontend.csproj", "{A5D26E15-939F-433F-B831-E9E544CD7B83}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "frontend", "frontend\application\Frontend.csproj", "{A5D26E15-939F-433F-B831-E9E544CD7B83}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "backend", "backend\Backend.csproj", "{1266CD56-0BE8-4DCD-A45B-C1FFB183D80A}"
 EndProject

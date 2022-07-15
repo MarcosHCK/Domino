@@ -1,29 +1,29 @@
 /* Copyright 2021-2025 MarcosHCK
- * This file is part of Domino/frontend.
+ * This file is part of Domino/Frontend.
  *
  */
 using OpenTK.Mathematics;
 
-namespace frontend.Game
+namespace Frontend.Game
 {
   [GLib.TypeName ("DominoGameWindow")]
   [Gtk.Template (ResourceName = "gamewindow.ui")]
   public sealed class Window : Gtk.Window
   {
     [Gtk.Builder.Object]
-    private Gtk.HeaderBar? headerbar1;
+    private Gtk.HeaderBar? headerbar1 = null;
     [Gtk.Builder.Object]
-    private Gtk.GLArea? glarea1;
+    private Gtk.GLArea? glarea1 = null;
     [Gtk.Builder.Object]
-    private Gtk.ToggleButton? keep1;
+    private Gtk.ToggleButton? keep1 = null;
     [Gtk.Builder.Object]
-    private Gtk.Button? forward1;
+    private Gtk.Button? forward1 = null;
 
     private static readonly float fov = 45;
     private static readonly uint putinterval = 400;
     private List<(int, int, int[])> boarded;
-    private Objects.PieceBoard? board;
-    private Engine.Gl? renderer;
+    private Objects.PieceBoard? board = null;
+    private Engine.Gl? renderer = null;
     private uint clock;
 
     private System.EventHandler? clickedHandler;
@@ -69,7 +69,7 @@ namespace frontend.Game
 
     private void SmoothMove (Vector3 distance, uint interval)
     {
-      const int min = 50;
+      const int min = 20;
       var viewport = renderer!.Viewport;
       var renderer_ = renderer!;
       var glarea1_ = glarea1!;
@@ -257,6 +257,8 @@ namespace frontend.Game
       GLib.Source.Remove (clock);
       forward1!.Clicked -= clickedHandler;
       engine.Action -= actionHandler;
+
+      board = null;
       renderer = null;
     }
 

@@ -1,11 +1,11 @@
 /* Copyright 2021-2025 MarcosHCK
- * This file is part of Domino/frontend.
+ * This file is part of Domino/Frontend.
  *
  */
 using OpenTK.Mathematics;
-using Engine;
+using Frontend.Engine;
 
-namespace frontend.Game.Objects
+namespace Frontend.Game.Objects
 {
   public class PieceBoard : Engine.Object
   {
@@ -172,7 +172,7 @@ namespace frontend.Game.Objects
       public Board () : base (modelName) { }
       static Board ()
       {
-        var basedir = Application.DataDir;
+        var basedir = Engine.Gl.DataDir;
         var relative = "models/table/scene.gltf";
         modelName = Path.Combine (basedir, relative);
       }

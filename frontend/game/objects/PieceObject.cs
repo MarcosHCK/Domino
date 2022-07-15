@@ -1,9 +1,9 @@
 /* Copyright 2021-2025 MarcosHCK
- * This file is part of Domino/frontend.
+ * This file is part of Domino/Frontend.
  *
  */
 
-namespace frontend.Game.Objects
+namespace Frontend.Game.Objects
 {
   public class PieceObject : Engine.Object
   {
