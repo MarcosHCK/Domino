@@ -51,7 +51,11 @@ public class Jugador_Pasador : Jugador_con_Memoria
         double[] retorno = new double[this.reglas.data_tope];
         foreach(Ficha ficha in this.memoria.mano)
             foreach(int cabeza in ficha.cabezas)
+            {
+                try{
                 retorno[cabeza] += 1;
+                }catch{throw new Exception("Cabeza " + cabeza);}
+            }
         return retorno;
     }
     protected override Jugada Apertura(List<Ficha> mano)

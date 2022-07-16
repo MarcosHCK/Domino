@@ -6,20 +6,20 @@ public class Jugador_Humano : Jugador
         foreach(Jugada X in Util.PosiblesJugadas(estado, mano))
             if(this.reglas.EsValida(X, estado, mano))
             {
-                Mostrar(estado, mano);
                 Jugada jugada;
                 for(jugada = null; ; jugada = null)
                 {
-                    Console.WriteLine("Introduzca el indice de la ficha que desea jugar, la cabeza de la ficha que usted usara y la cara por la que desea jugarla separados por un salto de linea");
+                    Console.WriteLine("Ficha_a_Jugar:");
                     int index = int.Parse(Console.ReadLine());
+                    Console.WriteLine("Cabeza:");
                     int cabeza = int.Parse(Console.ReadLine());
+                    Console.WriteLine("Cara:");
                     int cara = int.Parse(Console.ReadLine());
                     jugada = new Jugada(this.nombre, mano[index], cabeza, cara, mano.Count - 1);
                     if(this.reglas.EsValida(jugada, estado, mano))return jugada;
                     Console.WriteLine("Jugada No Valida");
                 }
             }
-        Console.WriteLine("No puedes jugar");
         return new Jugada(this.nombre);
     }
     public override List<Ficha> Descartar(Cambiador cambiador, Estado Estado, List<Ficha> mano)
@@ -28,33 +28,22 @@ public class Jugador_Humano : Jugador
         {
             Cambiador_Por_Balance Cambiador = (Cambiador_Por_Balance)cambiador;
             if(Cambiador.Descartes_Permitidos == 0)return new List<Ficha>();
-            Mostrar(Estado, mano);
             List<Ficha> descartes = new List<Ficha>();
-            Console.WriteLine("Introduzca en un renglon los indices de las fichas que desea descartar. Debe descartar al menos " + Cambiador.Descartes_Obligatorios + "fichas");
+            Console.WriteLine("Descartes Obligatorios " + Cambiador.Descartes_Obligatorios);
+            Console.WriteLine("Descartes Permitidos " + Cambiador.Descartes_Permitidos);
+            Console.WriteLine("Fichas_a_Descartar:");
             string entrada = Console.ReadLine();
             foreach(string numero in entrada.Split(' '))
             {
                 Ficha ficha = mano[int.Parse(numero)];
-                //if(descartes.Contains(ficha))throw new Exception("TRAMPOSO");
-                //Podran hacer trampa pero una vez que cree la interfaz visul no habra problemas
                 descartes.Add(ficha);
             }
             return descartes;
-        }
-        throw new System.Exception("No Implementado");
-    }
-    void Mostrar(Estado estado, List<Ficha> mano)
-    {
-        Console.WriteLine("\nEstos son los equipos");
-        foreach(Equipo equipo in estado.equipos)
+        }else
         {
-            Console.Write(equipo.nombre + ": ");
-            foreach(string miembro in equipo.miembros)Console.Write(miembro + ' ');
-            Console.WriteLine();
+            Cambiador_por_Cant_de_Fichas Cambiador = (Cambiador_por_Cant_de_Fichas)cambiador;
+            int num_d_descartes = mano.Count - Cambiador.cant_de_fichas;
+            return this.Descartar(new Cambiador_Por_Balance(Cambiador.Criterio_de_Intercambio, num_d_descartes, num_d_descartes, num_d_descartes), Estado, mano);
         }
-        Console.WriteLine("\nEstas son tus fichas");
-        for(int i = 0; i < mano.Count; i++)Console.WriteLine(i.ToString() + "-- " + mano[i].ToString());
-        Console.WriteLine("\nEstas son las caras de la mesa por las que puedes jugar:");
-        foreach(int cara in estado.caras_de_la_mesa)Console.Write(cara.ToString() + ' ');
     }
 }

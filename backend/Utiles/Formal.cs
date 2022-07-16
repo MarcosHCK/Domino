@@ -33,7 +33,7 @@ public class Domino
     }
     void GetJugadores(out List<Jugador> jugadores, out List<Equipo> equipos)
     {
-        StreamReader Sr = new StreamReader("./backend/Partidas/Jugadores.txt");
+        StreamReader Sr = new StreamReader("../Yo/Partidas/Jugadores.txt");
         equipos = new List<Equipo>();
         jugadores = new List<Jugador>();
         Equipo aux;
@@ -45,8 +45,15 @@ public class Domino
             for(int cont = int.Parse(entrada.Substring(0, 1)); cont > 0; cont--)
             {
                 entrada = entrada.Substring(entrada.IndexOf(' ') + 1);
-                jugadores.Add(new Jugador_Humano(entrada.Substring(0, entrada.IndexOf(' '))));
+                jugadores.Add(new Jugador_Humano(GetNombre()));
                 miembros.Add(jugadores.Last().nombre);
+                string GetNombre()
+                {
+                    string retorno = "";
+                    for(int i = 0; (i < entrada.Length) && (entrada[i] != ' '); i++)
+                        retorno += entrada[i];
+                    return retorno;
+                }
             }
             int[] indices;
             Util.Diseccionar_Entrada(Sr.ReadLine(), out indices);

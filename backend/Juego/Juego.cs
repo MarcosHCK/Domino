@@ -42,7 +42,11 @@ public class Juego
                 }
                 for (List<Action> acciones = estado.acciones; index < acciones.Count;)yield return acciones[index++];
                 mano = portal[estado.Jugador_en_Turno];
-                if(reglas.GameOver(this.estado, mano))yield break;
+                if(reglas.GameOver(this.estado, mano))
+                {
+                    Console.WriteLine("GameOver");
+                    yield break;
+                }
                 Jugada jugada = jugador.Jugar(new Estado(estado), mano);
                 mano = banquero.Actualizar(jugada);
                 estado.Actualizar(jugada);
@@ -77,7 +81,12 @@ public class Juego
     void MostrarEquipos()
     {
         Console.WriteLine("Equipos");
-        foreach(Equipo equipo in estado.equipos)Console.WriteLine(equipo);
+        foreach(Equipo equipo in estado.equipos)
+        {
+            Console.Write(equipo.nombre + ": " );
+            foreach(string miembro in equipo.miembros)Console.Write(miembro + ' ');
+            Console.WriteLine();
+        }
         Console.WriteLine("break");
     }
 }

@@ -1,19 +1,17 @@
 public class Memoria
 {
-    //protected string owner;
     protected List<int> caras_de_la_mesa;
     public List<Ficha> mano;
     public Memoria()
     {
-        //this.owner = null;
         this.caras_de_la_mesa = null;
         this.mano = null;
     }
     public void Actualizar(Estado estado, List<Ficha> mano, int index_of_actualization)
     {
-        //if(this.owner == null)this.owner = estado.Jugador_en_Turno;
         this.mano = mano;
         List<Action> acciones = estado.acciones;
+        this.caras_de_la_mesa = new List<int>();
         for (; index_of_actualization < acciones.Count; index_of_actualization++)
             Actualizar(acciones[index_of_actualization]);   
     }

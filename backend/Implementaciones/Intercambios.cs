@@ -1,6 +1,6 @@
 public class Intercambio_Random : ICriterio_de_Intercambio
 {
-    Random Azar = new Random();
+    protected Random Azar = new Random();
     public Intercambio_Random(){this.Azar = new Random();}
     public virtual List<Ficha> Reemplazar(List<Ficha> fichas_fuera, List<Ficha> descartes, int fichas_a_tomar, Puntuador puntuador)
     {
@@ -56,5 +56,67 @@ public class Intercambio_Dos_Que_Sumen : Intercambio_Random
                     return retorno;
                 }
         return base.Reemplazar(fichas_fuera, descartes, 2, puntuador);
+    }
+}
+public class Intercambio_Sobrevalor : Intercambio_Random
+{
+    readonly int valor;
+    public Intercambio_Sobrevalor(int valor)
+    {
+        this.valor = valor;
+    }
+    public override List<Ficha> Reemplazar(List<Ficha> fichas_fuera, List<Ficha> descartes, int fichas_a_tomar, Puntuador puntuador)
+    {
+        List<Ficha> retorno = base.Reemplazar(fichas_fuera, descartes, fichas_a_tomar, puntuador);
+        int diferencia = Suma() - this.valor;
+        int aux;
+        for (int i = 0; ((i < retorno.Count) && (diferencia != 0)); i++)
+            for(int j = 0; j < fichas_fuera.Count; j++)
+                {
+                    aux = puntuador.Puntuar(retorno[i]) - puntuador.Puntuar(fichas_fuera[j]);
+                    if(Math.Abs(diferencia + aux) < Math.Abs(diferencia))
+                    {
+                        Ficha temp = fichas_fuera[j];
+                        fichas_fuera[j] = retorno[i];
+                        retorno[i] = temp;
+                        diferencia = diferencia + aux;
+                    }
+                }
+        return retorno;
+        int Suma()
+        {
+            int suma = 0;
+            foreach(Ficha ficha in retorno)suma += puntuador.Puntuar(ficha);
+            return suma;
+        }
+    }
+}
+public class Intercambio_Variado : Intercambio_Random
+{
+    public override List<Ficha> Reemplazar(List<Ficha> fichas_fuera, List<Ficha> descartes, int fichas_a_tomar, Puntuador puntuador)
+    {
+        List<Ficha> retorno = new List<Ficha>();
+        HashSet<int> datas = new HashSet<int>();
+        for(int index = Azar.Next(fichas_fuera.Count); retorno.Count < fichas_a_tomar; index = GetIndex())
+            Anadir(index);
+        return retorno;
+        void Anadir(int index)
+        {
+            retorno.Add(fichas_fuera[index]);
+            foreach(int cabeza in fichas_fuera[index].cabezas)
+                datas.Add(cabeza);
+            fichas_fuera.RemoveAt(index);
+        }
+        int GetIndex()
+        {
+            for(int i = 0; i < fichas_fuera.Count; i++)
+            {
+                bool flag = true;
+                foreach(int cabeza in fichas_fuera[i].cabezas)
+                    if(datas.Contains(cabeza))flag = false;
+                if(flag)return i;
+            }
+            return Azar.Next(fichas_fuera.Count);
+        }
     }
 }

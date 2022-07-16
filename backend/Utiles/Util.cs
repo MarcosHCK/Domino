@@ -35,7 +35,7 @@ public static class Util
         int index = 0;
         retorno = null;
         if((entrada == "break") || (entrada.Length == 0))return false;
-        string[] numeros = entrada.Split(' ');
+        string[] numeros = entrada.Split();
         retorno = new int[numeros.Length];
         foreach(string s in numeros)retorno[index++] = int.Parse(s);
         return true; 
