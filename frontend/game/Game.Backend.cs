@@ -411,7 +411,7 @@ namespace Frontend.Game
       pass = new Regex ("^Jugada ([\\w]+) pase", flags);
       move = new Regex ("^Jugada ([\\w]+) \\(([^\\)]+)\\) ([0-9\\-]+) ([0-9\\-]+) ([0-9\\-]+)", flags);
       piece = new Regex ("([0-9]+)", flags);
-      team = new Regex ("^([\\w]+)\\:, (.+)", flags);
+      team = new Regex ("^([\\w]+)\\: (.+)", flags);
       teamplayer = new Regex ("([\\w]+)", flags);
       score = new Regex ("^([\\w]+) ([0-9\\-]+)", flags);
     }

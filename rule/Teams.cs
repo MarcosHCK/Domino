@@ -97,22 +97,31 @@ namespace Rule
             if (line == null)
               throw new Exception ("Unexpected end of line");
             else
-              humans = int.Parse (line);
-
-            if (humans > 0)
             {
-              for (int i = 0; i < humans; i++)
+              var inputs = line.Split (' ');
+              if (inputs.Length == 1)
               {
-                line = data.ReadLine (out length, cancellable);
-                if (line == null)
-                  throw new Exception ("Unexpected end of line");
+                humans = int.Parse (inputs [0]);
+                if (humans != 0)
+                {
+                  throw new Exception ("Invalid human players count");
+                }
+              }
+              else
+              {
+                humans = int.Parse (inputs [0]);
+                if (humans <= 0 || (inputs.Length - 1) != humans)
+                  throw new Exception ("Invalid human players count");
                 else
                 {
-                  var
-                  player = new Player ();
-                  player.Name = line;
-                  player.Type = 0;
-                  players.Add (player);
+                  for (int i = 0; i < humans; i++)
+                  {
+                    var
+                    player = new Player ();
+                    player.Name = inputs [i + 1];
+                    player.Type = 0;
+                    players.Add (player);
+                  }
                 }
               }
             }

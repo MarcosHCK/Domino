@@ -33,7 +33,7 @@ public class Domino
     }
     void GetJugadores(out List<Jugador> jugadores, out List<Equipo> equipos)
     {
-        StreamReader Sr = new StreamReader("../Yo/Partidas/Jugadores.txt");
+        StreamReader Sr = new StreamReader("./backend/Partidas/Jugadores.txt");
         equipos = new List<Equipo>();
         jugadores = new List<Jugador>();
         Equipo aux;

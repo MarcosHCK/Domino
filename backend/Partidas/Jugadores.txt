@@ -2,40 +2,6 @@ Seguras
 0
 9 10
 Pasadores
-1 Davier
-7
-break
-Introduzca una a una las descripciones de los equipos
-Para ello escriba primeramente el nombre del equipo.
-En la sgte linea un entero, la cantidad de jugadores humanos de este equipo, seguida de sus nombres separados por espacios
-Luego, en una linea separados por espacios los indices de los jugadores virtuales de este equipo,
-cada uno de ellos en la sgte lista
-Estos son los jugadores entre los que puede escoger los indices
-1- Yosvany Jugador Random
-2- Yusimy Jugador Random
-3- El_Brayan Jugador Random
-4- Yuniela Jugador Random
-5- Lezama Jugador Botagorda
-6- Hemingway Jugador Botagorda
-7- Yariny Jugador Pasador
-8- Amy Jugador Pasador
-9- Beyonce Jugador Seguro
-10- Tatiana Jugador Seguro
-
-Juego con un humano
-Seguras
 0
-9 10
-Pasadores
-1 Davier
-7
-break
-
-Juego sin humanos
-Seguras
-0
-9 10
-Pasadores
-0
-7 8
+8 7
 break
