@@ -2,11 +2,34 @@
  * This file is part of Domino/Frontend.
  *
  */
+using OpenTK.Mathematics;
 
 namespace Frontend.Game.Objects
 {
   public class PieceObject : Engine.Object
   {
+    private PieceModel model;
+
+#region ISizable
+
+    public Vector3 Size
+    {
+      get
+      {
+        var x = model.Width;
+        var y = model.Height;
+        var z = model.Depth;
+        var v = new Vector3 (x, y, z);
+        var v2 = Vector3.TransformVector(v, Model);
+        v2.X = Math.Abs (v2.X);
+        v2.Y = Math.Abs (v2.Y);
+        v2.Z = Math.Abs (v2.Z);
+      return v2;
+      }
+    }
+
+#endregion
+
 #region List
 
     public PieceObject? Next { get; private set; }
@@ -50,8 +73,15 @@ namespace Frontend.Game.Objects
 #endregion
 
 #region Constructor
+
+    public PieceObject (PieceModel model)
+      : base (model)
+    {
+      this.model = model;
+    }
+
     public PieceObject (params int[] faces)
-      : base (new PieceModel (faces))
+      : this (new PieceModel (faces))
     {
       if (faces.Length != 2)
         {

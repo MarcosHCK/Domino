@@ -9,13 +9,18 @@ namespace Frontend.Game.Objects
 {
   public class AtrilObject : Engine.Object
   {
+    static Vector3 displace;
+
 #region Constructors
 
     private static string modelName;
     public AtrilObject ()
       : base (new Gl.SingleModel (modelName))
     {
-      Model = Matrix4.Identity;
+      var irot = (Gl.IRotable) this;
+      irot.Pitch = MathHelper.DegreesToRadians (-90);
+      irot.Roll = MathHelper.DegreesToRadians (90);
+      Position += displace;
     }
 
     static AtrilObject ()
@@ -23,6 +28,7 @@ namespace Frontend.Game.Objects
       var basedir = Engine.Gl.DataDir;
       var relative = "models/atril/scene.gltf";
       modelName = Path.Combine (basedir, relative);
+      displace = new Vector3 (0, -3, 6.7f);
     }
 
 #endregion

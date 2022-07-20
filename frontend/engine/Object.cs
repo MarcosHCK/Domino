@@ -26,7 +26,7 @@ namespace Frontend.Engine
     private void UpdateModel ()
     {
       var trans = Matrix4.CreateTranslation (_Position);
-      var rotat = Matrix4.CreateFromAxisAngle (_Direction, _Angle);
+      var rotat = Matrix4.CreateFromQuaternion (Quaternion);
       var scale = Matrix4.CreateScale (_Scale);
       var tmp = Matrix4.Mult (scale, rotat);
       Model = Matrix4.Mult (tmp, trans);
@@ -43,6 +43,17 @@ namespace Frontend.Engine
       }
     }
 
+    private Quaternion _Quaternion;
+    public Quaternion Quaternion
+    {
+      get => _Quaternion;
+      set
+      {
+        _Quaternion = value;
+        UpdateModel ();
+      }
+    }
+
     private Vector3 _Scale;
     public Vector3 Scale
     {
@@ -50,28 +61,6 @@ namespace Frontend.Engine
       set
       {
         _Scale = value;
-        UpdateModel ();
-      }
-    }
-
-    private float _Angle;
-    public float Angle
-    {
-      get => _Angle;
-      set
-      {
-        _Angle = value;
-        UpdateModel ();
-      }
-    }
-
-    private Vector3 _Direction;
-    public Vector3 Direction
-    {
-      get => _Direction;
-      set
-      {
-        _Direction = value;
         UpdateModel ();
       }
     }
@@ -89,8 +78,7 @@ namespace Frontend.Engine
       this.drawable = drawable;
       _Position = new Vector3 (0, 0, 0);
       _Scale = new Vector3 (1, 1, 1);
-      _Direction = new Vector3 (1, 0, 0);
-      UpdateModel ();
+      _Quaternion = Quaternion.Identity;
     }
 
 #endregion

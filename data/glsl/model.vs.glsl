@@ -25,8 +25,8 @@ layout (std140) uniform aMatrices
   mat4 aProjectionInverse;
   mat4 aView;
   mat4 aViewInverse;
-  mat4 aModelInverse;
   mat4 aModel;
+  mat4 aModelInverse;
   mat4 aJvp;
   mat4 aMvp;
 };

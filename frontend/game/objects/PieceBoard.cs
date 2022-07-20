@@ -13,15 +13,43 @@ namespace Frontend.Game.Objects
     public int Head1Value { get; private set; }
     public PieceObject? Head2 { get; private set; }
     public int Head2Value { get; private set; }
+    private Gl.SingleModel board;
     private static readonly Vector3 displace = new Vector3 (0, -0.2f, 0);
     private static readonly Vector3 piece_scale = new Vector3 (30, 30, 30);
-    private static readonly Vector3 piece_width = new Vector3 (1.2f, 0, 0);
-    private static readonly Vector3 piece_heigth = new Vector3 (1.58f, 0, 0);
+    private static readonly Vector3 piece_margin = new Vector3 (0.03f, 0, 0);
     private static readonly Vector3 table_scale = new Vector3 (7, 7, 7);
-    private static readonly Vector3 table_width = new Vector3 (2, 0, 0) * table_scale;
     private static readonly float piece_angle = MathHelper.DegreesToRadians (180);
 
+#region ISizable
+
+    public Vector3 Size
+    {
+      get
+      {
+        var x = board.Width;
+        var y = board.Height;
+        var z = board.Depth;
+        var v = new Vector3 (x, y, z);
+        var v2 = Vector3.TransformVector(v, Model);
+        v2.X = Math.Abs (v2.X);
+        v2.Y = Math.Abs (v2.Y);
+        v2.Z = Math.Abs (v2.Z);
+      return v2;
+      }
+    }
+
+#endregion
+
 #region API
+
+    private void SetPosition (PieceObject piece, PieceObject head, int tail)
+    {
+      var
+      position = head.Position;
+      position.X += (head.Size.X / 2 + piece.Size.X / 2) * tail;
+      position += piece_margin * tail;
+      piece.Position = position;
+    }
 
     private void AppendSimple (int[] faces, int by, int tail, ref PieceObject head, ref int value)
     {
@@ -61,15 +89,12 @@ namespace Frontend.Game.Objects
           }
         }
 
+      ((Gl.IRotable) piece).Angle = piece_angle;
+      ((Gl.IRotable) piece).Direction = Vector3.UnitZ + Vector3.UnitX;
       piece.Scale = piece_scale;
-      piece.Angle = piece_angle;
-      piece.Direction = Vector3.UnitZ + Vector3.UnitX;
       piece.Visible = true;
 
-      if (head.Head1 != head.Head2)
-        piece.Position = head.Position + (tail * piece_heigth);
-      else
-        piece.Position = head.Position + (tail * piece_width);
+      SetPosition (piece, head, tail);
 
       if (tail > 0)
         PieceObject.Append (head, piece);
@@ -83,10 +108,11 @@ namespace Frontend.Game.Objects
       var
       piece = new PieceObject (faces);
       piece.Scale = piece_scale;
-      piece.Angle = piece_angle;
-      piece.Direction = Vector3.UnitZ;
-      piece.Position = head.Position + (tail * piece_width);
+      ((Gl.IRotable) piece).Angle = piece_angle;
+      ((Gl.IRotable) piece).Direction = Vector3.UnitZ;
       piece.Visible = true;
+
+      SetPosition (piece, head, tail);
 
       if (tail > 0)
         PieceObject.Append (head, piece);
@@ -117,17 +143,18 @@ namespace Frontend.Game.Objects
               throw new Exception ();
             }
 
-          var
-          piece = new PieceObject (faces);
+          var piece = new PieceObject (faces);
+          var irot = (Gl.IRotable) piece;
+
           piece.Scale = piece_scale;
-          piece.Angle = piece_angle;
           piece.Position = Vector3.Zero;
           piece.Visible = true;
 
+            irot.Angle = piece_angle;
           if (piece.Head1 != piece.Head2)
-            piece.Direction = Vector3.UnitZ + Vector3.UnitX;
+            irot.Direction = Vector3.UnitZ + Vector3.UnitX;
           else
-            piece.Direction = Vector3.UnitZ;
+            irot.Direction = Vector3.UnitZ;
 
           Head1 = piece;
           Head1Value = piece.Head1;
@@ -182,44 +209,57 @@ namespace Frontend.Game.Objects
     {
       var list = Head1;
       if (Visible)
+      {
+        var position = Position;
+        var current = position;
+        var size = Size;
+        base.Draw (gl);
+
+        while (Head1 != null)
         {
-          var position = Position;
+          current.X -= size.X;
+          Position = current;
           base.Draw (gl);
 
-          while (Head1 != null)
-            {
-              Position -= table_width;
-              base.Draw (gl);
-
-              if (Position.X < Head1!.Position.X)
-                break;
-            }
-          Position = position;
-
-          while (Head2 != null)
-            {
-              Position += table_width;
-              base.Draw (gl);
-
-              if (Position.X > Head2!.Position.X)
-                break;
-            }
-          Position = position;
-
-          while (list != null)
-            {
-              list.Draw (gl);
-              list = list.Next;
-            }
+          if (Position.X < Head1!.Position.X)
+            break;
         }
+
+        Position = position;
+        current = position;
+
+        while (Head2 != null)
+        {
+          current.X += size.X;
+          Position = current;
+          base.Draw (gl);
+
+          if (Position.X > Head2!.Position.X)
+            break;
+        }
+
+        Position = position;
+
+        while (list != null)
+        {
+          list.Draw (gl);
+          list = list.Next;
+        }
+      }
     }
 
 #endregion
 
 #region Constructor
 
+    private PieceBoard (Gl.SingleModel board)
+      : base (board)
+    {
+      this.board = board;
+    }
+
     public PieceBoard (int n_faces)
-      : base (new Board ())
+      : this (new Board ())
     {
       if (n_faces != 2)
         {

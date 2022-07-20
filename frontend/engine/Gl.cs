@@ -46,8 +46,8 @@ namespace Frontend.Engine
       aProjectionInverse,
       aView,
       aViewInverse,
-      aModelInverse,
       aModel,
+      aModelInverse,
       aJvp,
       aMvp,
       NUMBER,
@@ -199,6 +199,12 @@ namespace Frontend.Engine
       /* buffers default */
       GL.ClearColor (0, 0, 0, 1);
       GL.ClearDepth (1d);
+
+      /* tune OpenGL */
+      GL.Enable (EnableCap.DepthTest);
+      GL.Enable (EnableCap.CullFace);
+      GL.CullFace (CullFaceMode.Back);
+      GL.FrontFace (FrontFaceDirection.Ccw);
 
       program = new Program ();
       pencil = new Pencil ();

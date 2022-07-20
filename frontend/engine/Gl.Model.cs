@@ -8,13 +8,17 @@ using Assimp;
 namespace Frontend.Engine;
 public partial class Gl
 {
-  public abstract class Model
+  public abstract class Model : ISizeable
   {
     protected int vbo;
     protected int ebo;
 
     protected MaterialGroup[] materials;
     protected Mesh[] meshes;
+
+    public float Width { get; private set; }
+    public float Height { get; private set; }
+    public float Depth { get; private set; }
 
 #region Type
 
@@ -134,6 +138,14 @@ public partial class Gl
         if (scene.Meshes.Count != scene.MeshCount)
           throw new Exception ();
 
+        float max_x = 0;
+        float max_y = 0;
+        float max_z = 0;
+        float min_x = 0;
+        float min_y = 0;
+        float min_z = 0;
+        bool first = false;
+
         _v = 0;
         _i = 0;
 
@@ -155,6 +167,27 @@ public partial class Gl
                 vertex.position [0] = vertex_.X;
                 vertex.position [1] = vertex_.Y;
                 vertex.position [2] = vertex_.Z;
+
+                if (!first)
+                {
+                  max_x = min_x = vertex_.X;
+                  max_y = min_y = vertex_.Y;
+                  max_z = min_z = vertex_.Z;
+                  first = true;
+                }
+                else
+                {
+                  var x = vertex_.X;
+                  var y = vertex_.Y;
+                  var z = vertex_.Z;
+
+                  if (x > max_x) max_x = x;
+                  if (y > max_y) max_y = y;
+                  if (z > max_z) max_z = z;
+                  if (x < min_x) min_x = x;
+                  if (y < min_y) min_y = y;
+                  if (z < min_z) min_z = z;
+                }
 
                 if (mesh.HasNormals)
                 {
@@ -223,6 +256,10 @@ public partial class Gl
 
             ++i;
           }
+
+        Width = max_x - min_x;
+        Height = max_y - min_y;
+        Depth = max_z - min_z;
       }
       catch (Exception)
       {

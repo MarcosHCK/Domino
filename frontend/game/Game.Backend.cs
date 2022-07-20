@@ -66,6 +66,16 @@ namespace Frontend.Game
       }
     }
 
+    public sealed class EmitHandArgs : ActionArgs
+    {
+      public int[][] Pieces { get; private set; }
+      public EmitHandArgs (string Player, int[][] Pieces)
+        : base (Player)
+      {
+        this.Pieces = Pieces;
+      } 
+    }
+
     public sealed class EmitTeamArgs : ActionArgs
     {
       public (string, string[])[] Teams { get; private set; }
@@ -152,6 +162,11 @@ namespace Frontend.Game
 
 #region Callbacks
 
+    private static bool IsBreak (string line)
+    {
+      return line == "break";
+    }
+
     private void OnOutput (object? o, DataReceivedEventArgs a)
     {
       if (Interlocked.Read (ref QuitFlag) > 0)
@@ -171,6 +186,7 @@ namespace Frontend.Game
 
           switch (action)
           {
+
             case "Intercambio":
               match = exchange.Match (line);
               if (!match.Success)
@@ -201,6 +217,7 @@ namespace Frontend.Game
                   pendings.Enqueue (new ExchangeArgs (player, losses, takes));
                 }
               break;
+
             case "Jugada":
               match = move.Match (line);
               if (!match.Success)
@@ -238,6 +255,44 @@ namespace Frontend.Game
                   pendings.Enqueue (new MoveArgs (player, piece_head, table_head, piece));
                 }
               break;
+
+            case "Mano":
+              match = hand.Match (line);
+              if (!match.Success)
+                {
+                  var message = $"Malformed action {action}: {line}";
+                  throw new EngineException (message);
+                }
+              else
+                {
+                  var player = match.Groups [1].Value;
+                  var pieces = new List<int[]> ();
+                  handler = (o, a) => {
+                    var line = a.Data;
+                    if (line != null)
+                    {
+                      if (IsBreak (line))
+                      {
+                        var array = pieces.ToArray ();
+                        var emit = new EmitHandArgs(player, array);
+                        pendings_.Enqueue (emit);
+                        proc_.OutputDataReceived -= handler;
+                      }
+                      else
+                      {
+                        var piece = MakePiece (line);
+                        if (piece == null)
+                          throw new EngineException ("Malformed piece entry");
+                        else
+                          pieces.Add (piece);
+                      }
+                    }
+                  };
+
+                  proc.OutputDataReceived += handler;
+                }
+              break;
+
             case "Equipos":
               var teams = new List<(string, string[])> ();
               handler = (o, a) => {
@@ -283,6 +338,7 @@ namespace Frontend.Game
 
               proc.OutputDataReceived += handler;
               break;
+
             case "GameOver":
               var scores = new List<(string,int)> ();
               handler = (o, a) => {
@@ -398,6 +454,7 @@ namespace Frontend.Game
     private readonly static Regex pass;
     private readonly static Regex move;
     private readonly static Regex piece;
+    private readonly static Regex hand;
     private readonly static Regex team;
     private readonly static Regex teamplayer;
     private readonly static Regex score;
@@ -411,6 +468,7 @@ namespace Frontend.Game
       pass = new Regex ("^Jugada ([\\w]+) pase", flags);
       move = new Regex ("^Jugada ([\\w]+) \\(([^\\)]+)\\) ([0-9\\-]+) ([0-9\\-]+) ([0-9\\-]+)", flags);
       piece = new Regex ("([0-9]+)", flags);
+      hand = new Regex ("^Mano ([\\w]+)", flags);
       team = new Regex ("^([\\w]+)\\: (.+)", flags);
       teamplayer = new Regex ("([\\w]+)", flags);
       score = new Regex ("^([\\w]+) ([0-9\\-]+)", flags);

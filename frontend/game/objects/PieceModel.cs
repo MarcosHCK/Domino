@@ -26,6 +26,7 @@ namespace Frontend.Game.Objects
     private static readonly double middleW = (70d / 2048d) * textureSize;
 
     private static Cairo.Surface surface;
+    private static Cairo.Surface marble;
     private static Cairo.Context cairo;
     private static Cairo.Matrix matrix;
     private static double lineWidth;
@@ -106,7 +107,8 @@ namespace Frontend.Game.Objects
 
       lock (cairo)
       {
-        cairo.SetSourceRGBA (1, 1, 1, 1);
+        //cairo.SetSourceRGBA (1, 1, 1, 1);
+        cairo.SetSourceSurface (marble, 0, 0);
         cairo.Paint ();
 
         cairo.SetSourceRGBA (0, 0, 0, 1);
@@ -158,7 +160,6 @@ namespace Frontend.Game.Objects
     {
       var parent = Engine.Gl.DataDir;
       var relative = "models/piece/scene.gltf";
-
       modelPath = System.IO.Path.Combine (parent, relative);
 
       var fmt = Cairo.Format.Argb32;
@@ -168,7 +169,9 @@ namespace Frontend.Game.Objects
       var weight = Cairo.FontWeight.Normal;
       var fontSize = 12;
 
+      relative = Path.Combine (parent, "models/marble.png");
       surface = new Cairo.ImageSurface (fmt, width, height);
+      marble = new Cairo.ImageSurface (relative);
       cairo = new Cairo.Context (surface);
       matrix = new Cairo.Matrix ();
 

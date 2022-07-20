@@ -108,6 +108,18 @@ namespace Frontend.Game
             SmoothMove (new Vector3 ( 1, 0, 0), 200);
             break;
 
+          case Gdk.Key.Key_0:
+            if (board != null)
+            {
+              var viewport = renderer!.Viewport;
+              var distance = Vector3.Zero;
+              distance.X = -viewport.Position.X;
+              if (distance.X != 0)
+              {
+                SmoothMove (distance, 300);
+              }
+            }
+            break;
           case Gdk.Key.Key_1:
             if (board != null)
             {
@@ -148,7 +160,7 @@ namespace Frontend.Game
       renderer.Viewport.Position = new Vector3 (0, 13, 13);
 
       atril = new Objects.AtrilObject ();
-      atril.Visible = false;
+      atril.Visible = true;
       renderer.Objects.Add (atril);
 
       board = new Objects.PieceBoard (2);
@@ -189,6 +201,11 @@ namespace Frontend.Game
                 return false;
               });
             }
+          } else
+          if (arg is Backend.EmitHandArgs)
+          {
+            var a = (Backend.EmitHandArgs) arg;
+            atril.ShowPieces (a.Pieces);
           } else
           if (arg is Backend.EmitTeamArgs)
           {
