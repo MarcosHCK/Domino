@@ -7,38 +7,17 @@ using Frontend.Engine;
 
 namespace Frontend.Game.Objects
 {
-  public class PieceBoard : Engine.Object
+  public class PieceBoard : Engine.SingleObject
   {
     public PieceObject? Head1 { get; private set; }
     public int Head1Value { get; private set; }
     public PieceObject? Head2 { get; private set; }
     public int Head2Value { get; private set; }
-    private Gl.SingleModel board;
+    private Game.Pieces pieces;
     private static readonly Vector3 displace = new Vector3 (0, -0.2f, 0);
-    private static readonly Vector3 piece_scale = new Vector3 (30, 30, 30);
     private static readonly Vector3 piece_margin = new Vector3 (0.03f, 0, 0);
     private static readonly Vector3 table_scale = new Vector3 (7, 7, 7);
     private static readonly float piece_angle = MathHelper.DegreesToRadians (180);
-
-#region ISizable
-
-    public Vector3 Size
-    {
-      get
-      {
-        var x = board.Width;
-        var y = board.Height;
-        var z = board.Depth;
-        var v = new Vector3 (x, y, z);
-        var v2 = Vector3.TransformVector(v, Model);
-        v2.X = Math.Abs (v2.X);
-        v2.Y = Math.Abs (v2.Y);
-        v2.Z = Math.Abs (v2.Z);
-      return v2;
-      }
-    }
-
-#endregion
 
 #region API
 
@@ -62,12 +41,12 @@ namespace Frontend.Game.Objects
             faces [1] = faces [0];
             faces [0] = tmp;
   
-            piece = new PieceObject (faces);
+            piece = new PieceObject (pieces, faces);
             value = tmp;
           }
           else
           {
-            piece = new PieceObject (faces);
+            piece = new PieceObject (pieces, faces);
             value = faces [1];
           }
         }
@@ -79,20 +58,18 @@ namespace Frontend.Game.Objects
             faces [0] = faces [1];
             faces [1] = tmp;
   
-            piece = new PieceObject (faces);
+            piece = new PieceObject (pieces, faces);
             value = tmp;
           }
           else
           {
-            piece = new PieceObject (faces);
+            piece = new PieceObject (pieces, faces);
             value = faces [0];
           }
         }
 
       ((Gl.IRotable) piece).Angle = piece_angle;
       ((Gl.IRotable) piece).Direction = Vector3.UnitZ + Vector3.UnitX;
-      piece.Scale = piece_scale;
-      piece.Visible = true;
 
       SetPosition (piece, head, tail);
 
@@ -106,11 +83,9 @@ namespace Frontend.Game.Objects
     private void AppendDouble (int[] faces, int by, int tail, ref PieceObject head, ref int value)
     {
       var
-      piece = new PieceObject (faces);
-      piece.Scale = piece_scale;
+      piece = new PieceObject (pieces, faces);
       ((Gl.IRotable) piece).Angle = piece_angle;
       ((Gl.IRotable) piece).Direction = Vector3.UnitZ;
-      piece.Visible = true;
 
       SetPosition (piece, head, tail);
 
@@ -143,12 +118,10 @@ namespace Frontend.Game.Objects
               throw new Exception ();
             }
 
-          var piece = new PieceObject (faces);
+          var piece = new PieceObject (pieces, faces);
           var irot = (Gl.IRotable) piece;
 
-          piece.Scale = piece_scale;
           piece.Position = Vector3.Zero;
-          piece.Visible = true;
 
             irot.Angle = piece_angle;
           if (piece.Head1 != piece.Head2)
@@ -252,20 +225,15 @@ namespace Frontend.Game.Objects
 
 #region Constructor
 
-    private PieceBoard (Gl.SingleModel board)
-      : base (board)
-    {
-      this.board = board;
-    }
-
-    public PieceBoard (int n_faces)
-      : this (new Board ())
+    public PieceBoard (Pieces pieces, int n_faces)
+      : base (new Board ())
     {
       if (n_faces != 2)
         {
           throw new Exception ("can't handle more than two faces");
         }
 
+      this.pieces = pieces;
       Scale = table_scale;
       Position = displace;
     }

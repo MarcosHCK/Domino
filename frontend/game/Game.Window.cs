@@ -21,9 +21,9 @@ namespace Frontend.Game
 
     private static readonly float fov = 45;
     private static readonly uint putinterval = 400;
-    private List<(int, int, int[])> boarded;
     private Objects.AtrilObject? atril = null;
     private Objects.PieceBoard? board = null;
+    private Game.Pieces? pieces = null;
     private Engine.Gl? renderer = null;
     private uint clock;
 
@@ -158,25 +158,21 @@ namespace Frontend.Game
 
       renderer = new Engine.Gl ();
       renderer.Viewport.Position = new Vector3 (0, 13, 13);
+      pieces = new Game.Pieces ();
 
-      atril = new Objects.AtrilObject ();
+      atril = new Objects.AtrilObject (pieces, 2);
       atril.Visible = true;
       renderer.Objects.Add (atril);
 
-      board = new Objects.PieceBoard (2);
+      board = new Objects.PieceBoard (pieces, 2);
       board.Visible = true;
       renderer.Objects.Add (board);
 
-      foreach (var tuple in boarded)
-        {
-          board.Append (tuple.Item1, tuple.Item2, tuple.Item3);
-        }
-
       var headerbar = headerbar1;
-      var boarded_ = boarded;
       var glarea1_ = glarea1;
       var engine_ = engine;
       var board_ = board;
+      var atril_ = atril;
       var teamed = false;
 
       actionHandler += (o, arg) =>
@@ -192,12 +188,8 @@ namespace Frontend.Game
             {
               GLib.Idle.Add (() =>
               {
-                boarded_.Add ((atby, putat, piece));
-                if (board_ != null)
-                  {
-                    board_.Append (atby, putat, piece);
-                    glarea1_!.QueueRender ();
-                  }
+                board_.Append (atby, putat, piece);
+                glarea1_!.QueueRender ();
                 return false;
               });
             }
@@ -205,7 +197,11 @@ namespace Frontend.Game
           if (arg is Backend.EmitHandArgs)
           {
             var a = (Backend.EmitHandArgs) arg;
-            atril.ShowPieces (a.Pieces);
+            GLib.Idle.Add (() =>
+            {
+              atril_.ShowPieces (a.Pieces);
+              return false;
+            });
           } else
           if (arg is Backend.EmitTeamArgs)
           {
@@ -283,6 +279,7 @@ namespace Frontend.Game
       atril = null;
       board = null;
       renderer = null;
+      pieces = null;
     }
 
 #endregion
@@ -292,7 +289,6 @@ namespace Frontend.Game
     public Window (Backend engine) : base (null)
     {
       Gtk.TemplateBuilder.InitTemplate (this);
-      this.boarded = new List<(int, int, int[])> ();
       this.engine = engine;
     }
 

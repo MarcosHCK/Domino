@@ -8,7 +8,7 @@ namespace Frontend.Engine
 {
   public abstract class Object : Gl.IDrawable, Gl.ILocalizable, Gl.IRotable, Gl.IScalable
   {
-    private Gl.IDrawable drawable;
+    protected Gl.IDrawable Drawable;
 
     private Matrix4 _Model;
     public Matrix4 Model
@@ -17,11 +17,7 @@ namespace Frontend.Engine
       set => _Model = value;
     }
 
-    public bool Visible
-    {
-      get => drawable.Visible;
-      set => drawable.Visible = value;
-    }
+    public bool Visible { get; set; }
 
     private void UpdateModel ()
     {
@@ -68,14 +64,15 @@ namespace Frontend.Engine
     public virtual void Draw (Gl gl)
     {
       gl.Model4 = _Model;
-      drawable.Draw (gl);
+      Drawable.Draw (gl);
     }
 
 #region Constructors
 
-    protected Object (Gl.IDrawable drawable)
+    protected Object (Gl.IDrawable Drawable)
     {
-      this.drawable = drawable;
+      this.Drawable = Drawable;
+      this.Visible = true;
       _Position = new Vector3 (0, 0, 0);
       _Scale = new Vector3 (1, 1, 1);
       _Quaternion = Quaternion.Identity;

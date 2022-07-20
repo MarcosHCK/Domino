@@ -51,6 +51,7 @@ public partial class Gl
       : base (filename)
     {
       groups = new List<Group> ();
+      Visible = true;
 
       foreach (var materialGroup in materials)
         {

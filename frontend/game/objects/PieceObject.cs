@@ -6,29 +6,9 @@ using OpenTK.Mathematics;
 
 namespace Frontend.Game.Objects
 {
-  public class PieceObject : Engine.Object
+  public class PieceObject : Engine.SingleObject
   {
-    private PieceModel model;
-
-#region ISizable
-
-    public Vector3 Size
-    {
-      get
-      {
-        var x = model.Width;
-        var y = model.Height;
-        var z = model.Depth;
-        var v = new Vector3 (x, y, z);
-        var v2 = Vector3.TransformVector(v, Model);
-        v2.X = Math.Abs (v2.X);
-        v2.Y = Math.Abs (v2.Y);
-        v2.Z = Math.Abs (v2.Z);
-      return v2;
-      }
-    }
-
-#endregion
+    private static readonly Vector3 scale = new Vector3 (30, 30, 30);
 
 #region List
 
@@ -74,14 +54,8 @@ namespace Frontend.Game.Objects
 
 #region Constructor
 
-    public PieceObject (PieceModel model)
-      : base (model)
-    {
-      this.model = model;
-    }
-
-    public PieceObject (params int[] faces)
-      : this (new PieceModel (faces))
+    public PieceObject (Pieces pieces, params int[] faces)
+      : base (pieces [faces])
     {
       if (faces.Length != 2)
         {
@@ -90,6 +64,7 @@ namespace Frontend.Game.Objects
 
       Head1 = faces [0];
       Head2 = faces [1];
+      Scale = scale;
     }
 #endregion
   }
