@@ -3,6 +3,7 @@
  *
  */
 using OpenTK.Mathematics;
+using System.Text;
 
 namespace Frontend.Game
 {
@@ -168,8 +169,8 @@ namespace Frontend.Game
       board.Visible = true;
       renderer.Objects.Add (board);
 
-      var headerbar = headerbar1;
-      var glarea1_ = glarea1;
+      var headerbar = headerbar1!;
+      var glarea1_ = glarea1!;
       var engine_ = engine;
       var board_ = board;
       var atril_ = atril;
@@ -186,13 +187,54 @@ namespace Frontend.Game
 
             if (piece != null)
             {
+              var builder = new StringBuilder ();
+              int heads = 0;
+
+              builder.Append (a.Player);
+              builder.Append (" jugo (");
+
+              foreach (var head in piece)
+              if (heads++ > 0)
+                builder.Append (", " + head);
+              else
+                builder.Append (head);
+
+              builder.Append (") usuando la cara ");
+              builder.Append (atby);
+              if (putat == board_.Head1Value)
+                builder.Append (" por la izquierda");
+              if (putat == board_.Head2Value)
+                builder.Append (" por la derecha");
+
+              var msg = builder.ToString ();
+
               GLib.Idle.Add (() =>
               {
                 board_.Append (atby, putat, piece);
-                glarea1_!.QueueRender ();
+                headerbar.Subtitle = msg;
+                glarea1_.QueueRender ();
                 return false;
               });
             }
+            else
+            {
+              var msg = $"{a.Player} se pasó";
+              GLib.Idle.Add (() =>
+              {
+                headerbar.Subtitle = msg;
+                return false;
+              });
+            }
+          } else
+          if (arg is Backend.ExchangeArgs)
+          {
+            var a = (Backend.ExchangeArgs) arg;
+            var msg = $"{a.Player} descartó {a.Losses} y tomó {a.Takes}";
+            GLib.Idle.Add (() =>
+              {
+                headerbar.Subtitle = msg;
+                return false;
+              });
           } else
           if (arg is Backend.EmitHandArgs)
           {
@@ -200,6 +242,7 @@ namespace Frontend.Game
             GLib.Idle.Add (() =>
             {
               atril_.ShowPieces (a.Pieces);
+              glarea1_.QueueRender ();
               return false;
             });
           } else
@@ -211,39 +254,50 @@ namespace Frontend.Game
           if (arg is Backend.GameOverArgs)
           {
             var a = (Backend.GameOverArgs) arg;
-            (string Name, int Score)[] scores = a.Scores;
             var best = new List<(string Name, int Score)> ();
-                best.Add (scores.First ());
+            var min = int.MaxValue;
+            var scores = a.Scores;
 
             foreach (var score in scores)
-            if (score.Score == best.First ().Score)
-              best.Add (score);
-            else
             {
-              best.Clear ();
-              best.Add (score);
+              if (min > score.Item2)
+              {
+                best.Clear ();
+                min = score.Item2;
+              }
+
+              if (min == score.Item2)
+                best.Add (score);
             }
 
             var first = best.First ();
             var kind = teamed ? "equipo" : "jugador";
             var kinds = teamed ? "equipos" : "jugadores";
             var match = best.Count;
+            string how;
+
+            if (first.Score > -1)
+              how = $"con {first.Score} puntos";
+            else
+              how = "por pegada";
 
             GLib.Idle.Add (() =>
             {
               if (match > 1)
               {
-                headerbar!.Title = "El juego terminó!";
-                headerbar!.Subtitle = $"Empataron {match} {kinds}";
+                headerbar.Title = "El juego terminó!";
+                headerbar.Subtitle = $"Empataron {match} {kinds}";
               }
               else
               {
-                headerbar!.Title = "El juego terminó!";
+                headerbar.Title = "El juego terminó!";
                 if (teamed)
-                  headerbar!.Subtitle = $"Ganó el equipo \"{first.Name}\" con {first.Score} puntos";
+                  headerbar.Subtitle = $"Ganó el equipo \"{first.Name}\" {how}";
                 else
-                  headerbar!.Subtitle = $"Ganó \"{first.Name}\" con {first.Score} puntos";
+                  headerbar.Subtitle = $"Ganó \"{first.Name}\" {how}";
               }
+
+              glarea1_.QueueRender ();
             return false;
             });
           } else
