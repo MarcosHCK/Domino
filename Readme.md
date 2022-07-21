@@ -1,7 +1,7 @@
 # Domino
 
 ## Sobre los datos del juego
-Los modelos y texturas del juego son archivos que no se modifican una vez que se incorporan al proyecto que asumí no necesitarían del control de versiones (aka. git), además de ocupar mucho espacio, pero son necesarios para la ejecución del proyecto. A tal efecto los subiré comprimidos como parte de una "release". Opcionalmente se puede bajar [aquí](https://dl.dropboxusercontent.com/s/8w5i8p2v08j13n7/models.zip?dl=0). Descomprima y póngalo en 'data/models' (data está en el directorio raíz, donde está también el .sln)
+Los modelos y texturas del juego son archivos que no se modifican una vez que se incorporan al proyecto que asumí no necesitarían del control de versiones (aka. git), además de ocupar mucho espacio, pero son necesarios para la ejecución del proyecto. A tal efecto los subiré comprimidos como parte de una "release". Opcionalmente se puede bajar [aquí](https://dl.dropboxusercontent.com/s/j35wi9kh6ahcou3/models.zip?dl=0). Descomprima y póngalo en 'data/models' ('data' está en el directorio raíz, donde está también el .sln) (debe quedar 'data/model/piece', 'data/model/atril', ...)
 
 ## Para ejecutarlo
 Abra una terminal en la carpeta principal (donde esta Domino.sln) y escriba
@@ -14,7 +14,7 @@ Abra una terminal en la carpeta principal (donde esta Domino.sln) y escriba
   ```sh
   dotnet run --project frontend/application [<Regla>]
   ```
-  Si [\<Regla>] es un parámetro opcional para ejecutar directamente un conjunto de reglas sin tener que pasar por la ventana principal
+  [\<Regla>] es un parámetro opcional para ejecutar directamente un conjunto de reglas sin tener que pasar por la ventana principal
 
 # BackEnd
 Este proyecto está concebido como una plataforma para probar la jugabilidad de juegos de domino donde hayan sido modificadas tantas reglas como ha querido el usuario. Luego su objetivo principal es lograr la representación de los más alocados juegos de domino con el mínimo esfuerzo y la menor cantidad de código nuevo posible cada ocasión. Un ramal secundario de esta intención sería la evaluación de estrategias para jugar al dominó y aunque no abordemos estrategias demasiado complejas, si creo que esta creada una jerarquía que permitiría expresar estrategias de una complejidad bastante elevada y comparar su comportamiento. Como parte del proyecto contamos con una interfaz visual que hace mucho más disfrutable el proceso de la simulación, permitiendo incluso tomar parte a jugadores humanos, por lo cual este proyecto también pudiera ser usado con fines lúdicos. El BackEnd asume la representación del juego de dominó dentro del software, y está completamente separado del FrontEnd, comunicándose con él únicamente a través de archivos txt donde siguiendo un protocolo más menos simple recibe las configuraciones de la partida a simular, para luego simularla en una aplicación de consola. El BackEnd ni siquiera decide quién es el ganador o no. Sencillamente simula la partida hasta su final, manteniendo contacto con el FrontEnd a través de una aplicación de consola para tomar las jugadas de los jugadores humanos así como para ir toda la información que puede interesar mostrar en pantalla. O sea, el BackEnd esta diseñado para simular un solo juego de domino cada vez hasta su final, y posee una jerarquía diseñada exclusivamente para la representación de juegos de domino con las variaciones más bizarras
@@ -126,7 +126,7 @@ Los puntuadores en estos juegos tiene disimiles características, Algunos puntú
 ## Estructura interna
 - `Frontend`: Aquí están todo lo que tiene el **frontend** (la parte gráfica) del proyecto
   - `Application`: punto de entrada a la aplicación. Implementa `Patch.Application` que a su vez implementa `Gtk.Application` que es necesaria para trabajar con **Gtk**.
-  - `IListBoxRow`: representa un objecto que puede adicionarse a un objeto `ListBox`
+  - `IListBoxRow`: representa un objeto que puede adicionarse a un objeto `ListBox`
     - `Rows`
       - `Rows.emparejador`: clase asociada al archivo "Emparejador.txt" de las reglas del juego
       - `Rows.finisher`: clase asociada al archivo "Finisher.txt" de las reglas del juego
@@ -192,6 +192,7 @@ Los puntuadores en estos juegos tiene disimiles características, Algunos puntú
       - `Gl.IPackable`: Representa un objeto que puede empaquetar sus datos en un flujo de bits. Usado por las las implementaciones de `Gl.Light` para empaquetarse en un *SSBO*
       - `Gl.IRotable`: Representa un objeto al que se puede rotar usando una vector como guía
       - `Gl.IScalable`: Representa un objeto al que puede escalarse
+      - `Gl.ISizeable`: Representa un objeto que tiene tamaño en espacio global, o que al menos las dimensiones espaciales tiene algún sentido para este (por ejemplo las fichas de dominó lo tiene, pero las partículas carecen de dimensiones)
       - `Gl.Light`: clase abstracta base para las luces que pueden adicionarse en una escena. Como tal almacena los valor cromáticos de la luz
       - `Gl.Loader`: clase estática que se encarga de cargar en tiempo de ejecución la API de **OpenGL**. Es necesaria porque **OpenGL** es solamente un standard y cada fabricante de tarjetas gráficas crea su propia implementación (**OpenGL** es algo así como una interfaz que cada productor implementa) y que difieren mucho entre cada computadora. Esta clase usa la API especifica para cada plataforma para cargar la biblioteca correspondiente y obtener las funciones (y extensiones) que cada cual implementa
       - `Gl.Material`: encapsula un material, esto es, un concepto abstracto de material. Cada material tiene mapas de iluminación (comúnmente las más reconocibles como texturas), de normales, la brillantez, la rugosidad, etc.
@@ -214,7 +215,18 @@ Los puntuadores en estos juegos tiene disimiles características, Algunos puntú
       - `Gl.Program`: clase que encapsula un programa de shaders. Cada programa se compone de varios shaders, que juntos se envían a la GPU del ordenador y se ejecutan cada vez que se dibuja algo
       - `Gl.SingleModel`: implementa un modelo básico
       - `Gl.SpotLight`: clase que guarda los datos de una luz direccional con una posición concreta (como una linterna)
-      - `Gl.Ssbo`: encapsula un SSBO (Shader Storage Buffer Object), que es un buffer independiente del programa (`Gl.Program`) que puede accederse desde un shader. Posee la cualidad de ser re-dimensionable y modificable (desde el shader), por lo cual puede usarse como una `IList<T>` para almacenar objectos que implementen la interfaz `Gl.IPackable` y puedan ser accesibles desde el código del shader. Actualmente `Gl` usa tres de estos para almacenar los tres tipos de luces que están implementadas
+      - `Gl.Ssbo`: encapsula un SSBO (Shader Storage Buffer Object), que es un buffer independiente del programa (`Gl.Program`) que puede accederse desde un shader. Posee la cualidad de ser re-dimensionable y modificable (desde el shader), por lo cual puede usarse como una `IList<T>` para almacenar objetos que implementen la interfaz `Gl.IPackable` y puedan ser accesibles desde el código del shader. Actualmente `Gl` usa tres de estos para almacenar los tres tipos de luces que están implementadas
       - `Gl.Ubo`: encapsula un UBO (Uniform buffer object), que es una buffer independiente del programa (`Gl.Program`) que puede accederse desde un shader. Es similar al SSBO, pero es de solo lectura (desde el shader) y no se puede re-dimensionar una vez creado, pero es más rápido. Actualmente `Gl` usa uno para almacenar las matrices de transformación
       - `Object`: es la base para los objetos representables con el motor gráfico
-      - `Skybox`: es una objecto especial que representa un "skybox", que no es mas que un modelo muy grande que contiene toda la escena y provoca la ilusión de un espacio abierto
+      - `SingleObject`: clase derivada de `Object` que utiliza como objeto `IDrawable` a un objeto de clase `SingleModel` 
+      - `Skybox`: es una objeto especial que representa un "skybox", que no es mas que un modelo muy grande que contiene toda la escena y provoca la ilusión de un espacio abierto
+
+## Créditos
+En la ejecución del frontend se usaron los recursos (como lectura preparatoria)
+- [learnopengl](https://learnopengl.com/) (tiene unos tutoriales sobre **OpenGL** muy bien explicados, de hecho tiene el único tutorial sobre **OpenGL** que encontré que sirviera para algo más que dibujar dos o tres cosas en modo inmediato)
+- [Khronos OpenGL](https://www.khronos.org/opengl/wiki/) una wiki sobre **OpenGL** muy completa con ejemplos (también usé la [Documentación](https://registry.khronos.org/OpenGL-Refpages/gl4/html/) de **OpenGL**)
+- **OpenGL Optimizations**: realmente no recuerdo donde lo encontré pero lo escribió 'Shanee Nishry (@Lunarsong)' y detalla varias optimizaciones a nivel de código muy buenos que obviamente implementé
+
+Los modelos son de internet (mi sentido artístico no llega tan lejos) y tienen autores (que muy amablemente licenciaron sus arte con CreativeCommons)
+- "Domino Piece 6/1 - Low Poly" (https://skfb.ly/o9RJz) by idanver is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+- "Low-Poly Book Stand" (https://skfb.ly/6TFvD) by Emma-Lie Kamping is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
