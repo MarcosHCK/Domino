@@ -77,7 +77,7 @@ namespace Frontend.Game.Objects
             }
           }
 
-        if (incSign < 0.01)
+        if (incSign < 0.1)
           break;
 
         fontSize += incSign;
@@ -88,6 +88,7 @@ namespace Frontend.Game.Objects
       }
 
       matrix.InitScale (-fontSize, fontSize);
+      matrix.X0 += ((canvasWidth - ext.Width) / 2);
       matrix.X0 += ext.Width;
 
       cairo.FontMatrix = matrix;
@@ -107,11 +108,10 @@ namespace Frontend.Game.Objects
 
       lock (cairo)
       {
-        //cairo.SetSourceRGBA (1, 1, 1, 1);
         cairo.SetSourceSurface (marble, 0, 0);
         cairo.Paint ();
 
-        cairo.SetSourceRGBA (0, 0, 0, 1);
+        cairo.SetSourceRGBA (0.3f, 0.3f, 0.3f, 1);
         cairo.LineWidth = lineWidth;
 
         cairo.MoveTo ((int) topX, (int) topY);
@@ -125,7 +125,7 @@ namespace Frontend.Game.Objects
         cairo.LineWidth = middleW;
         cairo.MoveTo ((int) middleX, (int) middleY);
         cairo.LineTo ((int) middleX2, (int) middleY);
-        cairo.Fill ();
+        cairo.Stroke ();
 
         surface.Flush ();
 
