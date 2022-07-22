@@ -11,6 +11,7 @@ namespace Frontend.Game
   public class Backend
   {
     private Process proc;
+    private ConcurrentStack<ActionArgs> played;
     private ConcurrentQueue<ActionArgs> pendings;
     private long QuitFlag = 0;
     public bool HasExited { get; private set; }
@@ -104,7 +105,14 @@ namespace Frontend.Game
     {
       ActionArgs? action;
       if (pendings.TryDequeue (out action))
+      {
         Action (this, action);
+        played.Push (action);
+      }
+    }
+
+    public void RollBack ()
+    {
     }
 
 #endregion
@@ -412,6 +420,7 @@ namespace Frontend.Game
     private Backend (string binary)
     {
       ProcessStartInfo info;
+      played = new ConcurrentStack<ActionArgs> ();
       pendings = new ConcurrentQueue<ActionArgs> ();
 
       info = new ProcessStartInfo ();

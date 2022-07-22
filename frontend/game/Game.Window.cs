@@ -175,8 +175,11 @@ namespace Frontend.Game
       var board_ = board;
       var atril_ = atril;
       var teamed = false;
+      var started = false;
 
-      actionHandler += (o, arg) =>
+      engine.RollBack ();
+
+      actionHandler = (o, arg) =>
         {
           if (arg is Backend.MoveArgs)
           {
@@ -185,13 +188,23 @@ namespace Frontend.Game
             var putat = a.PutAt;
             var piece = a.Piece;
 
+            if (putat == -1)
+            {
+              if (started)
+              {
+                throw new Exception();
+              }
+
+              started = true;
+            }
+
             if (piece != null)
             {
               var builder = new StringBuilder ();
               int heads = 0;
 
               builder.Append (a.Player);
-              builder.Append (" jugo (");
+              builder.Append (" jugó (");
 
               foreach (var head in piece)
               if (heads++ > 0)
@@ -314,6 +327,9 @@ namespace Frontend.Game
       forward1!.Clicked += clickedHandler;
       engine.Action += actionHandler;
       var keep1_ = keep1;
+
+      while (started != true)
+        engine_.PollNext ();
 
       clock = GLib.Timeout.Add (
         putinterval, () =>
