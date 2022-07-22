@@ -6,7 +6,7 @@ using OpenTK.Mathematics;
 
 namespace Frontend.Engine
 {
-  public abstract class Object : Gl.IDrawable, Gl.ILocalizable, Gl.IRotable, Gl.IScalable
+  public abstract class Object : Gl.IDrawable, Gl.ILocalizable, Gl.IRotable, Gl.IScalable, Gl.ISelectable
   {
     protected Gl.IDrawable Drawable;
 
@@ -18,6 +18,7 @@ namespace Frontend.Engine
     }
 
     public bool Visible { get; set; }
+    public bool Selected { get; set; }
 
     private void UpdateModel ()
     {

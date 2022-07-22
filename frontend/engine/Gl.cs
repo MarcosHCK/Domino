@@ -14,7 +14,8 @@ namespace Frontend.Engine
     public static string DataDir = ".";
     private static bool opentk_done = false;
 
-    private Program program;
+    private Program normal;
+    private Program solid;
     private Pencil pencil;
     private Camera camera;
     private List<IDrawable> objects;
@@ -91,8 +92,12 @@ namespace Frontend.Engine
 
     public void Render ()
     {
-      GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-      program.Use ();
+      GL.Clear
+      (ClearBufferMask.ColorBufferBit
+      | ClearBufferMask.DepthBufferBit
+      | ClearBufferMask.StencilBufferBit);
+  
+      normal.Use ();
 
       if (ShouldUpdate)
         {
@@ -142,6 +147,24 @@ namespace Frontend.Engine
               return Encoding.UTF8.GetString (bytes);
             }
         }
+    }
+
+    private void BindBOs (Program prog)
+    {
+      int pid = prog.Pid;
+      int loc;
+
+      /* UBOs */
+      loc = GL.GetUniformBlockIndex (pid, "aMatrices");
+      GL.UniformBlockBinding (pid, loc, matrices.Binding);
+
+      /* SSBOs */
+      loc = GL.GetProgramResourceIndex (pid, ProgramInterface.ShaderStorageBlock, "bDirLights");
+      GL.ShaderStorageBlockBinding (pid, loc, dirlights.Binding);
+      loc = GL.GetProgramResourceIndex (pid, ProgramInterface.ShaderStorageBlock, "bPointLights");
+      GL.ShaderStorageBlockBinding (pid, loc, pointlights.Binding);
+      loc = GL.GetProgramResourceIndex (pid, ProgramInterface.ShaderStorageBlock, "bSpotLights");
+      GL.ShaderStorageBlockBinding (pid, loc, spotlights.Binding);
     }
 
     public Gl ()
@@ -206,45 +229,45 @@ namespace Frontend.Engine
       GL.CullFace (CullFaceMode.Back);
       GL.FrontFace (FrontFaceDirection.Ccw);
 
-      program = new Program ();
+      normal = new Program ();
+      solid = new Program ();
       pencil = new Pencil ();
       camera = new Camera ();
       matrices = new Ubo<Matrix4> ((int) Matrices.NUMBER);
       dirlights = new Ssbo<Light> ();
       pointlights = new Ssbo<Light> ();
       spotlights = new Ssbo<Light> ();
+      objects = new List<IDrawable> ();
 
       /* camera initial state */
       camera.Position = Vector3.Zero;
       camera.LookAt (0, 0, 0);
       ShouldUpdate = true;
 
-      /* load shaders */
+      /* shaders list */
       var shaders = new List<(string, ShaderType)> ();
+
+      /* solid color draw shader */
+      shaders.Add ((LoadShaderCode ("model.vs.glsl"), ShaderType.VertexShader));
+      shaders.Add ((LoadShaderCode ("solid.fs.glsl"), ShaderType.FragmentShader));
+      solid.Link (shaders.ToArray ());
+      shaders.Clear ();
+
+      locSolidColor = solid.Uniform ("aColor");
+      BindBOs (solid);
+
+      /* normal program (used to draw everything) */
       shaders.Add ((LoadShaderCode ("model.vs.glsl"), ShaderType.VertexShader));
       shaders.Add ((LoadShaderCode ("model.fs.glsl"), ShaderType.FragmentShader));
+      normal.Link (shaders.ToArray ());
+      shaders.Clear ();
 
-      /* link and activate shaders */
-      program.Link (shaders.ToArray ());
-      program.Use ();
+        /* location TODO: put in uniform buffer */
+      locViewPosition = normal.Uniform ("aViewPosition");
+      locShininess = normal.Uniform ("aShininess");
+      BindBOs (normal);
 
-      /* location TODO: put in uniform buffer */
-      locViewPosition = program.Uniform ("aViewPosition");
-      locShininess = program.Uniform ("aShininess");
-
-      int loc;
-
-      /* UBOs */
-      loc = GL.GetUniformBlockIndex (program.Pid, "aMatrices");
-      GL.UniformBlockBinding (program.Pid, loc, matrices.Binding);
-
-      /* SSBOs */
-      loc = GL.GetProgramResourceIndex (program.Pid, ProgramInterface.ShaderStorageBlock, "bDirLights");
-      GL.ShaderStorageBlockBinding (program.Pid, loc, dirlights.Binding);
-      loc = GL.GetProgramResourceIndex (program.Pid, ProgramInterface.ShaderStorageBlock, "bPointLights");
-      GL.ShaderStorageBlockBinding (program.Pid, loc, pointlights.Binding);
-      loc = GL.GetProgramResourceIndex (program.Pid, ProgramInterface.ShaderStorageBlock, "bSpotLights");
-      GL.ShaderStorageBlockBinding (program.Pid, loc, spotlights.Binding);
+      /* Create lights */
 
       DirLight ambient;
       ambient = new DirLight ();
@@ -255,12 +278,11 @@ namespace Frontend.Engine
       dirlights.Add (ambient);
 
       /* bind texture units */
+      normal.Use ();
+
       var unit = 0;
       foreach (var name in samplerNames)
-        GL.Uniform1 (program.Uniform (name), unit++);
-
-      /* render pipe */
-      objects = new List<IDrawable> ();
+        GL.Uniform1 (normal.Uniform (name), unit++);
     }
 
     static Gl ()
