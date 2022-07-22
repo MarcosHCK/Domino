@@ -156,9 +156,9 @@ namespace Frontend.Game.Objects
               Head2 = head;
             }
           else
-          {
-            throw new Exception ();
-          }
+            {
+              throw new Exception ();
+            }
         }
     }
 

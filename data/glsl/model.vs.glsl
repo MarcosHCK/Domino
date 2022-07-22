@@ -15,8 +15,7 @@ layout (location = 4) in vec3 vBitangent;
 out vec3 Position;
 out vec3 Normal;
 out vec3 TexCoords;
-out vec3 Tangent;
-out vec3 Bitangent;
+out mat3 Tbn;
 
 /* Uniforms */
 layout (std140) uniform aMatrices
@@ -31,14 +30,20 @@ layout (std140) uniform aMatrices
   mat4 aMvp;
 };
 
+mat3 CalculateTbn ()
+{
+  vec3 t = normalize (vec3 (aModel * vec4 (vTangent, 0.0)));
+  vec3 b = normalize (vec3 (aModel * vec4 (vBitangent, 0.0)));
+  vec3 n = normalize (vec3 (aModel * vec4 (vNormal, 0.0)));
+  return mat3 (t, b, n);
+}
+
 void main()
 {
-  TexCoords = vTexCoords;
-  Tangent = vTangent;
-  Bitangent = vBitangent;
-
   Position = vec3 (aModel * vec4 (vPos, 1.0));
   Normal = mat3 (transpose (aModelInverse)) * vNormal;
+  TexCoords = vTexCoords;
+  Tbn = CalculateTbn ();
 
   gl_Position = aMvp * vec4 (vPos, 1.0);
 }
